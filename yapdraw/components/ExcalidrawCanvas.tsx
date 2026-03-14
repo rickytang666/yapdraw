@@ -8,7 +8,7 @@ import { mergeElements, prepareForConversion } from '@/lib/excalidraw-helpers'
 import { useDiagramState } from '@/hooks/useDiagramState'
 
 export interface ExcalidrawCanvasHandle {
-  updateDiagram: (elements: ExcalidrawElement[]) => void
+  updateDiagram: (elements: ExcalidrawElement[], opts?: { replace?: boolean }) => void
 }
 
 const STORAGE_KEY = 'yapdraw_elements'
@@ -113,22 +113,34 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle>((_, ref) => {
   }, [])
 
   useImperativeHandle(ref, () => ({
-    updateDiagram(incoming: ExcalidrawElement[]) {
+    updateDiagram(incoming: ExcalidrawElement[], { replace = false } = {}) {
       if (!apiRef.current || !convertToExcalidrawElements) return
-      const existing = [...apiRef.current.getSceneElements()] as ExcalidrawElement[]
-      // Convert LLM elements to native format BEFORE merging.
-      // prepareForConversion: rewrites startBinding/endBinding → start/end so that
-      // convertToExcalidrawElements sets up boundElements on target shapes (required for snapping).
-      // We must do this before convertToExcalidrawElements, not after.
+
+      // prepareForConversion rewrites startBinding/endBinding → start/end so
+      // convertToExcalidrawElements properly sets up boundElements on both shapes.
       const prepared = prepareForConversion(incoming)
-      const convertedIncoming = convertToExcalidrawElements(
+      const converted = convertToExcalidrawElements(
         prepared as Parameters<typeof convertToExcalidrawElements>[0],
         { regenerateIds: false }
       )
-      const merged = mergeElements(existing, convertedIncoming)
-      apiRef.current.updateScene({ elements: merged })
+
+      if (replace) {
+        // Dagre layout: use computed positions as-is, don't merge with old scene.
+        // Merging would override Dagre's optimal positions with stale coordinates.
+        apiRef.current.updateScene({ elements: converted })
+      } else {
+        // Legacy path: preserve manually-dragged positions for existing elements.
+        const existing = [...apiRef.current.getSceneElements()] as ExcalidrawElement[]
+        const merged = mergeElements(existing, converted)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        apiRef.current.updateScene({ elements: merged as any })
+        applyUpdate(merged)
+        apiRef.current.scrollToContent(undefined, { animate: true, duration: 400 })
+        return
+      }
+
       apiRef.current.scrollToContent(undefined, { animate: true, duration: 400 })
-      applyUpdate(merged)
+      applyUpdate(incoming)
     },
   }))
 

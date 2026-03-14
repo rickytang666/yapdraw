@@ -1,17 +1,10 @@
 import { NextRequest } from 'next/server'
 import { generateDiagram } from '@/lib/llm'
-import { ExcalidrawElement } from '@/types/diagram'
-
-interface RequestBody {
-  transcript: string
-  currentElements?: ExcalidrawElement[]
-}
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as RequestBody
+    const body = (await request.json()) as { transcript?: string }
 
-    // Validate transcript
     if (typeof body.transcript !== 'string' || !body.transcript.trim()) {
       return Response.json(
         { error: 'transcript is required and must be a non-empty string' },
@@ -19,11 +12,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const currentElements = Array.isArray(body.currentElements)
-      ? body.currentElements
-      : []
-
-    const elements = await generateDiagram(body.transcript, currentElements)
+    const elements = await generateDiagram(body.transcript)
 
     return Response.json({ elements })
   } catch (error) {

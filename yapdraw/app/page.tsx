@@ -20,7 +20,7 @@ export default function Home() {
         body: JSON.stringify({ transcript: text, currentElements: [] }),
       })
       const { elements }: { elements: ExcalidrawElement[] } = await res.json()
-      canvasRef.current?.updateDiagram(elements)
+      canvasRef.current?.updateDiagram(elements, { replace: true })
     } catch (err) {
       console.error('Failed to generate diagram:', err)
     } finally {
