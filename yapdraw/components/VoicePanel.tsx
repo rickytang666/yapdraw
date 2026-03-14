@@ -1,19 +1,21 @@
 'use client'
 
+import { useState } from 'react'
 import MicButton from './MicButton'
 import TranscriptDisplay from './TranscriptDisplay'
 import InterimIndicator from './InterimIndicator'
 import { useDeepgram } from '@/hooks/useDeepgram'
 
 interface VoicePanelProps {
-  onSilence?: (transcript: string) => void
+  isLoading: boolean
+  onSilence: (transcript: string) => void
+  onMockSubmit?: (text: string) => void
 }
 
-export default function VoicePanel({ onSilence }: VoicePanelProps) {
+export default function VoicePanel({ isLoading, onSilence, onMockSubmit }: VoicePanelProps) {
+  const [mockInput, setMockInput] = useState('')
   const { isListening, interimTranscript, finalTranscript, start, stop, reset } =
-    useDeepgram((transcript) => {
-      onSilence?.(transcript)
-    })
+    useDeepgram(onSilence)
 
   const handleToggle = () => {
     if (isListening) {
@@ -24,21 +26,25 @@ export default function VoicePanel({ onSilence }: VoicePanelProps) {
     }
   }
 
+  const submitMock = () => {
+    if (!mockInput.trim()) return
+    onMockSubmit?.(mockInput.trim())
+    setMockInput('')
+  }
+
   return (
     <div className="flex flex-col h-full bg-zinc-900 text-white">
       {/* Header */}
       <div className="px-6 py-4 border-b border-zinc-800">
         <h1 className="text-lg font-semibold tracking-tight">YapDraw</h1>
-        <p className="text-zinc-400 text-xs mt-0.5">
-          Describe your architecture out loud
-        </p>
+        <p className="text-zinc-400 text-xs mt-0.5">Describe any diagram. It draws itself.</p>
       </div>
 
       {/* Mic button */}
       <div className="flex flex-col items-center gap-3 pt-8 pb-4">
         <MicButton isListening={isListening} onClick={handleToggle} />
         <span className="text-zinc-500 text-xs">
-          {isListening ? 'Listening — pause to generate' : 'Click to start'}
+          {isListening ? 'Listening — pause to generate' : isLoading ? 'Drawing...' : 'Click to start'}
         </span>
       </div>
 
@@ -48,10 +54,22 @@ export default function VoicePanel({ onSilence }: VoicePanelProps) {
         <InterimIndicator text={interimTranscript} />
       </div>
 
-      {/* Status footer */}
-      {onSilence === undefined && finalTranscript && (
-        <div className="px-4 py-3 border-t border-zinc-800 text-zinc-500 text-xs">
-          Silence detected — diagram generation not wired yet
+      {/* Mock text input — remove once real speech is confirmed working */}
+      {onMockSubmit && (
+        <div className="px-4 py-2 border-t border-zinc-800 flex gap-2">
+          <input
+            className="flex-1 text-sm bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+            placeholder="Type to test without mic..."
+            value={mockInput}
+            onChange={(e) => setMockInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') submitMock() }}
+          />
+          <button
+            onClick={submitMock}
+            className="text-sm px-3 py-2 bg-zinc-700 text-white rounded-lg hover:bg-zinc-600"
+          >
+            Go
+          </button>
         </div>
       )}
     </div>
