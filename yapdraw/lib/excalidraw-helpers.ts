@@ -12,18 +12,30 @@ export function mergeElements(
   const existingById = new Map(existing.map((el) => [el.id, el]))
 
   const merged = incoming.map((el) => {
-    const prev = existingById.get(el.id)
-    if (!prev) return el
+    const normalized = normalizeLinearElement(el)
+    const prev = existingById.get(normalized.id)
+    if (!prev) return normalized
     return {
-      ...el,
-      x: prev.x ?? el.x,
-      y: prev.y ?? el.y,
-      width: prev.width ?? el.width,
-      height: prev.height ?? el.height,
+      ...normalized,
+      x: prev.x ?? normalized.x,
+      y: prev.y ?? normalized.y,
+      width: prev.width ?? normalized.width,
+      height: prev.height ?? normalized.height,
     }
   })
 
   return nudgeOverlapping(merged)
+}
+
+/**
+ * Excalidraw requires all arrow/line elements to have a `points` array
+ * where the first point is [0, 0]. LLM often omits this — add it if missing.
+ */
+function normalizeLinearElement(el: ExcalidrawElement): ExcalidrawElement {
+  if (el.type !== 'arrow' && el.type !== 'line') return el
+  if (Array.isArray(el.points) && el.points.length >= 2) return el
+  // Default: a short horizontal line — Excalidraw will recompute once bindings resolve
+  return { ...el, points: [[0, 0], [1, 0]] }
 }
 
 interface BBox { x: number; y: number; w: number; h: number }
