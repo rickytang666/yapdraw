@@ -73,6 +73,7 @@ export default function EditorPage({ params }: Props) {
         }),
       })
       const data = await res.json()
+      if (data.skipped) return
       if (!res.ok || !data.elements) {
         console.error('generate-diagram failed:', data.error ?? data)
         return

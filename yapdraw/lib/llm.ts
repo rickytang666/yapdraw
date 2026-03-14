@@ -50,9 +50,48 @@ export async function generateDiagram(
   }
 
   if (!Array.isArray(graph.nodes) || graph.nodes.length === 0) {
-    console.error('LLM returned empty graph. Parsed:', JSON.stringify(graph))
-    console.error('Raw content:', content)
-    throw new Error('LLM returned empty graph')
+    const intentionalClear = (graph.remove?.nodes?.length ?? 0) > 0
+    if (currentGraph && currentGraph.nodes.length > 0 && !intentionalClear) {
+      // LLM lost its way (no explicit remove signal) — fall back to unchanged current graph
+      console.warn('LLM returned empty nodes on incremental update; keeping current graph')
+      graph = currentGraph
+    } else if (!intentionalClear) {
+      console.error('LLM returned empty graph. Parsed:', JSON.stringify(graph))
+      console.error('Raw content:', content)
+      throw new Error('LLM returned empty graph')
+    }
+    // intentionalClear: user said "delete everything" — allow empty graph through
+  }
+
+  // Safety merge: if this was an incremental update and the LLM kept at least one
+  // existing node ID, restore any nodes/edges it accidentally dropped.
+  // Nodes listed in graph.remove are intentional deletions — never restore those.
+  // If zero IDs match, the LLM intentionally redesigned — don't merge.
+  if (currentGraph) {
+    const explicitlyRemoved = new Set(graph.remove?.nodes ?? [])
+    const llmNodeIds = new Set(graph.nodes.map(n => n.id))
+    const overlap = currentGraph.nodes.filter(n => llmNodeIds.has(n.id) || explicitlyRemoved.has(n.id)).length
+    if (overlap > 0) {
+      const restoredNodes = currentGraph.nodes.filter(
+        n => !llmNodeIds.has(n.id) && !explicitlyRemoved.has(n.id),
+      )
+      const allNodeIds = new Set([...graph.nodes, ...restoredNodes].map(n => n.id))
+      const llmEdgeKeys = new Set(graph.edges.map(e => `${e.from}|${e.to}`))
+      const restoredEdges = (currentGraph.edges ?? []).filter(
+        e =>
+          !llmEdgeKeys.has(`${e.from}|${e.to}`) &&
+          !explicitlyRemoved.has(e.from) &&
+          !explicitlyRemoved.has(e.to) &&
+          allNodeIds.has(e.from) &&
+          allNodeIds.has(e.to),
+      )
+      graph = {
+        direction: graph.direction ?? currentGraph.direction,
+        nodes: [...graph.nodes, ...restoredNodes],
+        edges: [...graph.edges, ...restoredEdges],
+        groups: graph.groups ?? currentGraph.groups,
+      }
+    }
   }
 
   return { elements: layoutGraph(graph), graph }

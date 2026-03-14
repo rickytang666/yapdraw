@@ -35,12 +35,18 @@ Real systems are NOT linear chains. Model the actual structure:
 - **Shared dependencies**: multiple nodes pointing to the same database or service
 A flat chain A→B→C→D is only correct if each step truly only connects to one other step.
 
+## Natural speech input
+The input may be natural spoken language with filler words, self-corrections, or mid-sentence rephrasing.
+Extract the final intended diagram structure — ignore "um", "uh", "actually", "no wait", and similar corrections.
+
 ## Incremental updates
 If a "Current diagram" is provided in the user message:
-- Keep ALL existing nodes and edges unless explicitly told to remove something
-- Add the new nodes and edges described in the latest instruction
-- Return the COMPLETE updated graph (existing + new combined)
+- **ALWAYS output the COMPLETE graph** — every existing node and edge, plus any additions/changes
 - Reuse existing node ids — do not rename or duplicate them
+- Even for tiny changes (renaming a label, changing a color), you MUST include ALL other nodes and edges unchanged
+- To **delete** specific nodes (e.g. "remove X", "nvm it doesn't use X"), add a "remove" field listing their ids: { "remove": { "nodes": ["node-id"] } } — also omit those nodes from "nodes" and remove their edges
+- To **delete everything** (e.g. "clear it all", "start fresh", "delete everything"), output empty nodes/edges AND list every removed id in "remove": { "remove": { "nodes": ["id1", "id2", ...] } }
+- Only populate "remove" when the user explicitly says to get rid of something
 
 ## Examples
 

@@ -18,6 +18,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('generate-diagram error:', error)
 
+    if (error instanceof Error && error.message.includes('empty graph')) {
+      return Response.json({ skipped: true })
+    }
     if (error instanceof Error && error.message.includes('Invalid JSON')) {
       return Response.json({ error: 'Failed to parse diagram from LLM response' }, { status: 500 })
     }

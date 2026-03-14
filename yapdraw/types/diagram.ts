@@ -37,4 +37,5 @@ export interface GraphResponse {
   nodes: GraphNode[]
   edges: GraphEdge[]
   groups?: GraphGroup[]
+  remove?: { nodes?: string[] } // node ids to explicitly delete (incremental updates only)
 }
