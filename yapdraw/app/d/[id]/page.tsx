@@ -4,12 +4,17 @@ import { useRef, useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/lib/db'
+import { nanoid } from 'nanoid'
 import ExcalidrawCanvas, { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
 import VoicePanel from '@/components/VoicePanel'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import EditorTopBar from '@/components/editor/EditorTopBar'
+import VersionHistoryPanel from '@/components/editor/VersionHistoryPanel'
 import { useAutoSave } from '@/hooks/useAutoSave'
+import { useVersionHistory } from '@/hooks/useVersionHistory'
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import type { ExcalidrawElement } from '@/types/diagram'
+import type { Diagram } from '@/types/library'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -20,6 +25,7 @@ export default function EditorPage({ params }: Props) {
   const router = useRouter()
   const canvasRef = useRef<ExcalidrawCanvasHandle>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [showVersionHistory, setShowVersionHistory] = useState(false)
 
   const diagram = useLiveQuery(() => db.diagrams.get(id), [id])
 
@@ -31,25 +37,27 @@ export default function EditorPage({ params }: Props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, !!diagram])
 
-  const { triggerSave, saveStatus } = useAutoSave(id, canvasRef)
+  const { triggerSave, forceSave, saveStatus } = useAutoSave(id, canvasRef)
+  const { pruneVersions } = useVersionHistory(id)
+
+  // Prune old versions on mount
+  useEffect(() => {
+    pruneVersions()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
 
   // Redirect if diagram not found
   useEffect(() => {
     if (diagram === null) router.replace('/')
   }, [diagram, router])
 
-  // Ctrl+S force-save
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault()
-        const elements = canvasRef.current?.getElements() || []
-        triggerSave(elements)
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [triggerSave])
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    'mod+s': () => {
+      const elements = canvasRef.current?.getElements() || []
+      forceSave(elements)
+    },
+  })
 
   async function handleSilence(text: string) {
     if (!text.trim() || !diagram || diagram.locked) return
@@ -77,6 +85,30 @@ export default function EditorPage({ params }: Props) {
     }
   }
 
+  async function handleDuplicate() {
+    if (!diagram) return
+    const newId = nanoid()
+    const now = Date.now()
+    const duplicate: Diagram = {
+      ...diagram,
+      id: newId,
+      name: `${diagram.name} (copy)`,
+      createdAt: now,
+      updatedAt: now,
+      lastOpenedAt: now,
+      version: 1,
+      trashedAt: null,
+      starred: false,
+    }
+    await db.diagrams.add(duplicate)
+    router.push(`/d/${newId}`)
+  }
+
+  async function handleToggleLock() {
+    if (!diagram) return
+    await db.diagrams.update(id, { locked: !diagram.locked })
+  }
+
   if (diagram === undefined) {
     return (
       <div className="flex items-center justify-center h-screen bg-zinc-900 text-zinc-400">
@@ -93,6 +125,10 @@ export default function EditorPage({ params }: Props) {
         onBack={() => router.push('/')}
         onRename={name => db.diagrams.update(id, { name, updatedAt: Date.now() })}
         onStar={starred => db.diagrams.update(id, { starred })}
+        onShowHistory={() => setShowVersionHistory(true)}
+        onDuplicate={handleDuplicate}
+        onToggleLock={handleToggleLock}
+        canvasRef={canvasRef}
       />
       <div className="flex flex-1 min-h-0 overflow-hidden">
         <div className="w-[35%] h-full border-r border-zinc-800 shrink-0">
@@ -109,8 +145,27 @@ export default function EditorPage({ params }: Props) {
             onChange={elements => triggerSave(elements)}
           />
           <LoadingIndicator isLoading={isLoading} />
+
+          {/* Locked overlay */}
+          {diagram?.locked && (
+            <div className="absolute inset-0 pointer-events-none flex items-end justify-center pb-6 z-10">
+              <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/20 border border-yellow-500/40 rounded-lg backdrop-blur-sm">
+                <span className="text-yellow-400 text-sm font-medium">
+                  This diagram is locked. Voice input is disabled.
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Version History Panel */}
+      <VersionHistoryPanel
+        diagramId={id}
+        isOpen={showVersionHistory}
+        onClose={() => setShowVersionHistory(false)}
+        canvasRef={canvasRef}
+      />
     </div>
   )
 }

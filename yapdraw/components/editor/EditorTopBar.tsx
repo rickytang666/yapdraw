@@ -1,10 +1,12 @@
 'use client'
 
-import { IconArrowLeft, IconStar, IconStarFilled } from '@tabler/icons-react'
+import { IconArrowLeft, IconStar, IconStarFilled, IconLock } from '@tabler/icons-react'
 import type { Diagram } from '@/types/library'
 import type { SaveStatus } from '@/hooks/useAutoSave'
+import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
 import InlineName from './InlineName'
 import SaveStatusIndicator from './SaveStatusIndicator'
+import EditorMenu from './EditorMenu'
 
 interface Props {
   diagram: Diagram
@@ -12,9 +14,23 @@ interface Props {
   onBack: () => void
   onRename?: (name: string) => void
   onStar?: (starred: boolean) => void
+  onShowHistory?: () => void
+  onDuplicate?: () => void
+  onToggleLock?: () => void
+  canvasRef?: React.RefObject<ExcalidrawCanvasHandle | null>
 }
 
-export default function EditorTopBar({ diagram, saveStatus, onBack, onRename, onStar }: Props) {
+export default function EditorTopBar({
+  diagram,
+  saveStatus,
+  onBack,
+  onRename,
+  onStar,
+  onShowHistory,
+  onDuplicate,
+  onToggleLock,
+  canvasRef,
+}: Props) {
   return (
     <header className="flex items-center gap-3 h-12 px-4 bg-zinc-900 border-b border-zinc-800 shrink-0">
       <button
@@ -41,9 +57,26 @@ export default function EditorTopBar({ diagram, saveStatus, onBack, onRename, on
         }
       </button>
 
+      {diagram.locked && (
+        <div className="flex items-center gap-1 px-2 py-0.5 bg-yellow-500/20 border border-yellow-500/40 rounded text-yellow-400">
+          <IconLock size={12} />
+          <span className="text-xs font-medium">Locked</span>
+        </div>
+      )}
+
       <div className="flex-1" />
 
       <SaveStatusIndicator status={saveStatus} />
+
+      {canvasRef && onShowHistory && onDuplicate && onToggleLock && (
+        <EditorMenu
+          diagram={diagram}
+          canvasRef={canvasRef}
+          onShowHistory={onShowHistory}
+          onDuplicate={onDuplicate}
+          onToggleLock={onToggleLock}
+        />
+      )}
     </header>
   )
 }

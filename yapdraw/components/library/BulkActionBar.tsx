@@ -7,13 +7,17 @@ import {
   IconFolderSymlink,
   IconTrash,
   IconX,
+  IconPackageExport,
 } from '@tabler/icons-react'
 import FolderPicker from './FolderPicker'
-import type { Folder } from '@/types/library'
+import { exportBulkAsZip } from '@/lib/export'
+import type { Folder, Diagram } from '@/types/library'
 
 interface Props {
   selectedCount: number
   folders: Folder[]
+  diagrams: Diagram[]
+  selectedIds: Set<string>
   onStar: () => void
   onUnstar: () => void
   onMove: (folderId: string | null) => void
@@ -24,6 +28,8 @@ interface Props {
 export default function BulkActionBar({
   selectedCount,
   folders,
+  diagrams,
+  selectedIds,
   onStar,
   onUnstar,
   onMove,
@@ -31,9 +37,23 @@ export default function BulkActionBar({
   onClear,
 }: Props) {
   const [showFolderPicker, setShowFolderPicker] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
   const moveButtonRef = useRef<HTMLDivElement>(null)
 
   if (selectedCount === 0) return null
+
+  async function handleExportZip() {
+    const selected = diagrams.filter(d => selectedIds.has(d.id))
+    if (selected.length === 0) return
+    setIsExporting(true)
+    try {
+      await exportBulkAsZip(selected, 'excalidraw')
+    } catch (err) {
+      console.error('Bulk export failed:', err)
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-4 py-2.5 bg-zinc-800 border border-zinc-600 rounded-xl shadow-2xl shadow-black/50">
@@ -84,6 +104,17 @@ export default function BulkActionBar({
           </div>
         )}
       </div>
+
+      {/* Export ZIP */}
+      <button
+        onClick={handleExportZip}
+        disabled={isExporting}
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        title="Export selected as ZIP"
+      >
+        <IconPackageExport size={15} />
+        <span className="hidden sm:inline">{isExporting ? 'Exporting…' : 'Export ZIP'}</span>
+      </button>
 
       {/* Trash */}
       <button

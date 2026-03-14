@@ -1,0 +1,16 @@
+{
+  "id": "simple-flowchart",
+  "name": "Simple Flowchart",
+  "category": "flowchart",
+  "description": "Start → Process → Decision → End",
+  "suggestedType": "flowchart",
+  "elements": [
+    { "type": "ellipse", "id": "start", "x": 160, "y": 40, "width": 120, "height": 50, "label": { "text": "Start" } },
+    { "type": "arrow", "id": "arr1", "x": 220, "y": 90, "points": [[0, 0], [0, 40]] },
+    { "type": "rectangle", "id": "process1", "x": 120, "y": 130, "width": 200, "height": 60, "label": { "text": "Process Step" } },
+    { "type": "arrow", "id": "arr2", "x": 220, "y": 190, "points": [[0, 0], [0, 40]] },
+    { "type": "diamond", "id": "decision1", "x": 120, "y": 230, "width": 200, "height": 80, "label": { "text": "Decision?" } },
+    { "type": "arrow", "id": "arr3", "x": 220, "y": 310, "points": [[0, 0], [0, 40]] },
+    { "type": "ellipse", "id": "end", "x": 160, "y": 350, "width": 120, "height": 50, "label": { "text": "End" } }
+  ]
+}

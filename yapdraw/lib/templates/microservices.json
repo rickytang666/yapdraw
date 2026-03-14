@@ -1,0 +1,24 @@
+{
+  "id": "microservices",
+  "name": "Microservices",
+  "category": "architecture",
+  "description": "API Gateway + 3 services with databases",
+  "suggestedType": "architecture",
+  "elements": [
+    { "type": "rectangle", "id": "client", "x": 200, "y": 20, "width": 160, "height": 60, "label": { "text": "Client" } },
+    { "type": "arrow", "id": "arr-client-gw", "x": 280, "y": 80, "points": [[0, 0], [0, 40]] },
+    { "type": "rectangle", "id": "gateway", "x": 160, "y": 120, "width": 240, "height": 60, "label": { "text": "API Gateway" } },
+    { "type": "arrow", "id": "arr-gw-svc1", "x": 220, "y": 180, "points": [[0, 0], [-80, 60]] },
+    { "type": "arrow", "id": "arr-gw-svc2", "x": 280, "y": 180, "points": [[0, 0], [0, 60]] },
+    { "type": "arrow", "id": "arr-gw-svc3", "x": 340, "y": 180, "points": [[0, 0], [80, 60]] },
+    { "type": "rectangle", "id": "svc1", "x": 60, "y": 240, "width": 160, "height": 60, "label": { "text": "User Service" } },
+    { "type": "rectangle", "id": "svc2", "x": 200, "y": 240, "width": 160, "height": 60, "label": { "text": "Order Service" } },
+    { "type": "rectangle", "id": "svc3", "x": 340, "y": 240, "width": 160, "height": 60, "label": { "text": "Product Service" } },
+    { "type": "arrow", "id": "arr-svc1-db1", "x": 140, "y": 300, "points": [[0, 0], [0, 40]] },
+    { "type": "arrow", "id": "arr-svc2-db2", "x": 280, "y": 300, "points": [[0, 0], [0, 40]] },
+    { "type": "arrow", "id": "arr-svc3-db3", "x": 420, "y": 300, "points": [[0, 0], [0, 40]] },
+    { "type": "rectangle", "id": "db1", "x": 60, "y": 340, "width": 160, "height": 50, "label": { "text": "Users DB" } },
+    { "type": "rectangle", "id": "db2", "x": 200, "y": 340, "width": 160, "height": 50, "label": { "text": "Orders DB" } },
+    { "type": "rectangle", "id": "db3", "x": 340, "y": 340, "width": 160, "height": 50, "label": { "text": "Products DB" } }
+  ]
+}

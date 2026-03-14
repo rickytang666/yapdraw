@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { IconPlus, IconSearch } from '@tabler/icons-react'
+import { IconPlus, IconSearch, IconUpload } from '@tabler/icons-react'
 import {
   DndContext,
   type DragEndEvent,
@@ -13,10 +13,12 @@ import {
 } from '@dnd-kit/core'
 import { useLibrary } from '@/hooks/useLibrary'
 import { useFolders } from '@/hooks/useFolders'
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { migrateFromLocalStorage } from '@/lib/migrate'
+import { importExcalidrawFile } from '@/lib/import'
 import { db } from '@/lib/db'
 import { nanoid } from 'nanoid'
-import type { Diagram, DiagramType, FolderColor } from '@/types/library'
+import type { Diagram, DiagramType, DiagramTemplate, FolderColor } from '@/types/library'
 import Sidebar from './Sidebar'
 import DiagramGrid from './DiagramGrid'
 import DiagramList from './DiagramList'
@@ -38,6 +40,7 @@ export default function LibraryView() {
   const [showFolderModal, setShowFolderModal] = useState(false)
   const [overFolderId, setOverFolderId] = useState<string | null>(null)
   const searchRef = useRef<HTMLInputElement>(null)
+  const importInputRef = useRef<HTMLInputElement>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -50,21 +53,27 @@ export default function LibraryView() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault()
-        searchRef.current?.focus()
-        searchRef.current?.select()
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    '/': () => {
+      searchRef.current?.focus()
+      searchRef.current?.select()
+    },
+    'mod+k': () => {
+      searchRef.current?.focus()
+      searchRef.current?.select()
+    },
+    'mod+n': () => {
+      if (!isTrash) setShowNewModal(true)
+    },
+    'escape': () => {
+      lib.clearSelection()
+    },
+  })
 
   const isTrash = lib.state.activeSection === 'trash'
 
-  async function handleCreateDiagram(name: string, diagramType: DiagramType) {
+  async function handleCreateDiagram(name: string, diagramType: DiagramType, template?: DiagramTemplate) {
     setShowNewModal(false)
     const id = nanoid()
     const now = Date.now()
@@ -72,11 +81,13 @@ export default function LibraryView() {
       ? lib.state.activeSection.slice(7)
       : null
 
+    const elements = template?.elements ?? []
+
     const diagram: Diagram = {
       id,
       name,
       folderId,
-      elements: [],
+      elements,
       transcript: '',
       diagramType,
       thumbnail: null,
@@ -89,10 +100,10 @@ export default function LibraryView() {
       version: 1,
       trashedAt: null,
       metadata: {
-        elementCount: 0,
+        elementCount: elements.length,
         arrowCount: 0,
         colorPalette: [],
-        generatedVia: 'manual',
+        generatedVia: template ? 'template' : 'manual',
       },
     }
 
@@ -133,6 +144,21 @@ export default function LibraryView() {
     await folderHook.deleteFolder(id)
     if (lib.state.activeSection === `folder:${id}`) {
       lib.setSection('all')
+    }
+  }
+
+  // Import handler
+  async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    // Reset the input so the same file can be imported again
+    e.target.value = ''
+    try {
+      const newId = await importExcalidrawFile(file)
+      router.push(`/d/${newId}`)
+    } catch (err) {
+      console.error('Import failed:', err)
+      alert('Failed to import file. Make sure it is a valid .excalidraw file.')
     }
   }
 
@@ -185,11 +211,6 @@ export default function LibraryView() {
   const selectedIds = lib.state.selectedIds
   const hasBulkSelection = selectedIds.size > 0
 
-  // Collect all tags for TagManager autocomplete
-  const allTags = Array.from(
-    new Set(lib.diagrams.flatMap(d => d.tags))
-  )
-
   return (
     <DndContext
       sensors={sensors}
@@ -214,6 +235,15 @@ export default function LibraryView() {
             onCancel={() => setShowFolderModal(false)}
           />
         )}
+
+        {/* Hidden import file input */}
+        <input
+          ref={importInputRef}
+          type="file"
+          accept=".excalidraw"
+          className="hidden"
+          onChange={handleImportFile}
+        />
 
         <Sidebar
           activeSection={lib.state.activeSection}
@@ -266,6 +296,18 @@ export default function LibraryView() {
                   onToggle={lib.setViewMode}
                 />
               </div>
+            )}
+
+            {/* Import button */}
+            {!isTrash && (
+              <button
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-600 text-sm rounded-md transition-colors"
+                onClick={() => importInputRef.current?.click()}
+                title="Import .excalidraw file"
+              >
+                <IconUpload size={15} />
+                <span className="hidden sm:inline">Import</span>
+              </button>
             )}
 
             {/* New Diagram button */}
@@ -332,6 +374,8 @@ export default function LibraryView() {
           <BulkActionBar
             selectedCount={selectedIds.size}
             folders={lib.folders}
+            diagrams={lib.diagrams}
+            selectedIds={selectedIds}
             onStar={() => lib.bulkStar(Array.from(selectedIds), true)}
             onUnstar={() => lib.bulkStar(Array.from(selectedIds), false)}
             onMove={folderId => lib.bulkMove(Array.from(selectedIds), folderId)}

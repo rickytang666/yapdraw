@@ -12,8 +12,12 @@ import {
   IconChevronRight,
   IconFolder,
   IconFolderOpen,
+  IconPhoto,
+  IconFileExport,
+  IconFileCode,
 } from '@tabler/icons-react'
 import type { Diagram, Folder } from '@/types/library'
+import { exportAsExcalidraw, exportAsJSON } from '@/lib/export'
 
 interface Props {
   diagram: Diagram
@@ -52,12 +56,36 @@ export default function DiagramCardContextMenu({
   }, [onClose])
 
   // Adjust position so menu stays on screen
-  const safeX = Math.min(position.x, window.innerWidth - 200)
-  const safeY = Math.min(position.y, window.innerHeight - 280)
+  const safeX = Math.min(position.x, window.innerWidth - 220)
+  const safeY = Math.min(position.y, window.innerHeight - 360)
 
   function handleItem(fn: () => void) {
     fn()
     onClose()
+  }
+
+  async function handleExportPNG() {
+    onClose()
+    if (!diagram.thumbnail) {
+      alert('No thumbnail available. Open the diagram first to generate one.')
+      return
+    }
+    try {
+      const { exportAsPNG } = await import('@/lib/export')
+      await exportAsPNG(diagram.thumbnail, diagram.name)
+    } catch (err) {
+      console.error('PNG export failed:', err)
+    }
+  }
+
+  function handleExportExcalidraw() {
+    onClose()
+    exportAsExcalidraw(diagram)
+  }
+
+  function handleExportJSON() {
+    onClose()
+    exportAsJSON(diagram)
   }
 
   const sorted = [...folders].sort((a, b) => a.sortOrder - b.sortOrder)
@@ -145,6 +173,35 @@ export default function DiagramCardContextMenu({
             </div>
           )}
         </div>
+
+        {/* Export actions */}
+        <div className="my-1 border-t border-zinc-700" />
+
+        <button
+          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
+          onClick={handleExportPNG}
+        >
+          <IconPhoto size={14} className="shrink-0" />
+          Export as PNG
+        </button>
+
+        <button
+          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
+          onClick={handleExportExcalidraw}
+        >
+          <IconFileExport size={14} className="shrink-0" />
+          Export as .excalidraw
+        </button>
+
+        <button
+          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
+          onClick={handleExportJSON}
+        >
+          <IconFileCode size={14} className="shrink-0" />
+          Export as JSON
+        </button>
+
+        <div className="my-1 border-t border-zinc-700" />
 
         <button
           className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
