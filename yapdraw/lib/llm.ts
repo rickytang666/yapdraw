@@ -11,11 +11,23 @@ const client = new OpenAI({
 const MODEL = process.env.LLM_MODEL || 'openai/gpt-oss-120b'
 
 function extractJSON(content: string): string {
+  // Strip code fences first
   const fenceMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/)
   if (fenceMatch) return fenceMatch[1].trim()
-  const jsonMatch = content.match(/\{[\s\S]*\}/)
-  if (jsonMatch) return jsonMatch[0]
-  return content
+
+  // Find the outermost balanced JSON object
+  const start = content.indexOf('{')
+  if (start === -1) return content
+  let depth = 0
+  for (let i = start; i < content.length; i++) {
+    if (content[i] === '{') depth++
+    else if (content[i] === '}') {
+      depth--
+      if (depth === 0) return content.slice(start, i + 1)
+    }
+  }
+  // Truncated JSON — return what we have from the first brace
+  return content.slice(start)
 }
 
 export async function generateDiagram(
@@ -45,8 +57,12 @@ export async function generateDiagram(
   try {
     graph = JSON.parse(jsonStr) as GraphResponse
   } catch {
-    console.error('Failed to parse LLM response as JSON:', content)
-    throw new Error('Invalid JSON response from LLM')
+    console.warn('Failed to parse LLM response as JSON:', content)
+    if (currentGraph && currentGraph.nodes.length > 0) {
+      console.warn('Falling back to current graph')
+      return { elements: layoutGraph(currentGraph), graph: currentGraph }
+    }
+    throw new Error('LLM returned empty graph')
   }
 
   if (!Array.isArray(graph.nodes) || graph.nodes.length === 0) {
