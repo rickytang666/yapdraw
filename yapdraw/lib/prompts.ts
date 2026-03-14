@@ -64,36 +64,6 @@ If a "Current diagram" is provided in the user message:
   { "from": "node-api", "to": "redis", "label": "cache" }
 ], "groups": [] }
 
-### Fan-in + fan-out with groups (LR)
-"Mobile and web apps hit an API gateway, which routes to auth, catalog, and payment services, all backed by Postgres"
-{ "direction": "LR",
-  "nodes": [
-    { "id": "mobile", "label": "Mobile App", "color": "blue", "group": "clients" },
-    { "id": "web", "label": "Web App", "color": "blue", "group": "clients" },
-    { "id": "gateway", "label": "API Gateway", "color": "purple", "group": "gateway" },
-    { "id": "auth", "label": "Auth Service", "color": "green", "group": "services" },
-    { "id": "catalog", "label": "Catalog Service", "color": "green", "group": "services" },
-    { "id": "payment", "label": "Payment Service", "color": "green", "group": "services" },
-    { "id": "postgres", "label": "PostgreSQL", "color": "teal", "group": "data" }
-  ],
-  "edges": [
-    { "from": "mobile", "to": "gateway", "label": "HTTPS" },
-    { "from": "web", "to": "gateway", "label": "HTTPS" },
-    { "from": "gateway", "to": "auth", "label": "auth" },
-    { "from": "gateway", "to": "catalog", "label": "catalog" },
-    { "from": "gateway", "to": "payment", "label": "payment" },
-    { "from": "auth", "to": "postgres" },
-    { "from": "catalog", "to": "postgres" },
-    { "from": "payment", "to": "postgres" }
-  ],
-  "groups": [
-    { "id": "clients", "label": "Clients", "color": "blue", "nodes": ["mobile", "web"] },
-    { "id": "gateway", "label": "Gateway", "color": "purple", "nodes": ["gateway"] },
-    { "id": "services", "label": "Services", "color": "green", "nodes": ["auth", "catalog", "payment"] },
-    { "id": "data", "label": "Data Layer", "color": "teal", "nodes": ["postgres"] }
-  ]
-}
-
 ### Flowchart with diamond branch (TB)
 "User submits form, validate it, if valid send email and redirect, if invalid show error"
 { "direction": "TB", "nodes": [

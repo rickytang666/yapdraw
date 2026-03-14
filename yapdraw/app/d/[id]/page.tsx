@@ -7,7 +7,8 @@ import { db } from '@/lib/db'
 import { nanoid } from 'nanoid'
 import ExcalidrawCanvas, { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
 import VoicePanel from '@/components/VoicePanel'
-import LoadingIndicator from '@/components/LoadingIndicator'
+import LoadingIndicator, { type LoadingPhase } from '@/components/LoadingIndicator'
+import SkeletonOverlay from '@/components/SkeletonOverlay'
 import EditorTopBar from '@/components/editor/EditorTopBar'
 import VersionHistoryPanel from '@/components/editor/VersionHistoryPanel'
 import { useAutoSave } from '@/hooks/useAutoSave'
@@ -24,7 +25,8 @@ export default function EditorPage({ params }: Props) {
   const { id } = use(params)
   const router = useRouter()
   const canvasRef = useRef<ExcalidrawCanvasHandle>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const abortRef = useRef<AbortController | null>(null)
+  const [loadingPhase, setLoadingPhase] = useState<LoadingPhase>('idle')
   const [showVersionHistory, setShowVersionHistory] = useState(false)
   const [lastGraph, setLastGraph] = useState<GraphResponse | null>(null)
 
@@ -38,6 +40,7 @@ export default function EditorPage({ params }: Props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, !!diagram])
 
+  const isLoading = loadingPhase !== 'idle'
   const { triggerSave, forceSave, saveStatus } = useAutoSave(id, canvasRef)
   const { pruneVersions } = useVersionHistory(id)
 
@@ -62,7 +65,12 @@ export default function EditorPage({ params }: Props) {
 
   async function handleSilence(text: string) {
     if (!text.trim() || !diagram || diagram.locked) return
-    setIsLoading(true)
+
+    // Cancel any in-flight request before starting a new one
+    abortRef.current?.abort()
+    abortRef.current = new AbortController()
+
+    setLoadingPhase('generating')
     try {
       const res = await fetch('/api/generate-diagram', {
         method: 'POST',
@@ -71,6 +79,7 @@ export default function EditorPage({ params }: Props) {
           transcript: text,
           currentGraph: (canvasRef.current?.getElements() ?? []).length > 0 ? lastGraph : null,
         }),
+        signal: abortRef.current.signal,
       })
       const data = await res.json()
       if (data.skipped) return
@@ -80,6 +89,7 @@ export default function EditorPage({ params }: Props) {
       }
       const { elements, graph }: { elements: ExcalidrawElement[]; graph: GraphResponse } = data
       setLastGraph(graph)
+      setLoadingPhase('rendering')
       canvasRef.current?.updateDiagram(elements, { replace: true })
 
       await db.diagrams.update(id, {
@@ -87,9 +97,10 @@ export default function EditorPage({ params }: Props) {
         metadata: { ...diagram.metadata, generatedVia: 'voice' },
       })
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return
       console.error('Failed to generate diagram:', err)
     } finally {
-      setIsLoading(false)
+      setLoadingPhase('idle')
     }
   }
 
@@ -153,7 +164,8 @@ export default function EditorPage({ params }: Props) {
               initialElements={diagram!.elements}
               onChange={elements => triggerSave(elements)}
             />
-            <LoadingIndicator isLoading={isLoading} />
+            {loadingPhase === 'generating' && <SkeletonOverlay />}
+            <LoadingIndicator phase={loadingPhase} />
 
             {/* Locked overlay */}
             {diagram?.locked && (
