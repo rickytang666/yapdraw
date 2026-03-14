@@ -28,7 +28,6 @@ export function useDiagramState() {
   const [elements, setElements] = useState<ExcalidrawElement[]>([])
   const [restored, setRestored] = useState(false)
 
-  // Load saved session on mount (client-only)
   useEffect(() => {
     const saved = loadFromStorage()
     setElements(saved)
@@ -42,7 +41,9 @@ export function useDiagramState() {
 
   const clearDiagram = useCallback(() => {
     setElements([])
-    localStorage.removeItem(STORAGE_KEY)
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEY)
+    }
   }, [])
 
   return { elements, applyUpdate, clearDiagram, restored }
