@@ -4,7 +4,7 @@ import '@excalidraw/excalidraw/index.css'
 import { useEffect, useRef, forwardRef, useImperativeHandle, useState, useCallback, type ComponentProps } from 'react'
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
 import { ExcalidrawElement } from '@/types/diagram'
-import { mergeElements } from '@/lib/excalidraw-helpers'
+import { mergeElements, prepareForConversion } from '@/lib/excalidraw-helpers'
 import { useDiagramState } from '@/hooks/useDiagramState'
 
 export interface ExcalidrawCanvasHandle {
@@ -117,10 +117,12 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle>((_, ref) => {
       if (!apiRef.current || !convertToExcalidrawElements) return
       const existing = [...apiRef.current.getSceneElements()] as ExcalidrawElement[]
       // Convert LLM elements to native format BEFORE merging.
-      // If we merge first and then convert the whole array, existing native elements
-      // get double-converted — corrupting arrow points and triggering "not normalized" errors.
+      // prepareForConversion: rewrites startBinding/endBinding → start/end so that
+      // convertToExcalidrawElements sets up boundElements on target shapes (required for snapping).
+      // We must do this before convertToExcalidrawElements, not after.
+      const prepared = prepareForConversion(incoming)
       const convertedIncoming = convertToExcalidrawElements(
-        incoming as Parameters<typeof convertToExcalidrawElements>[0],
+        prepared as Parameters<typeof convertToExcalidrawElements>[0],
         { regenerateIds: false }
       )
       const merged = mergeElements(existing, convertedIncoming)

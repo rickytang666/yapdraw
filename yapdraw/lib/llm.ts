@@ -67,7 +67,9 @@ export async function generateDiagram(
 ${currentState}
 
 User's description:
-${transcript}`
+${transcript}
+
+Generate a complete diagram that accurately reflects everything described. Include every distinct component or step mentioned — do not summarize or collapse steps.`
 
   const response = await client.chat.completions.create({
     model: MODEL,

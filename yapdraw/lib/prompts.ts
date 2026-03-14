@@ -4,6 +4,14 @@ export const SYSTEM_PROMPT = `You are a diagram generator that converts natural 
 Return exactly: { "elements": [...] }
 Nothing else. No \`\`\`json. No commentary. Just the JSON object.
 
+## Richness Rules (CRITICAL)
+- **Be accurate to the description**: if the user mentions 3 things, draw 3 things. If they describe a full system, draw every component.
+- **Never summarize**: do not collapse multiple steps into one box. Show every distinct component or step that was described.
+- **Label everything**: every shape must have a label. Every arrow should have a label if it carries meaning.
+- **Use color to group**: related components share a color family. Different layers use different colors.
+- For sequence/flow diagrams: show each actor as a tall rectangle, draw vertical dashed lines as lifelines, show each message as a horizontal arrow with a label.
+- For architecture diagrams: group components into zones using large background rectangles, then place shapes inside.
+
 ## Color Palette (use consistently across all tools)
 
 ### Primary Colors

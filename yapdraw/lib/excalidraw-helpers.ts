@@ -6,6 +6,34 @@ const VALID_TYPES = new Set([
 ])
 
 /**
+ * Converts LLM arrow format to the skeleton format expected by convertToExcalidrawElements.
+ *
+ * The LLM outputs: startBinding: { elementId, fixedPoint }
+ * convertToExcalidrawElements expects: start: { id }
+ *
+ * If we pass startBinding/endBinding directly, convertToExcalidrawElements treats them as
+ * already-native data and skips setting up boundElements on the target shapes — so arrows
+ * appear visually correct but don't actually snap/bind.
+ *
+ * Call this BEFORE convertToExcalidrawElements.
+ */
+export function prepareForConversion(elements: ExcalidrawElement[]): ExcalidrawElement[] {
+  return elements.map((el) => {
+    if (el.type !== 'arrow' && el.type !== 'line') return el
+    const out: Record<string, unknown> = { ...el }
+    if (el.startBinding && typeof el.startBinding === 'object' && (el.startBinding as Record<string, unknown>).elementId) {
+      out.start = { id: (el.startBinding as Record<string, unknown>).elementId }
+      delete out.startBinding
+    }
+    if (el.endBinding && typeof el.endBinding === 'object' && (el.endBinding as Record<string, unknown>).elementId) {
+      out.end = { id: (el.endBinding as Record<string, unknown>).elementId }
+      delete out.endBinding
+    }
+    return out as ExcalidrawElement
+  })
+}
+
+/**
  * Merges incoming LLM elements with existing scene elements.
  * - Shape elements (matched by id) keep their x, y, width, height (preserves manual drags)
  * - Arrow positions are NOT preserved — their coordinates must stay consistent with `points`
