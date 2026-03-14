@@ -5,12 +5,12 @@ import { useEffect, useRef, forwardRef, useImperativeHandle, useState } from 're
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
 import { ExcalidrawElement } from '@/types/diagram'
 import { mergeElements } from '@/lib/excalidraw-helpers'
+import { useDiagramState } from '@/hooks/useDiagramState'
 
 export interface ExcalidrawCanvasHandle {
   updateDiagram: (elements: ExcalidrawElement[]) => void
 }
 
-// Browser canvas limit (~16k px). Max CSS dim = limit / devicePixelRatio.
 const BROWSER_CANVAS_LIMIT = 16384
 
 function getSafeMaxDimension(): number {
@@ -26,6 +26,7 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle>((_, ref) => {
   >(null)
   const [safeMax, setSafeMax] = useState(4096)
   const apiRef = useRef<ExcalidrawImperativeAPI | null>(null)
+  const { elements: savedElements, applyUpdate, restored } = useDiagramState()
 
   useEffect(() => {
     setSafeMax(getSafeMaxDimension())
@@ -38,14 +39,30 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle>((_, ref) => {
     })
   }, [])
 
+  // Restore last session once both Excalidraw and localStorage are ready
+  useEffect(() => {
+    if (!apiRef.current || !convertToExcalidrawElements || !restored) return
+    if (savedElements.length === 0) return
+    const converted = convertToExcalidrawElements(
+      savedElements as Parameters<typeof convertToExcalidrawElements>[0],
+      { regenerateIds: false }
+    )
+    apiRef.current.updateScene({ elements: converted })
+    apiRef.current.scrollToContent(undefined, { animate: false })
+  }, [restored, convertToExcalidrawElements]) // eslint-disable-line react-hooks/exhaustive-deps
+
   useImperativeHandle(ref, () => ({
     updateDiagram(incoming: ExcalidrawElement[]) {
       if (!apiRef.current || !convertToExcalidrawElements) return
       const existing = [...apiRef.current.getSceneElements()] as ExcalidrawElement[]
       const merged = mergeElements(existing, incoming)
-      const converted = convertToExcalidrawElements(merged as Parameters<typeof convertToExcalidrawElements>[0], { regenerateIds: false })
+      const converted = convertToExcalidrawElements(
+        merged as Parameters<typeof convertToExcalidrawElements>[0],
+        { regenerateIds: false }
+      )
       apiRef.current.updateScene({ elements: converted })
       apiRef.current.scrollToContent(undefined, { animate: true, duration: 400 })
+      applyUpdate(merged)
     },
   }))
 
