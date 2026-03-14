@@ -6,6 +6,46 @@ const VALID_TYPES = new Set([
 ])
 
 /**
+ * Enriches already-positioned arrow elements with Excalidraw native metadata,
+ * bypassing convertToExcalidrawElements entirely.
+ *
+ * Why: convertToExcalidrawElements is designed for skeleton elements (like
+ * { start: { id: 'A' }, end: { id: 'B' } }). When fed native-layout arrows
+ * (with explicit x/y/points), it produces arrows in a half-converted state
+ * where startBinding/endBinding are ambiguous. Excalidraw's LinearElementEditor
+ * then throws "Linear element is not normalized" whenever a nearby node is dragged.
+ *
+ * By setting startBinding/endBinding to null explicitly and adding native fields
+ * directly, we guarantee the arrows are truly unbound and Excalidraw never tries
+ * to normalize them against a shape.
+ */
+export function enrichArrows(arrows: ExcalidrawElement[]): ExcalidrawElement[] {
+  return arrows.map(el => ({
+    angle: 0,
+    opacity: 100,
+    roughness: 0,
+    fillStyle: 'solid',
+    strokeStyle: 'solid',
+    backgroundColor: 'transparent',
+    seed: Math.floor(Math.random() * 2147483647),
+    version: 1,
+    versionNonce: Math.floor(Math.random() * 2147483647),
+    isDeleted: false as const,
+    groupIds: [],
+    boundElements: [],
+    updated: Date.now(),
+    link: null,
+    locked: false,
+    lastCommittedPoint: null,
+    frameId: null,
+    ...el,
+    // Force null AFTER spread — these must never be set on layout arrows
+    startBinding: null,
+    endBinding: null,
+  }))
+}
+
+/**
  * Converts LLM arrow format to the skeleton format expected by convertToExcalidrawElements.
  *
  * The LLM outputs: startBinding: { elementId, fixedPoint }
