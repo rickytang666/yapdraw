@@ -59,7 +59,7 @@ export default function Home() {
       <div className="w-[35%] h-full border-r border-zinc-200 shrink-0">
         <VoicePanel />
       </div>
-      <div className="flex-1 min-w-0 flex items-center justify-center bg-zinc-100 overflow-auto">
+      <div className="flex-1 min-w-0 min-h-0 flex items-center justify-center bg-zinc-100 overflow-auto">
         <ExcalidrawCanvas ref={canvasRef} />
       </div>
     </div>

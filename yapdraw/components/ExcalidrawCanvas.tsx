@@ -10,16 +10,26 @@ export interface ExcalidrawCanvasHandle {
   updateDiagram: (elements: ExcalidrawElement[]) => void
 }
 
-// Safe canvas size: 1024×768 keeps us under browser limit (16384) at 3× DPR
-const CANVAS_WIDTH = 1024
-const CANVAS_HEIGHT = 768
+// Browser canvas limit (~16k px). Max CSS dim = limit / devicePixelRatio.
+const BROWSER_CANVAS_LIMIT = 16384
+
+function getSafeMaxDimension(): number {
+  if (typeof window === 'undefined') return 4096
+  const dpr = window.devicePixelRatio || 1
+  return Math.floor(BROWSER_CANVAS_LIMIT / dpr)
+}
 
 const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle>((_, ref) => {
   const [Excalidraw, setExcalidraw] = useState<typeof import('@excalidraw/excalidraw').Excalidraw | null>(null)
   const [convertToExcalidrawElements, setConvertToExcalidrawElements] = useState<
     typeof import('@excalidraw/excalidraw').convertToExcalidrawElements | null
   >(null)
+  const [safeMax, setSafeMax] = useState(4096)
   const apiRef = useRef<ExcalidrawImperativeAPI | null>(null)
+
+  useEffect(() => {
+    setSafeMax(getSafeMaxDimension())
+  }, [])
 
   useEffect(() => {
     import('@excalidraw/excalidraw').then((mod) => {
@@ -39,27 +49,27 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle>((_, ref) => {
     },
   }))
 
+  const wrapperStyle = {
+    width: '100%',
+    height: '100%',
+    minWidth: 0,
+    minHeight: 0,
+    maxWidth: safeMax,
+    maxHeight: safeMax,
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
+  }
+
   if (!Excalidraw) {
     return (
-      <div
-        className="flex items-center justify-center bg-zinc-100"
-        style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }}
-      >
+      <div className="flex items-center justify-center bg-zinc-100 w-full h-full self-stretch" style={wrapperStyle}>
         <span className="text-zinc-500">Loading canvas…</span>
       </div>
     )
   }
 
   return (
-    <div
-      className="excalidraw-wrapper"
-      style={{
-        width: CANVAS_WIDTH,
-        height: CANVAS_HEIGHT,
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
+    <div className="excalidraw-wrapper w-full h-full self-stretch" style={wrapperStyle}>
       <Excalidraw
         excalidrawAPI={(api: ExcalidrawImperativeAPI) => { apiRef.current = api }}
         UIOptions={{ canvasActions: { export: false, saveAsImage: false } }}
