@@ -189,13 +189,6 @@ export default function DiagramCard({
           </button>
         </div>
 
-        {/* Starred badge */}
-        {diagram.starred && (
-          <div className="absolute top-2 left-2">
-            <IconStarFilled size={12} className="text-yellow-400" />
-          </div>
-        )}
-
         {/* Selection checkbox */}
         {onToggleSelect && (
           <div
