@@ -105,3 +105,4 @@ excalidraw-mcp/
 tasks/
 CLAUDE.md
 .claude/
+server.ts

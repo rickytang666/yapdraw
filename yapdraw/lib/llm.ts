@@ -54,7 +54,7 @@ ${transcript}`
       { role: 'user', content: userMessage },
     ],
     temperature: 0.7,
-    max_tokens: 4096,
+    max_tokens: 16000, // Increased drastically to handle larger responses
   })
 
   const content = response.choices[0]?.message?.content
