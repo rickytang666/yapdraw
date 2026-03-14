@@ -44,8 +44,9 @@ If a "Current diagram" is provided in the user message:
 - **ALWAYS output the COMPLETE graph** — every existing node and edge, plus any additions/changes
 - Reuse existing node ids — do not rename or duplicate them
 - Even for tiny changes (renaming a label, changing a color), you MUST include ALL other nodes and edges unchanged
-- To **delete** specific nodes (e.g. "remove X", "nvm it doesn't use X"), add a "remove" field listing their ids: { "remove": { "nodes": ["node-id"] } } — also omit those nodes from "nodes" and remove their edges
-- To **delete everything** (e.g. "clear it all", "start fresh", "delete everything"), output empty nodes/edges AND list every removed id in "remove": { "remove": { "nodes": ["id1", "id2", ...] } }
+- To **delete nodes** (e.g. "remove X", "nvm it doesn't use X"), list their ids in "remove.nodes": { "remove": { "nodes": ["node-id"] } } — also omit those nodes from "nodes" and remove their edges
+- To **delete arrows/connections** (e.g. "disconnect A from B", "remove the arrow between X and Y"), list them in "remove.edges": { "remove": { "edges": [{ "from": "a-id", "to": "b-id" }] } } — also omit them from "edges"
+- To **delete everything**, output empty nodes/edges AND list all removed ids in "remove": { "remove": { "nodes": ["id1", ...] } }
 - Only populate "remove" when the user explicitly says to get rid of something
 
 ## Examples

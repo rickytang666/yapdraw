@@ -84,20 +84,24 @@ export async function generateDiagram(
   // Nodes listed in graph.remove are intentional deletions — never restore those.
   // If zero IDs match, the LLM intentionally redesigned — don't merge.
   if (currentGraph) {
-    const explicitlyRemoved = new Set(graph.remove?.nodes ?? [])
+    const explicitlyRemovedNodes = new Set(graph.remove?.nodes ?? [])
+    const explicitlyRemovedEdgeKeys = new Set(
+      (graph.remove?.edges ?? []).map(e => `${e.from}|${e.to}`)
+    )
     const llmNodeIds = new Set(graph.nodes.map(n => n.id))
-    const overlap = currentGraph.nodes.filter(n => llmNodeIds.has(n.id) || explicitlyRemoved.has(n.id)).length
+    const overlap = currentGraph.nodes.filter(n => llmNodeIds.has(n.id) || explicitlyRemovedNodes.has(n.id)).length
     if (overlap > 0) {
       const restoredNodes = currentGraph.nodes.filter(
-        n => !llmNodeIds.has(n.id) && !explicitlyRemoved.has(n.id),
+        n => !llmNodeIds.has(n.id) && !explicitlyRemovedNodes.has(n.id),
       )
       const allNodeIds = new Set([...graph.nodes, ...restoredNodes].map(n => n.id))
       const llmEdgeKeys = new Set(graph.edges.map(e => `${e.from}|${e.to}`))
       const restoredEdges = (currentGraph.edges ?? []).filter(
         e =>
           !llmEdgeKeys.has(`${e.from}|${e.to}`) &&
-          !explicitlyRemoved.has(e.from) &&
-          !explicitlyRemoved.has(e.to) &&
+          !explicitlyRemovedEdgeKeys.has(`${e.from}|${e.to}`) &&
+          !explicitlyRemovedNodes.has(e.from) &&
+          !explicitlyRemovedNodes.has(e.to) &&
           allNodeIds.has(e.from) &&
           allNodeIds.has(e.to),
       )
