@@ -20,7 +20,6 @@ function getSafeMaxDimension(): number {
   return Math.floor(BROWSER_CANVAS_LIMIT / dpr)
 }
 
-/** Native Excalidraw elements have version/versionNonce; skeleton format does not. */
 function isNativeFormat(el: Record<string, unknown>): boolean {
   return el.version != null || el.versionNonce != null
 }
@@ -35,7 +34,10 @@ function loadInitialData(
     if (!Array.isArray(saved) || saved.length === 0) return undefined
     const elements = isNativeFormat(saved[0] as Record<string, unknown>)
       ? saved
-      : mod.convertToExcalidrawElements(saved as Parameters<typeof mod.convertToExcalidrawElements>[0], { regenerateIds: false })
+      : mod.convertToExcalidrawElements(
+          saved as Parameters<typeof mod.convertToExcalidrawElements>[0],
+          { regenerateIds: false }
+        )
     return { elements }
   } catch {
     return undefined
@@ -47,14 +49,17 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle>((_, ref) => {
   const [convertToExcalidrawElements, setConvertToExcalidrawElements] = useState<
     typeof import('@excalidraw/excalidraw').convertToExcalidrawElements | null
   >(null)
-  const [initialData, setInitialData] = useState<{ elements: ExcalidrawElement[] } | undefined>(undefined)
+  // Stored in a ref so the prop value never changes after first mount — prevents Excalidraw
+  // from resetting the scene when hasMountedWithData flips and would have set it to undefined
+  const initialDataRef = useRef<{ elements: ExcalidrawElement[] } | undefined>(undefined)
   const [hasMountedWithData, setHasMountedWithData] = useState(false)
   const [safeMax, setSafeMax] = useState(4096)
   const apiRef = useRef<ExcalidrawImperativeAPI | null>(null)
   const { applyUpdate } = useDiagramState()
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingElementsRef = useRef<ExcalidrawElement[] | null>(null)
+
   const debouncedApplyUpdate = useCallback(
     (elements: ExcalidrawElement[]) => {
       pendingElementsRef.current = elements
@@ -72,26 +77,38 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle>((_, ref) => {
     setSafeMax(getSafeMaxDimension())
   }, [])
 
+  // Flush pending save and cancel timers on unmount
   useEffect(() => {
     return () => {
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
       if (pendingElementsRef.current) {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(pendingElementsRef.current))
-        } catch {
-          /* ignore */
-        }
+        } catch { /* ignore */ }
       }
     }
   }, [])
 
-  // Load module and saved data together — use initialData so Excalidraw gets it on first mount
-  // (updateScene right after API ready gets overwritten by Excalidraw's default initialData — see excalidraw#7585)
+  // Scroll to restored content after Excalidraw confirms it's mounted
+  // (can't call scrollToContent inside excalidrawAPI — _App isn't ready yet)
+  useEffect(() => {
+    if (!hasMountedWithData || !initialDataRef.current?.elements?.length) return
+    scrollTimeoutRef.current = setTimeout(() => {
+      scrollTimeoutRef.current = null
+      apiRef.current?.scrollToContent(undefined, { animate: false })
+    }, 100)
+    return () => {
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
+    }
+  }, [hasMountedWithData])
+
+  // Load module + read localStorage once — store in ref so it's stable as a prop
   useEffect(() => {
     import('@excalidraw/excalidraw').then((mod) => {
+      initialDataRef.current = loadInitialData(mod)
       setExcalidraw(() => mod.Excalidraw)
       setConvertToExcalidrawElements(() => mod.convertToExcalidrawElements)
-      setInitialData(loadInitialData(mod))
     })
   }, [])
 
@@ -132,19 +149,15 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle>((_, ref) => {
   return (
     <div className="excalidraw-wrapper w-full h-full self-stretch" style={wrapperStyle}>
       <Excalidraw
-        initialData={
-          !hasMountedWithData && initialData
-            ? (initialData as unknown as ComponentProps<typeof Excalidraw>['initialData'])
-            : undefined
-        }
+        initialData={initialDataRef.current as ComponentProps<typeof Excalidraw>['initialData']}
         excalidrawAPI={(api: ExcalidrawImperativeAPI) => {
           apiRef.current = api
           setHasMountedWithData(true)
-          if (initialData?.elements?.length) {
-            setTimeout(() => api.scrollToContent(undefined, { animate: false }), 150)
-          }
         }}
-        onChange={(elements) => debouncedApplyUpdate([...elements] as ExcalidrawElement[])}
+        onChange={(elements) => {
+          if (!apiRef.current) return
+          debouncedApplyUpdate([...elements] as ExcalidrawElement[])
+        }}
         UIOptions={{ canvasActions: { export: false, saveAsImage: false } }}
       />
     </div>
