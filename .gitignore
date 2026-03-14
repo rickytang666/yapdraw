@@ -99,3 +99,8 @@ dist/
 .turbo/
 .swc/
 excalidraw-mcp/
+
+# Claude Code workflow (optional per-developer)
+tasks/
+CLAUDE.md
+.claude/
