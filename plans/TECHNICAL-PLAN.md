@@ -2,30 +2,31 @@
 
 ## Prize Track Strategy
 
-| Track | Effort | Verdict |
-|---|---|---|
-| **Main prize** | — | Primary goal |
-| **Bitdeer — Production-Ready AI Tool** | Near zero — just build well and deploy | Yes, target this |
-| **IBM — Best AI Hack using IBM Technology** | ~2 hrs Sprint 3 — swap LLM call to watsonx.ai | Yes, if one person volunteers |
-| **Moorcheh — Efficient Memory** | ~4 hrs, requires Python service alongside Next.js | Skip |
+| Track                                       | Effort                                            | Verdict                       |
+| ------------------------------------------- | ------------------------------------------------- | ----------------------------- |
+| **Main prize**                              | —                                                 | Primary goal                  |
+| **Bitdeer — Production-Ready AI Tool**      | Near zero — just build well and deploy            | Yes, target this              |
+| **IBM — Best AI Hack using IBM Technology** | ~2 hrs Sprint 3 — swap LLM call to watsonx.ai     | Yes, if one person volunteers |
+| **Moorcheh — Efficient Memory**             | ~4 hrs, requires Python service alongside Next.js | Skip                          |
 
 ---
 
 ## Tech Stack
 
-| Layer | Choice | Reason |
-|---|---|---|
-| Framework | Next.js 14 (App Router) | Vercel-native, API routes built in |
-| Language | TypeScript | Catches schema mismatches on Excalidraw types early |
-| Diagramming | `@excalidraw/excalidraw` | Real Excalidraw embed with `updateScene` API |
-| Speech (primary) | Deepgram real-time STT via `@deepgram/sdk` | Accurate on technical vocab, handles noisy rooms, WebSocket streaming |
-| Speech (fallback) | Web Speech API | Zero-setup backup if Deepgram integration stalls |
-| LLM (primary) | OpenAI `gpt-4o` via `openai` SDK | Best at producing valid native Excalidraw JSON reliably; use `gpt-4o-mini` if cost is a concern |
-| LLM (IBM track) | IBM watsonx.ai | Swap-in for IBM prize track only; keep OpenAI as fallback |
-| Styling | Tailwind CSS | Fast layout iteration |
-| Deployment | Vercel | Zero-config Next.js deploy — required for Bitdeer "production-ready" judging |
+| Layer             | Choice                                     | Reason                                                                                          |
+| ----------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| Framework         | Next.js 14 (App Router)                    | Vercel-native, API routes built in                                                              |
+| Language          | TypeScript                                 | Catches schema mismatches on Excalidraw types early                                             |
+| Diagramming       | `@excalidraw/excalidraw`                   | Real Excalidraw embed with `updateScene` API                                                    |
+| Speech (primary)  | Deepgram real-time STT via `@deepgram/sdk` | Accurate on technical vocab, handles noisy rooms, WebSocket streaming                           |
+| Speech (fallback) | Web Speech API                             | Zero-setup backup if Deepgram integration stalls                                                |
+| LLM (primary)     | OpenAI `gpt-4o` via `openai` SDK           | Best at producing valid native Excalidraw JSON reliably; use `gpt-4o-mini` if cost is a concern |
+| LLM (IBM track)   | IBM watsonx.ai                             | Swap-in for IBM prize track only; keep OpenAI as fallback                                       |
+| Styling           | Tailwind CSS                               | Fast layout iteration                                                                           |
+| Deployment        | Vercel                                     | Zero-config Next.js deploy — required for Bitdeer "production-ready" judging                    |
 
 ### Browser Requirement
+
 Any modern browser. Deepgram works everywhere (WebSocket). Web Speech API fallback is Chrome/Edge only — document this.
 
 ---
@@ -34,14 +35,14 @@ Any modern browser. Deepgram works everywhere (WebSocket). Web Speech API fallba
 
 No database. All state is ephemeral and lives in the browser.
 
-| Data | Where it lives |
-|---|---|
-| Excalidraw elements | React state (`useState`) + Excalidraw's internal scene |
-| Transcript text | React state |
-| Interim speech | React state (wiped after each transcript update) |
-| LLM loading state | React state |
-| Session continuity | `localStorage` — save element JSON + transcript on every update, restore on page load |
-| Diagram export | Client-side blob via `exportToBlob` / `exportToSvg` — downloaded directly, never uploaded |
+| Data                | Where it lives                                                                            |
+| ------------------- | ----------------------------------------------------------------------------------------- |
+| Excalidraw elements | React state (`useState`) + Excalidraw's internal scene                                    |
+| Transcript text     | React state                                                                               |
+| Interim speech      | React state (wiped after each transcript update)                                          |
+| LLM loading state   | React state                                                                               |
+| Session continuity  | `localStorage` — save element JSON + transcript on every update, restore on page load     |
+| Diagram export      | Client-side blob via `exportToBlob` / `exportToSvg` — downloaded directly, never uploaded |
 
 `localStorage` gives "resume last session" for free with no backend.
 
@@ -90,23 +91,23 @@ The system prompt gives the LLM a **cheat sheet** (see `lib/prompts.ts`) coverin
 
 ### Arrow `fixedPoint` reference
 
-| Side | fixedPoint |
-|---|---|
-| right | `[1, 0.5]` |
-| left | `[0, 0.5]` |
-| top | `[0.5, 0]` |
+| Side   | fixedPoint |
+| ------ | ---------- |
+| right  | `[1, 0.5]` |
+| left   | `[0, 0.5]` |
+| top    | `[0.5, 0]` |
 | bottom | `[0.5, 1]` |
 
 ### Color palette (LLM chooses, no code mapping)
 
-| Use | Stroke | Fill |
-|---|---|---|
-| Primary / blue | `#1971c2` | `#a5d8ff` |
-| Green / success | `#2f9e44` | `#b2f2bb` |
-| Orange / warning | `#e67700` | `#ffd8a8` |
+| Use               | Stroke    | Fill      |
+| ----------------- | --------- | --------- |
+| Primary / blue    | `#1971c2` | `#a5d8ff` |
+| Green / success   | `#2f9e44` | `#b2f2bb` |
+| Orange / warning  | `#e67700` | `#ffd8a8` |
 | Purple / external | `#6741d9` | `#e5dbff` |
-| Red / danger | `#c92a2a` | `#ffc9c9` |
-| Grey / neutral | `#495057` | `#f1f3f5` |
+| Red / danger      | `#c92a2a` | `#ffc9c9` |
+| Grey / neutral    | `#495057` | `#f1f3f5` |
 
 ### Stable element IDs (agreed in Sprint 0, never changed)
 
@@ -164,26 +165,26 @@ yapdraw/
 
 This table is the source of truth for avoiding merge conflicts. If you need to touch someone else's file, talk first.
 
-| File | Owner | Notes |
-|---|---|---|
-| `app/layout.tsx` | Sprint 0 | Set up once, don't touch |
-| `app/page.tsx` | P4 | Imports stubs from P1/P3 — works immediately, fills in as they finish |
-| `app/api/generate-diagram/route.ts` | P2 | |
-| `app/api/deepgram-token/route.ts` | P3 | |
-| `components/ExcalidrawCanvas.tsx` | P1 | |
-| `components/VoicePanel.tsx` | P4 | |
-| `components/MicButton.tsx` | P3 | |
-| `components/TranscriptDisplay.tsx` | P3 | |
-| `components/InterimIndicator.tsx` | P3 | |
-| `components/LoadingIndicator.tsx` | P4 | |
-| `hooks/useDeepgram.ts` | P3 | |
-| `hooks/useSpeechFallback.ts` | P3 | |
-| `hooks/useDiagramState.ts` | P1 | |
-| `lib/prompts.ts` | P2 | |
-| `lib/llm.ts` | P2 | |
-| `lib/excalidraw-helpers.ts` | P1 | |
-| `types/diagram.ts` | Sprint 0 | Agreed types — change only with full team sign-off |
-| `.env.local` | Each person | Add your own keys locally, never commit this file |
+| File                                | Owner       | Notes                                                                 |
+| ----------------------------------- | ----------- | --------------------------------------------------------------------- |
+| `app/layout.tsx`                    | Sprint 0    | Set up once, don't touch                                              |
+| `app/page.tsx`                      | P4          | Imports stubs from P1/P3 — works immediately, fills in as they finish |
+| `app/api/generate-diagram/route.ts` | P2          |                                                                       |
+| `app/api/deepgram-token/route.ts`   | P3          |                                                                       |
+| `components/ExcalidrawCanvas.tsx`   | P1          |                                                                       |
+| `components/VoicePanel.tsx`         | P4          |                                                                       |
+| `components/MicButton.tsx`          | P3          |                                                                       |
+| `components/TranscriptDisplay.tsx`  | P3          |                                                                       |
+| `components/InterimIndicator.tsx`   | P3          |                                                                       |
+| `components/LoadingIndicator.tsx`   | P4          |                                                                       |
+| `hooks/useDeepgram.ts`              | P3          |                                                                       |
+| `hooks/useSpeechFallback.ts`        | P3          |                                                                       |
+| `hooks/useDiagramState.ts`          | P1          |                                                                       |
+| `lib/prompts.ts`                    | P2          |                                                                       |
+| `lib/llm.ts`                        | P2          |                                                                       |
+| `lib/excalidraw-helpers.ts`         | P1          |                                                                       |
+| `types/diagram.ts`                  | Sprint 0    | Agreed types — change only with full team sign-off                    |
+| `.env.local`                        | Each person | Add your own keys locally, never commit this file                     |
 
 ---
 
@@ -195,7 +196,7 @@ This table is the source of truth for avoiding merge conflicts. If you need to t
 
 ### Steps
 
-- [ ] Create repo on GitHub, share URL with team
+- [x] Create repo on GitHub, share URL with team
 - [ ] `npx create-next-app@latest yapdraw --typescript --tailwind --app`
 - [ ] `npm install @excalidraw/excalidraw openai @deepgram/sdk`
 - [ ] Create `.env.example` with all keys (no values):
@@ -208,16 +209,18 @@ This table is the source of truth for avoiding merge conflicts. If you need to t
   ```
 - [ ] Verify `.env.local` is in `.gitignore`
 - [ ] Create `types/diagram.ts` with agreed types:
+
   ```ts
   // Elements are native Excalidraw JSON — the LLM generates them directly.
   // We use `any` here and rely on Excalidraw's own runtime validation.
   // The only constraint we enforce: every element must have a stable kebab-case id.
-  export type ExcalidrawElement = Record<string, any> & { id: string }
+  export type ExcalidrawElement = Record<string, any> & { id: string };
 
   export interface LLMResponse {
-    elements: ExcalidrawElement[]
+    elements: ExcalidrawElement[];
   }
   ```
+
 - [ ] Create stub files for every file in the structure — just enough to export a no-op so imports don't break:
   - `components/ExcalidrawCanvas.tsx` → `export default function ExcalidrawCanvas() { return <div /> }`
   - `components/VoicePanel.tsx`, `MicButton.tsx`, `TranscriptDisplay.tsx`, `InterimIndicator.tsx`, `LoadingIndicator.tsx` → same pattern
@@ -363,9 +366,9 @@ Merge into `main` at sprint boundaries. **P4 merges last each time** — `page.t
 ### P4 — Example Prompts + Slide Deck + Bitdeer Polish
 
 - [ ] Add 3 example prompt chips to `VoicePanel` spanning different diagram types:
-  - "React frontend calls a Node API, which reads from Postgres and caches in Redis" *(architecture)*
-  - "User submits a form, it gets validated, if valid send a confirmation email, if not show an error" *(flowchart)*
-  - "Customer places an order, warehouse picks and packs it, courier delivers it, customer confirms receipt" *(business process)*
+  - "React frontend calls a Node API, which reads from Postgres and caches in Redis" _(architecture)_
+  - "User submits a form, it gets validated, if valid send a confirmation email, if not show an error" _(flowchart)_
+  - "Customer places an order, warehouse picks and packs it, courier delivers it, customer confirms receipt" _(business process)_
 - [ ] Clicking a chip fires LLM call directly without mic — critical demo safety net in noisy room
 - [ ] **Bitdeer polish targets:**
   - Live deployed Vercel URL (not localhost) — judges will check
