@@ -113,7 +113,10 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
         const allElements = [...convertedShapes, ...enrichedArrows] as ExcalidrawElement[]
 
         if (replace) {
-          apiRef.current.updateScene({ elements: allElements })
+          // Excalidraw API expects its own element types; our ExcalidrawElement is a
+          // lightweight/shared type used across the app.
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          apiRef.current.updateScene({ elements: allElements as any })
         } else {
           const existing = [...apiRef.current.getSceneElements()] as ExcalidrawElement[]
           const merged = mergeElements(existing, allElements)

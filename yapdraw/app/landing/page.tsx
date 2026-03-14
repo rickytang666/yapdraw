@@ -11,29 +11,13 @@ export default function LandingPage() {
     <main className="min-h-screen bg-zinc-900 text-white">
       <div className="mx-auto max-w-6xl px-6 py-16">
         {/* Top bar */}
-        <header className="flex items-center justify-between">
+  <header className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center">
               <IconSparkles size={18} className="text-blue-300" />
             </div>
             <span className="font-semibold tracking-tight">YapDraw</span>
           </div>
-
-          <nav className="flex items-center gap-3">
-            <Link
-              href="/library"
-              className="text-sm text-zinc-300 hover:text-white transition-colors"
-            >
-              Open library
-            </Link>
-            <Link
-              href="/d/new"
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-500 px-4 py-2 text-sm font-medium transition-colors"
-            >
-              <IconMicrophone size={16} />
-              Start drawing
-            </Link>
-          </nav>
         </header>
 
         {/* Hero */}
