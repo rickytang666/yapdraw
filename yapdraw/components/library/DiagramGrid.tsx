@@ -1,23 +1,36 @@
 'use client'
 
-import type { Diagram } from '@/types/library'
+import type { Diagram, Folder } from '@/types/library'
 import DiagramCard from './DiagramCard'
+import EmptyState from './EmptyState'
 
 interface Props {
   diagrams: Diagram[]
+  folders: Folder[]
+  selectedIds: Set<string>
+  onToggleSelect: (id: string) => void
   onStar: (id: string, starred: boolean) => void
   onTrash: (id: string) => void
   onDuplicate: (id: string) => void
+  onRename: (id: string, name: string) => void
+  onMove: (id: string, folderId: string | null) => void
+  emptyVariant?: 'empty-library' | 'empty-folder' | 'no-results'
 }
 
-export default function DiagramGrid({ diagrams, onStar, onTrash, onDuplicate }: Props) {
+export default function DiagramGrid({
+  diagrams,
+  folders,
+  selectedIds,
+  onToggleSelect,
+  onStar,
+  onTrash,
+  onDuplicate,
+  onRename,
+  onMove,
+  emptyVariant = 'empty-library',
+}: Props) {
   if (diagrams.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center flex-1 text-zinc-500 gap-2">
-        <p className="text-lg">No diagrams yet</p>
-        <p className="text-sm">Create a new diagram to get started</p>
-      </div>
-    )
+    return <EmptyState variant={emptyVariant} />
   }
 
   return (
@@ -26,9 +39,14 @@ export default function DiagramGrid({ diagrams, onStar, onTrash, onDuplicate }: 
         <DiagramCard
           key={diagram.id}
           diagram={diagram}
+          folders={folders}
+          selected={selectedIds.has(diagram.id)}
+          onToggleSelect={() => onToggleSelect(diagram.id)}
           onStar={starred => onStar(diagram.id, starred)}
           onTrash={() => onTrash(diagram.id)}
           onDuplicate={() => onDuplicate(diagram.id)}
+          onRename={name => onRename(diagram.id, name)}
+          onMove={folderId => onMove(diagram.id, folderId)}
         />
       ))}
     </div>
