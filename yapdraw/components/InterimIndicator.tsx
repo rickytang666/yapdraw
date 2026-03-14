@@ -6,7 +6,6 @@ interface InterimIndicatorProps {
 
 export default function InterimIndicator({ text }: InterimIndicatorProps) {
   if (!text) return null
-
   return (
     <p className="text-zinc-400 italic text-sm px-4 py-1">
       {text}
