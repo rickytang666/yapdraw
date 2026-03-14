@@ -197,9 +197,9 @@ This table is the source of truth for avoiding merge conflicts. If you need to t
 ### Steps
 
 - [x] Create repo on GitHub, share URL with team
-- [ ] `npx create-next-app@latest yapdraw --typescript --tailwind --app`
-- [ ] `npm install @excalidraw/excalidraw openai @deepgram/sdk`
-- [ ] Create `.env.example` with all keys (no values):
+- [x] `npx create-next-app@latest yapdraw --typescript --tailwind --app`
+- [x] `npm install @excalidraw/excalidraw openai @deepgram/sdk`
+- [x] Create `.env.example` with all keys (no values):
   ```env
   OPENAI_API_KEY=
   DEEPGRAM_API_KEY=
@@ -207,8 +207,8 @@ This table is the source of truth for avoiding merge conflicts. If you need to t
   WATSONX_PROJECT_ID=
   USE_WATSONX=false
   ```
-- [ ] Verify `.env.local` is in `.gitignore`
-- [ ] Create `types/diagram.ts` with agreed types:
+- [x] Verify `.env.local` is in `.gitignore`
+- [x] Create `types/diagram.ts` with agreed types:
 
   ```ts
   // Elements are native Excalidraw JSON — the LLM generates them directly.
