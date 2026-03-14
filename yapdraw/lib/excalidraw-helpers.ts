@@ -54,16 +54,45 @@ function normalizeLinearElement(el: ExcalidrawElement): ExcalidrawElement {
   if (el.type !== 'arrow' && el.type !== 'line') return el
 
   // Arrow defaults: fill in what the LLM commonly omits
-  const withDefaults: ExcalidrawElement = {
+  let withDefaults: ExcalidrawElement = {
     strokeColor: '#1e1e1e',
     strokeWidth: 2,
     endArrowhead: 'arrow',
     ...el,
   }
 
-  if (Array.isArray(withDefaults.points) && withDefaults.points.length >= 2) return withDefaults
-  // Default: a short horizontal line — Excalidraw will recompute once bindings resolve
-  return { ...withDefaults, points: [[0, 0], [1, 0]] }
+  // Excalidraw binding requires focus + gap alongside fixedPoint.
+  // The LLM only sends { elementId, fixedPoint } — add the missing fields.
+  if (withDefaults.startBinding && typeof withDefaults.startBinding === 'object') {
+    withDefaults = {
+      ...withDefaults,
+      startBinding: { focus: 0, gap: 1, ...withDefaults.startBinding },
+    }
+  }
+  if (withDefaults.endBinding && typeof withDefaults.endBinding === 'object') {
+    withDefaults = {
+      ...withDefaults,
+      endBinding: { focus: 0, gap: 1, ...withDefaults.endBinding },
+    }
+  }
+
+  if (!Array.isArray(withDefaults.points) || withDefaults.points.length < 2) {
+    // Default: a short horizontal line — Excalidraw will recompute once bindings resolve
+    return { ...withDefaults, points: [[0, 0], [1, 0]] }
+  }
+
+  // Ensure first point is [0, 0] — Excalidraw throws "not normalized" if it isn't
+  const [p0x, p0y] = withDefaults.points[0] as [number, number]
+  if (p0x !== 0 || p0y !== 0) {
+    return {
+      ...withDefaults,
+      x: (withDefaults.x ?? 0) + p0x,
+      y: (withDefaults.y ?? 0) + p0y,
+      points: (withDefaults.points as [number, number][]).map(([px, py]) => [px - p0x, py - p0y]),
+    }
+  }
+
+  return withDefaults
 }
 
 interface BBox { x: number; y: number; w: number; h: number }

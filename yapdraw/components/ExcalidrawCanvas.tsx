@@ -116,12 +116,15 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle>((_, ref) => {
     updateDiagram(incoming: ExcalidrawElement[]) {
       if (!apiRef.current || !convertToExcalidrawElements) return
       const existing = [...apiRef.current.getSceneElements()] as ExcalidrawElement[]
-      const merged = mergeElements(existing, incoming)
-      const converted = convertToExcalidrawElements(
-        merged as Parameters<typeof convertToExcalidrawElements>[0],
+      // Convert LLM elements to native format BEFORE merging.
+      // If we merge first and then convert the whole array, existing native elements
+      // get double-converted — corrupting arrow points and triggering "not normalized" errors.
+      const convertedIncoming = convertToExcalidrawElements(
+        incoming as Parameters<typeof convertToExcalidrawElements>[0],
         { regenerateIds: false }
       )
-      apiRef.current.updateScene({ elements: converted })
+      const merged = mergeElements(existing, convertedIncoming)
+      apiRef.current.updateScene({ elements: merged })
       apiRef.current.scrollToContent(undefined, { animate: true, duration: 400 })
       applyUpdate(merged)
     },
