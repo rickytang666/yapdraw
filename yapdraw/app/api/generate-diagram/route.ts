@@ -1,3 +1,53 @@
-export async function POST() {
-  return Response.json({ elements: [] })
+import { NextRequest } from 'next/server'
+import { generateDiagram } from '@/lib/llm'
+import { ExcalidrawElement } from '@/types/diagram'
+
+interface RequestBody {
+  transcript: string
+  currentElements?: ExcalidrawElement[]
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = (await request.json()) as RequestBody
+
+    // Validate transcript
+    if (typeof body.transcript !== 'string' || !body.transcript.trim()) {
+      return Response.json(
+        { error: 'transcript is required and must be a non-empty string' },
+        { status: 400 }
+      )
+    }
+
+    const currentElements = Array.isArray(body.currentElements)
+      ? body.currentElements
+      : []
+
+    const elements = await generateDiagram(body.transcript, currentElements)
+
+    return Response.json({ elements })
+  } catch (error) {
+    console.error('generate-diagram error:', error)
+
+    // Handle JSON parse errors from LLM
+    if (error instanceof Error && error.message.includes('Invalid JSON')) {
+      return Response.json(
+        { error: 'Failed to parse diagram from LLM response' },
+        { status: 500 }
+      )
+    }
+
+    // Handle timeout/connection errors
+    if (error instanceof Error && error.message.includes('timeout')) {
+      return Response.json(
+        { error: 'LLM request timed out, please try again' },
+        { status: 503 }
+      )
+    }
+
+    return Response.json(
+      { error: 'Failed to generate diagram' },
+      { status: 500 }
+    )
+  }
 }
