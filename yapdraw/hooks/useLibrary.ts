@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/lib/db'
 import { nanoid } from 'nanoid'
@@ -20,16 +20,29 @@ function savePrefs(prefs: Partial<LibraryState>) {
 }
 
 export function useLibrary() {
-  const saved = useMemo(() => loadPrefs(), [])
-
   const [state, setState] = useState<LibraryState>({
-    activeSection: (saved.activeSection as SidebarSection) || 'all',
-    viewMode: (saved.viewMode as ViewMode) || 'grid',
-    sortField: (saved.sortField as SortField) || 'updatedAt',
-    sortDirection: (saved.sortDirection as SortDirection) || 'desc',
+    activeSection: 'all',
+    viewMode: 'grid',
+    sortField: 'updatedAt',
+    sortDirection: 'desc',
     searchQuery: '',
     selectedIds: new Set(),
   })
+
+  // Load persisted prefs after mount to avoid SSR/client hydration mismatch
+  useEffect(() => {
+    const saved = loadPrefs()
+    if (saved.activeSection || saved.viewMode || saved.sortField || saved.sortDirection) {
+      setState(s => ({
+        ...s,
+        activeSection: (saved.activeSection as SidebarSection) || s.activeSection,
+        viewMode: (saved.viewMode as ViewMode) || s.viewMode,
+        sortField: (saved.sortField as SortField) || s.sortField,
+        sortDirection: (saved.sortDirection as SortDirection) || s.sortDirection,
+      }))
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // ─── Live Queries ─────────────────────────────────────────
 

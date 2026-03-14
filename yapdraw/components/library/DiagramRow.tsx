@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { IconStar, IconStarFilled, IconCopy, IconTrash } from '@tabler/icons-react'
 import type { Diagram, Folder } from '@/types/library'
 
@@ -40,6 +41,12 @@ export default function DiagramRow({
   onDuplicate,
   onTrash,
 }: Props) {
+  const [hasMounted, setHasMounted] = useState(false)
+
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
   const folder = folders.find(f => f.id === diagram.folderId)
   const visibleTags = diagram.tags.slice(0, 2)
   const typeColor = TYPE_COLORS[diagram.diagramType] || 'bg-zinc-700 text-zinc-300'
@@ -88,6 +95,11 @@ export default function DiagramRow({
         {diagram.diagramType}
       </span>
 
+      {/* Updated */}
+      <span className="shrink-0 text-xs text-zinc-500 tabular-nums hidden md:inline">
+        {hasMounted ? formatDate(diagram.updatedAt) : ''}
+      </span>
+
       {/* Folder */}
       <span className="shrink-0 w-28 text-xs text-zinc-500 truncate text-right hidden md:block">
         {folder ? folder.name : '—'}
@@ -112,7 +124,7 @@ export default function DiagramRow({
 
       {/* Date */}
       <span className="shrink-0 text-xs text-zinc-500 w-28 text-right hidden sm:block">
-        {formatDate(diagram.updatedAt)}
+  {hasMounted ? formatDate(diagram.updatedAt) : ''}
       </span>
 
       {/* Actions */}

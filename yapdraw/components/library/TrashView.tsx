@@ -1,5 +1,6 @@
-'use client'
+ 'use client'
 
+import { useEffect, useState } from 'react'
 import { IconTrash, IconArrowBackUp } from '@tabler/icons-react'
 import type { Diagram } from '@/types/library'
 
@@ -17,6 +18,12 @@ function formatDate(ts: number): string {
 }
 
 export default function TrashView({ diagrams, onRestore, onDelete, onEmptyTrash }: Props) {
+  const [hasMounted, setHasMounted] = useState(false)
+
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       <div className="flex items-center justify-between px-6 py-3 border-b border-zinc-800">
@@ -49,7 +56,7 @@ export default function TrashView({ diagrams, onRestore, onDelete, onEmptyTrash 
                 <div>
                   <p className="text-sm font-medium text-white">{d.name}</p>
                   <p className="text-xs text-zinc-500">
-                    Trashed {d.trashedAt ? formatDate(d.trashedAt) : ''}
+                    Trashed {hasMounted && d.trashedAt ? formatDate(d.trashedAt) : ''}
                   </p>
                 </div>
                 <div className="flex gap-2">
