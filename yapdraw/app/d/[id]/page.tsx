@@ -13,7 +13,7 @@ import VersionHistoryPanel from '@/components/editor/VersionHistoryPanel'
 import { useAutoSave } from '@/hooks/useAutoSave'
 import { useVersionHistory } from '@/hooks/useVersionHistory'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
-import type { ExcalidrawElement } from '@/types/diagram'
+import type { ExcalidrawElement, GraphResponse } from '@/types/diagram'
 import type { Diagram } from '@/types/library'
 
 interface Props {
@@ -26,6 +26,7 @@ export default function EditorPage({ params }: Props) {
   const canvasRef = useRef<ExcalidrawCanvasHandle>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showVersionHistory, setShowVersionHistory] = useState(false)
+  const [lastGraph, setLastGraph] = useState<GraphResponse | null>(null)
 
   const diagram = useLiveQuery(() => db.diagrams.get(id), [id])
 
@@ -68,11 +69,17 @@ export default function EditorPage({ params }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           transcript: text,
-          currentElements: diagram.elements,
+          currentGraph: lastGraph,
         }),
       })
-      const { elements }: { elements: ExcalidrawElement[] } = await res.json()
-      canvasRef.current?.updateDiagram(elements)
+      const data = await res.json()
+      if (!res.ok || !data.elements) {
+        console.error('generate-diagram failed:', data.error ?? data)
+        return
+      }
+      const { elements, graph }: { elements: ExcalidrawElement[]; graph: GraphResponse } = data
+      setLastGraph(graph)
+      canvasRef.current?.updateDiagram(elements, { replace: true })
 
       await db.diagrams.update(id, {
         transcript: (diagram.transcript + '\n' + text).trim(),

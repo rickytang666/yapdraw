@@ -50,6 +50,8 @@ export async function generateDiagram(
   }
 
   if (!Array.isArray(graph.nodes) || graph.nodes.length === 0) {
+    console.error('LLM returned empty graph. Parsed:', JSON.stringify(graph))
+    console.error('Raw content:', content)
     throw new Error('LLM returned empty graph')
   }
 

@@ -37,6 +37,8 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
         model: 'nova-2',
         interim_results: 'true',
         smart_format: 'true',
+        utterance_end_ms: '1000',
+        endpointing: '300',
       })
 
       const ws = new WebSocket(
@@ -60,6 +62,18 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
 
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data)
+
+        // utterance_end_ms fires when Deepgram detects end of speech — flush immediately
+        if (data.type === 'UtteranceEnd') {
+          if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
+          if (finalTranscriptRef.current.trim()) {
+            onSilenceRef.current(finalTranscriptRef.current)
+            finalTranscriptRef.current = ''
+            setFinalTranscript('')
+          }
+          return
+        }
+
         const transcript = data.channel?.alternatives?.[0]?.transcript
         if (!transcript) return
 
@@ -82,6 +96,12 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
 
   const stop = useCallback(() => {
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
+    // Flush any accumulated transcript that hasn't been sent yet
+    if (finalTranscriptRef.current.trim()) {
+      onSilenceRef.current(finalTranscriptRef.current)
+      finalTranscriptRef.current = ''
+      setFinalTranscript('')
+    }
     mediaRecorderRef.current?.stop()
     wsRef.current?.close()
     streamRef.current?.getTracks().forEach((t) => t.stop())
