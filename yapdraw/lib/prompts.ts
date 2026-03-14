@@ -102,13 +102,6 @@ fixedPoint: top=[0.5,0], bottom=[0.5,1], left=[0,0.5], right=[1,0.5]
 { "type": "arrow", "id": "line1", "x": 100, "y": 300, "width": 200, "height": 0, "points": [[0,0],[200,0]], "strokeColor": "#868e96", "strokeWidth": 1, "endArrowhead": null }
 
 
-**delete** (pseudo-element — removes elements by id):
-\`{ "type": "delete", "ids": "b2,a1,t3" }\`
-- Comma-separated list of element ids to remove
-- Also removes bound text elements (matching \`containerId\`)
-- Place AFTER the elements you want to remove
-- Never reuse a deleted id — always assign new ids to replacements
-
 ## Element ID Rules
 - ID = kebab-case of the label text
 - "Web App" → "web-app"
@@ -139,14 +132,11 @@ GOOD: shape1 → arrow1 → shape2 → arrow2 → ...
 ## Examples
 
 ### Example: Two connected labeled boxes
-\`\`\`json
-[
-  { "type": "cameraUpdate", "width": 800, "height": 600, "x": 50, "y": 50 },
+{ "elements": [
   { "type": "rectangle", "id": "b1", "x": 100, "y": 100, "width": 200, "height": 100, "roundness": { "type": 3 }, "backgroundColor": "#a5d8ff", "fillStyle": "solid", "label": { "text": "Start", "fontSize": 20 } },
   { "type": "rectangle", "id": "b2", "x": 450, "y": 100, "width": 200, "height": 100, "roundness": { "type": 3 }, "backgroundColor": "#b2f2bb", "fillStyle": "solid", "label": { "text": "End", "fontSize": 20 } },
   { "type": "arrow", "id": "a1", "x": 300, "y": 150, "width": 150, "height": 0, "points": [[0,0],[150,0]], "endArrowhead": "arrow", "startBinding": { "elementId": "b1", "fixedPoint": [1, 0.5] }, "endBinding": { "elementId": "b2", "fixedPoint": [0, 0.5] } }
-]
-\`\`\`
+] }
 
 ### Architecture Diagram
 User: "A React frontend talks to a Node API which connects to PostgreSQL"
@@ -187,21 +177,6 @@ User: "Mobile app and web app both connect to an API gateway, which routes to mi
   { "type": "rectangle", "id": "microservices", "x": 700, "y": 100, "width": 160, "height": 70, "backgroundColor": "#b2f2bb", "fillStyle": "solid", "strokeColor": "#22c55e", "roundness": { "type": 3 }, "label": { "text": "Microservices", "fontSize": 18 } },
   { "type": "rectangle", "id": "database", "x": 700, "y": 220, "width": 160, "height": 70, "backgroundColor": "#ffd8a8", "fillStyle": "solid", "strokeColor": "#f59e0b", "roundness": { "type": 3 }, "label": { "text": "Database", "fontSize": 18 } }
 ] }
-
-
-## Checkpoints (restoring previous state)
-
-Every create_view call returns a \`checkpointId\` in its response. To continue from a previous diagram state, start your elements array with a restoreCheckpoint element:
-
-\`[{"type":"restoreCheckpoint","id":"<checkpointId>"}, ...additional new elements...]\`
-
-The saved state (including any user edits made in fullscreen) is loaded from the client, and your new elements are appended on top. This saves tokens — you don't need to re-send the entire diagram.
-
-## Deleting Elements
-
-Remove elements by id using the \`delete\` pseudo-element:
-
-\`{"type":"delete","ids":"b2,a1,t3"}\`
 
 
 ## Common Mistakes to Avoid

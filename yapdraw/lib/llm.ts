@@ -28,6 +28,23 @@ function extractJSON(content: string): string {
   return content
 }
 
+// Fields the LLM understands — strip Excalidraw internal metadata before sending
+const LLM_FIELDS = new Set([
+  'type', 'id', 'x', 'y', 'width', 'height',
+  'points', 'strokeColor', 'backgroundColor', 'fillStyle',
+  'strokeWidth', 'roundness', 'label', 'text', 'fontSize',
+  'startBinding', 'endBinding', 'startArrowhead', 'endArrowhead',
+  'opacity',
+])
+
+function stripToLLMFields(el: ExcalidrawElement): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const key of LLM_FIELDS) {
+    if (key in el) out[key] = (el as Record<string, unknown>)[key]
+  }
+  return out
+}
+
 /**
  * Generate Excalidraw diagram elements from a transcript
  */
@@ -35,10 +52,15 @@ export async function generateDiagram(
   transcript: string,
   currentElements: ExcalidrawElement[]
 ): Promise<ExcalidrawElement[]> {
-  // Build user message with context
+  // Strip Excalidraw internal fields (version, versionNonce, seed, boundElements, etc.)
+  // so the LLM only sees the fields it knows how to reproduce
+  const cleanElements = currentElements
+    .filter(el => el.type !== 'delete')
+    .map(stripToLLMFields)
+
   const currentState =
-    currentElements.length > 0
-      ? JSON.stringify(currentElements, null, 2)
+    cleanElements.length > 0
+      ? JSON.stringify(cleanElements, null, 2)
       : 'Empty diagram (no existing elements)'
 
   const userMessage = `Current diagram state:
@@ -53,8 +75,8 @@ ${transcript}`
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: userMessage },
     ],
-    temperature: 0.7,
-    max_tokens: 16000, // Increased drastically to handle larger responses
+    temperature: 0.2,
+    max_tokens: 16000,
   })
 
   const content = response.choices[0]?.message?.content

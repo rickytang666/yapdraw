@@ -1,8 +1,15 @@
 import { ExcalidrawElement } from '@/types/diagram'
 
+// Valid Excalidraw element types — filter out any pseudo-types the LLM might hallucinate
+const VALID_TYPES = new Set([
+  'rectangle', 'ellipse', 'diamond', 'arrow', 'line', 'text', 'image', 'frame', 'freedraw',
+])
+
 /**
  * Merges incoming LLM elements with existing scene elements.
- * - Existing elements (matched by id) keep their x, y, width, height (preserves manual drags)
+ * - Shape elements (matched by id) keep their x, y, width, height (preserves manual drags)
+ * - Arrow positions are NOT preserved — their coordinates must stay consistent with `points`
+ * - Invalid/pseudo element types are filtered out
  * - New elements are nudged apart if their bounding boxes overlap >50%
  */
 export function mergeElements(
@@ -11,18 +18,21 @@ export function mergeElements(
 ): ExcalidrawElement[] {
   const existingById = new Map(existing.map((el) => [el.id, el]))
 
-  const merged = incoming.map((el) => {
-    const normalized = normalizeLinearElement(el)
-    const prev = existingById.get(normalized.id)
-    if (!prev) return normalized
-    return {
-      ...normalized,
-      x: prev.x ?? normalized.x,
-      y: prev.y ?? normalized.y,
-      width: prev.width ?? normalized.width,
-      height: prev.height ?? normalized.height,
-    }
-  })
+  const merged = incoming
+    .filter(el => VALID_TYPES.has(el.type))
+    .map((el) => {
+      const normalized = normalizeLinearElement(el)
+      const prev = existingById.get(normalized.id)
+      // Don't preserve positions for arrows — their x/y must match their points array
+      if (!prev || normalized.type === 'arrow' || normalized.type === 'line') return normalized
+      return {
+        ...normalized,
+        x: prev.x ?? normalized.x,
+        y: prev.y ?? normalized.y,
+        width: prev.width ?? normalized.width,
+        height: prev.height ?? normalized.height,
+      }
+    })
 
   return nudgeOverlapping(merged)
 }
