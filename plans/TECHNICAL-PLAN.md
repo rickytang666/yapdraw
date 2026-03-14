@@ -253,14 +253,14 @@ Merge into `main` at sprint boundaries. **P4 merges last each time** — `page.t
 
 ### P1 — Canvas + Render Pipeline
 
-- [ ] Create `ExcalidrawCanvas.tsx` — embed `<Excalidraw>` with a ref to the API object
-- [ ] Expose `updateDiagram(elements: ExcalidrawElement[])` via `useImperativeHandle` or a callback prop
-- [ ] Inside `updateDiagram`: call `convertToExcalidrawElements(incoming)` (handles label → bound text), then `updateScene({ elements: merged })`
-- [ ] Implement `excalidraw-helpers.ts` → `mergeElements(existing, incoming)`:
+- [x] Create `ExcalidrawCanvas.tsx` — embed `<Excalidraw>` with a ref to the API object
+- [x] Expose `updateDiagram(elements: ExcalidrawElement[])` via `useImperativeHandle` or a callback prop
+- [x] Inside `updateDiagram`: call `convertToExcalidrawElements(incoming)` (handles label → bound text), then `updateScene({ elements: merged })`
+- [x] Implement `excalidraw-helpers.ts` → `mergeElements(existing, incoming)`:
   - Match by `id`; for matches, copy `x`, `y`, `width`, `height` from existing (preserves manual drags)
   - Append new elements at LLM-provided positions
-- [ ] Call `scrollToContent()` after each `updateScene`
-- [ ] Smoke test: hardcode 3 native Excalidraw elements (2 rectangles + 1 arrow with bindings) and confirm they render with a connection
+- [x] Call `scrollToContent()` after each `updateScene`
+- [x] Smoke test: hardcode 3 native Excalidraw elements (2 rectangles + 1 arrow with bindings) and confirm they render with a connection
 
 ### P2 — LLM API Route
 
