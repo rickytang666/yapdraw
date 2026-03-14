@@ -38,14 +38,32 @@ export function mergeElements(
 }
 
 /**
- * Excalidraw requires all arrow/line elements to have a `points` array
- * where the first point is [0, 0]. LLM often omits this — add it if missing.
+ * Normalizes elements coming from the LLM:
+ * - Arrows/lines: ensure points array exists, fill in missing visual defaults
+ * - Shapes: ensure label has centered alignment defaults
  */
 function normalizeLinearElement(el: ExcalidrawElement): ExcalidrawElement {
+  // Inject label alignment defaults so text renders centered, not top-left
+  if (el.label && typeof el.label === 'object') {
+    el = {
+      ...el,
+      label: { textAlign: 'center', verticalAlign: 'middle', ...el.label },
+    }
+  }
+
   if (el.type !== 'arrow' && el.type !== 'line') return el
-  if (Array.isArray(el.points) && el.points.length >= 2) return el
+
+  // Arrow defaults: fill in what the LLM commonly omits
+  const withDefaults: ExcalidrawElement = {
+    strokeColor: '#1e1e1e',
+    strokeWidth: 2,
+    endArrowhead: 'arrow',
+    ...el,
+  }
+
+  if (Array.isArray(withDefaults.points) && withDefaults.points.length >= 2) return withDefaults
   // Default: a short horizontal line — Excalidraw will recompute once bindings resolve
-  return { ...el, points: [[0, 0], [1, 0]] }
+  return { ...withDefaults, points: [[0, 0], [1, 0]] }
 }
 
 interface BBox { x: number; y: number; w: number; h: number }
