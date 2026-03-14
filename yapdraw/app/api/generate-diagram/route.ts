@@ -1,17 +1,11 @@
 import { NextRequest } from 'next/server'
 import { generateDiagram } from '@/lib/llm'
-import { ExcalidrawElement } from '@/types/diagram'
-
-interface RequestBody {
-  transcript: string
-  currentElements?: ExcalidrawElement[]
-}
+import type { GraphResponse } from '@/types/diagram'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as RequestBody
+    const body = (await request.json()) as { transcript?: string; currentGraph?: GraphResponse }
 
-    // Validate transcript
     if (typeof body.transcript !== 'string' || !body.transcript.trim()) {
       return Response.json(
         { error: 'transcript is required and must be a non-empty string' },
@@ -19,35 +13,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const currentElements = Array.isArray(body.currentElements)
-      ? body.currentElements
-      : []
-
-    const elements = await generateDiagram(body.transcript, currentElements)
-
-    return Response.json({ elements })
+    const { elements, graph } = await generateDiagram(body.transcript, body.currentGraph)
+    return Response.json({ elements, graph })
   } catch (error) {
     console.error('generate-diagram error:', error)
 
-    // Handle JSON parse errors from LLM
     if (error instanceof Error && error.message.includes('Invalid JSON')) {
-      return Response.json(
-        { error: 'Failed to parse diagram from LLM response' },
-        { status: 500 }
-      )
+      return Response.json({ error: 'Failed to parse diagram from LLM response' }, { status: 500 })
     }
-
-    // Handle timeout/connection errors
     if (error instanceof Error && error.message.includes('timeout')) {
-      return Response.json(
-        { error: 'LLM request timed out, please try again' },
-        { status: 503 }
-      )
+      return Response.json({ error: 'LLM request timed out' }, { status: 503 })
     }
 
-    return Response.json(
-      { error: 'Failed to generate diagram' },
-      { status: 500 }
-    )
+    return Response.json({ error: 'Failed to generate diagram' }, { status: 500 })
   }
 }

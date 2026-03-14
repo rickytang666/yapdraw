@@ -1,6 +1,7 @@
 import OpenAI from 'openai'
-import { ExcalidrawElement, LLMResponse } from '@/types/diagram'
+import type { ExcalidrawElement, GraphResponse } from '@/types/diagram'
 import { SYSTEM_PROMPT } from './prompts'
+import { layoutGraph } from './layout'
 
 const client = new OpenAI({
   baseURL: process.env.LLM_BASE_URL || 'https://vjioo4r1vyvcozuj.us-east-2.aws.endpoints.huggingface.cloud/v1',
@@ -9,43 +10,21 @@ const client = new OpenAI({
 
 const MODEL = process.env.LLM_MODEL || 'openai/gpt-oss-120b'
 
-/**
- * Extract JSON from a string that may be wrapped in markdown code fences
- */
 function extractJSON(content: string): string {
-  // Try to find JSON in markdown code fence
   const fenceMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/)
-  if (fenceMatch) {
-    return fenceMatch[1].trim()
-  }
-
-  // Try to find a JSON object directly
+  if (fenceMatch) return fenceMatch[1].trim()
   const jsonMatch = content.match(/\{[\s\S]*\}/)
-  if (jsonMatch) {
-    return jsonMatch[0]
-  }
-
+  if (jsonMatch) return jsonMatch[0]
   return content
 }
 
-/**
- * Generate Excalidraw diagram elements from a transcript
- */
 export async function generateDiagram(
   transcript: string,
-  currentElements: ExcalidrawElement[]
-): Promise<ExcalidrawElement[]> {
-  // Build user message with context
-  const currentState =
-    currentElements.length > 0
-      ? JSON.stringify(currentElements, null, 2)
-      : 'Empty diagram (no existing elements)'
-
-  const userMessage = `Current diagram state:
-${currentState}
-
-User's description:
-${transcript}`
+  currentGraph?: GraphResponse | null,
+): Promise<{ elements: ExcalidrawElement[]; graph: GraphResponse }> {
+  const userMessage = currentGraph
+    ? `Current diagram:\n${JSON.stringify(currentGraph)}\n\nLatest instruction:\n${transcript}`
+    : transcript
 
   const response = await client.chat.completions.create({
     model: MODEL,
@@ -53,46 +32,26 @@ ${transcript}`
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: userMessage },
     ],
-    temperature: 0.7,
-    max_tokens: 16000, // Increased drastically to handle larger responses
+    temperature: 0.2,
+    max_tokens: 8000,
   })
 
   const content = response.choices[0]?.message?.content
-  if (!content) {
-    console.warn('LLM returned empty content')
-    return []
-  }
+  if (!content) throw new Error('LLM returned empty content')
 
-  // Parse JSON (with fallback for markdown-wrapped responses)
   const jsonStr = extractJSON(content)
-  let parsed: LLMResponse
+  let graph: GraphResponse
 
   try {
-    parsed = JSON.parse(jsonStr) as LLMResponse
-  } catch (err) {
+    graph = JSON.parse(jsonStr) as GraphResponse
+  } catch {
     console.error('Failed to parse LLM response as JSON:', content)
     throw new Error('Invalid JSON response from LLM')
   }
 
-  if (!Array.isArray(parsed.elements)) {
-    console.warn('LLM response missing elements array:', parsed)
-    return []
+  if (!Array.isArray(graph.nodes) || graph.nodes.length === 0) {
+    throw new Error('LLM returned empty graph')
   }
 
-  // Filter out elements without valid IDs
-  const validElements = parsed.elements.filter(
-    (el): el is ExcalidrawElement =>
-      typeof el === 'object' &&
-      el !== null &&
-      typeof el.id === 'string' &&
-      el.id.length > 0
-  )
-
-  if (validElements.length !== parsed.elements.length) {
-    console.warn(
-      `Filtered ${parsed.elements.length - validElements.length} invalid elements`
-    )
-  }
-
-  return validElements
+  return { elements: layoutGraph(graph), graph }
 }

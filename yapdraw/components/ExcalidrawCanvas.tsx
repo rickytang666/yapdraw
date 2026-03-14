@@ -7,10 +7,10 @@ import {
 } from 'react'
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
 import { ExcalidrawElement } from '@/types/diagram'
-import { mergeElements } from '@/lib/excalidraw-helpers'
+import { mergeElements, prepareForConversion } from '@/lib/excalidraw-helpers'
 
 export interface ExcalidrawCanvasHandle {
-  updateDiagram: (elements: ExcalidrawElement[]) => void
+  updateDiagram: (elements: ExcalidrawElement[], opts?: { replace?: boolean }) => void
   getElements: () => ExcalidrawElement[]
   exportThumbnail?: () => Promise<string>
 }
@@ -92,15 +92,28 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
     }, []) // intentionally only run once on mount
 
     useImperativeHandle(ref, () => ({
-      updateDiagram(incoming: ExcalidrawElement[]) {
+      updateDiagram(incoming: ExcalidrawElement[], { replace = false } = {}) {
         if (!apiRef.current || !convertToExcalidrawElements) return
-        const existing = [...apiRef.current.getSceneElements()] as ExcalidrawElement[]
-        const merged = mergeElements(existing, incoming)
+
+        // prepareForConversion rewrites startBinding/endBinding → start/end so
+        // convertToExcalidrawElements properly sets up boundElements on both shapes.
+        const prepared = prepareForConversion(incoming)
         const converted = convertToExcalidrawElements(
-          merged as Parameters<typeof convertToExcalidrawElements>[0],
+          prepared as Parameters<typeof convertToExcalidrawElements>[0],
           { regenerateIds: false }
         )
-        apiRef.current.updateScene({ elements: converted })
+
+        if (replace) {
+          // Dagre layout: use computed positions as-is, don't merge with old scene.
+          apiRef.current.updateScene({ elements: converted })
+        } else {
+          // Legacy path: preserve manually-dragged positions for existing elements.
+          const existing = [...apiRef.current.getSceneElements()] as ExcalidrawElement[]
+          const merged = mergeElements(existing, converted)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          apiRef.current.updateScene({ elements: merged as any })
+        }
+
         apiRef.current.scrollToContent(undefined, { animate: true, duration: 400 })
       },
 
