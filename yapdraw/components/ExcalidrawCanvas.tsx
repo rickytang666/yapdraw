@@ -26,7 +26,7 @@ function isNativeFormat(el: Record<string, unknown>): boolean {
 
 function loadInitialData(
   mod: typeof import('@excalidraw/excalidraw')
-): { elements: ExcalidrawElement[] } | undefined {
+): { elements: ExcalidrawElement[]; appState: { theme: 'dark' } } | undefined {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return undefined
@@ -38,7 +38,7 @@ function loadInitialData(
           saved as Parameters<typeof mod.convertToExcalidrawElements>[0],
           { regenerateIds: false }
         )
-    return { elements }
+    return { elements, appState: { theme: 'dark' } }
   } catch {
     return undefined
   }
@@ -51,7 +51,7 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle>((_, ref) => {
   >(null)
   // Stored in a ref so the prop value never changes after first mount — prevents Excalidraw
   // from resetting the scene when hasMountedWithData flips and would have set it to undefined
-  const initialDataRef = useRef<{ elements: ExcalidrawElement[] } | undefined>(undefined)
+  const initialDataRef = useRef<{ elements?: ExcalidrawElement[]; appState: { theme: 'dark' } } | undefined>(undefined)
   const [hasMountedWithData, setHasMountedWithData] = useState(false)
   const [safeMax, setSafeMax] = useState(4096)
   const apiRef = useRef<ExcalidrawImperativeAPI | null>(null)
@@ -106,7 +106,7 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle>((_, ref) => {
   // Load module + read localStorage once — store in ref so it's stable as a prop
   useEffect(() => {
     import('@excalidraw/excalidraw').then((mod) => {
-      initialDataRef.current = loadInitialData(mod)
+      initialDataRef.current = loadInitialData(mod) ?? { appState: { theme: 'dark' } }
       setExcalidraw(() => mod.Excalidraw)
       setConvertToExcalidrawElements(() => mod.convertToExcalidrawElements)
     })
