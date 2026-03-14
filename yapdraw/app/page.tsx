@@ -8,10 +8,7 @@ import { ExcalidrawElement } from '@/types/diagram'
 
 export default function Home() {
   const canvasRef = useRef<ExcalidrawCanvasHandle>(null)
-  const [isListening, setIsListening] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [transcript, setTranscript] = useState('')
-  const [interimTranscript, setInterimTranscript] = useState('')
 
   async function handleSilence(text: string) {
     if (!text.trim()) return
@@ -31,22 +28,13 @@ export default function Home() {
     }
   }
 
-  function handleMockSubmit(text: string) {
-    setTranscript((prev) => prev ? `${prev}\n${text}` : text)
-    handleSilence(text)
-  }
-
   return (
     <div className="flex h-screen w-screen overflow-hidden">
-      <div className="w-[35%] h-full border-r border-zinc-200 shrink-0">
+      <div className="w-[35%] h-full border-r border-zinc-800 shrink-0">
         <VoicePanel
-          isListening={isListening}
           isLoading={isLoading}
-          transcript={transcript}
-          interimTranscript={interimTranscript}
-          onStart={() => setIsListening(true)}
-          onStop={() => setIsListening(false)}
-          onMockSubmit={handleMockSubmit}
+          onSilence={handleSilence}
+          onMockSubmit={handleSilence}
         />
       </div>
       <div className="flex-1 min-w-0 min-h-0 relative">

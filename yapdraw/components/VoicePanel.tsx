@@ -4,74 +4,74 @@ import { useState } from 'react'
 import MicButton from './MicButton'
 import TranscriptDisplay from './TranscriptDisplay'
 import InterimIndicator from './InterimIndicator'
+import { useDeepgram } from '@/hooks/useDeepgram'
 
 interface VoicePanelProps {
-  isListening: boolean
   isLoading: boolean
-  transcript: string
-  interimTranscript: string
-  onStart: () => void
-  onStop: () => void
-  // Mock input — wired up until P3's speech hook is ready
+  onSilence: (transcript: string) => void
   onMockSubmit?: (text: string) => void
 }
 
-export default function VoicePanel({
-  isListening,
-  isLoading,
-  transcript,
-  interimTranscript,
-  onStart,
-  onStop,
-  onMockSubmit,
-}: VoicePanelProps) {
+export default function VoicePanel({ isLoading, onSilence, onMockSubmit }: VoicePanelProps) {
   const [mockInput, setMockInput] = useState('')
+  const { isListening, interimTranscript, finalTranscript, start, stop, reset } =
+    useDeepgram(onSilence)
+
+  const handleToggle = () => {
+    if (isListening) {
+      stop()
+    } else {
+      reset()
+      start()
+    }
+  }
+
+  const submitMock = () => {
+    if (!mockInput.trim()) return
+    onMockSubmit?.(mockInput.trim())
+    setMockInput('')
+  }
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-zinc-900 text-white">
       {/* Header */}
-      <div className="px-4 py-4 border-b border-zinc-100">
-        <h1 className="text-lg font-semibold text-zinc-900">YapDraw</h1>
-        <p className="text-xs text-zinc-400">Describe any diagram. It draws itself.</p>
+      <div className="px-6 py-4 border-b border-zinc-800">
+        <h1 className="text-lg font-semibold tracking-tight">YapDraw</h1>
+        <p className="text-zinc-400 text-xs mt-0.5">Describe any diagram. It draws itself.</p>
       </div>
 
-      {/* Transcript */}
+      {/* Mic button */}
+      <div className="flex flex-col items-center gap-3 pt-8 pb-4">
+        <MicButton isListening={isListening} onClick={handleToggle} />
+        <span className="text-zinc-500 text-xs">
+          {isListening ? 'Listening — pause to generate' : isLoading ? 'Drawing...' : 'Click to start'}
+        </span>
+      </div>
+
+      {/* Transcript area */}
       <div className="flex-1 overflow-y-auto py-4 space-y-2">
-        <TranscriptDisplay transcript={transcript} />
+        <TranscriptDisplay transcript={finalTranscript} />
         <InterimIndicator text={interimTranscript} />
       </div>
 
-      {/* Mock text input — remove once P3's speech is wired */}
+      {/* Mock text input — remove once real speech is confirmed working */}
       {onMockSubmit && (
-        <div className="px-4 py-2 border-t border-zinc-100 flex gap-2">
+        <div className="px-4 py-2 border-t border-zinc-800 flex gap-2">
           <input
-            className="flex-1 text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-300"
-            placeholder="Type a description to test..."
+            className="flex-1 text-sm bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+            placeholder="Type to test without mic..."
             value={mockInput}
             onChange={(e) => setMockInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && mockInput.trim()) {
-                onMockSubmit(mockInput.trim())
-                setMockInput('')
-              }
-            }}
+            onKeyDown={(e) => { if (e.key === 'Enter') submitMock() }}
           />
           <button
-            onClick={() => { if (mockInput.trim()) { onMockSubmit(mockInput.trim()); setMockInput('') } }}
-            className="text-sm px-3 py-2 bg-zinc-800 text-white rounded-lg hover:bg-zinc-700"
+            onClick={submitMock}
+            className="text-sm px-3 py-2 bg-zinc-700 text-white rounded-lg hover:bg-zinc-600"
           >
             Go
           </button>
         </div>
       )}
-
-      {/* Mic button */}
-      <div className="px-4 py-5 border-t border-zinc-100 flex items-center justify-between">
-        <div className="text-xs text-zinc-400">
-          {isListening ? 'Listening...' : isLoading ? 'Drawing...' : 'Click mic to start'}
-        </div>
-        <MicButton isListening={isListening} onStart={onStart} onStop={onStop} />
-      </div>
     </div>
   )
 }

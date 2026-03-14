@@ -1,27 +1,25 @@
 'use client'
 
-import { IconMicrophone, IconMicrophoneOff } from '@tabler/icons-react'
+import { IconMicrophone } from '@tabler/icons-react'
 
 interface MicButtonProps {
   isListening: boolean
-  onStart: () => void
-  onStop: () => void
+  onClick: () => void
 }
 
-export default function MicButton({ isListening, onStart, onStop }: MicButtonProps) {
+export default function MicButton({ isListening, onClick }: MicButtonProps) {
   return (
     <button
-      onClick={isListening ? onStop : onStart}
-      className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${
-        isListening
-          ? 'bg-red-500 animate-pulse shadow-lg shadow-red-200'
-          : 'bg-zinc-800 hover:bg-zinc-700'
+      onClick={onClick}
+      className={`relative flex items-center justify-center w-16 h-16 rounded-full transition-colors ${
+        isListening ? 'bg-red-500 hover:bg-red-600' : 'bg-zinc-700 hover:bg-zinc-600'
       }`}
+      aria-label={isListening ? 'Stop recording' : 'Start recording'}
     >
-      {isListening
-        ? <IconMicrophoneOff size={24} color="white" />
-        : <IconMicrophone size={24} color="white" />
-      }
+      {isListening && (
+        <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-30" />
+      )}
+      <IconMicrophone size={26} color="white" />
     </button>
   )
 }
