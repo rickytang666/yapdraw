@@ -145,24 +145,26 @@ export default function EditorPage({ params }: Props) {
             onMockSubmit={handleSilence}
           />
         </div>
-        <div className="flex-1 min-w-0 min-h-0 relative">
-          <ExcalidrawCanvas
-            ref={canvasRef}
-            initialElements={diagram!.elements}
-            onChange={elements => triggerSave(elements)}
-          />
-          <LoadingIndicator isLoading={isLoading} />
+        <div className="flex-1 min-w-0 min-h-0 p-3 bg-zinc-900">
+          <div className="relative w-full h-full rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800">
+            <ExcalidrawCanvas
+              ref={canvasRef}
+              initialElements={diagram!.elements}
+              onChange={elements => triggerSave(elements)}
+            />
+            <LoadingIndicator isLoading={isLoading} />
 
-          {/* Locked overlay */}
-          {diagram?.locked && (
-            <div className="absolute inset-0 pointer-events-none flex items-end justify-center pb-6 z-10">
-              <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/20 border border-yellow-500/40 rounded-lg backdrop-blur-sm">
-                <span className="text-yellow-400 text-sm font-medium">
-                  This diagram is locked. Voice input is disabled.
-                </span>
+            {/* Locked overlay */}
+            {diagram?.locked && (
+              <div className="absolute inset-0 pointer-events-none flex items-end justify-center pb-6 z-10">
+                <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/20 border border-yellow-500/40 rounded-lg backdrop-blur-sm">
+                  <span className="text-yellow-400 text-sm font-medium">
+                    This diagram is locked. Voice input is disabled.
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
