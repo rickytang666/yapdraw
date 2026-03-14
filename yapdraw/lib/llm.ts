@@ -20,22 +20,24 @@ function extractJSON(content: string): string {
 
 export async function generateDiagram(
   transcript: string,
-): Promise<ExcalidrawElement[]> {
+  currentGraph?: GraphResponse | null,
+): Promise<{ elements: ExcalidrawElement[]; graph: GraphResponse }> {
+  const userMessage = currentGraph
+    ? `Current diagram:\n${JSON.stringify(currentGraph)}\n\nLatest instruction:\n${transcript}`
+    : transcript
+
   const response = await client.chat.completions.create({
     model: MODEL,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: transcript },
+      { role: 'user', content: userMessage },
     ],
     temperature: 0.2,
     max_tokens: 8000,
   })
 
   const content = response.choices[0]?.message?.content
-  if (!content) {
-    console.warn('LLM returned empty content')
-    return []
-  }
+  if (!content) throw new Error('LLM returned empty content')
 
   const jsonStr = extractJSON(content)
   let graph: GraphResponse
@@ -48,10 +50,8 @@ export async function generateDiagram(
   }
 
   if (!Array.isArray(graph.nodes) || graph.nodes.length === 0) {
-    console.warn('LLM returned empty or invalid graph:', graph)
-    return []
+    throw new Error('LLM returned empty graph')
   }
 
-  // Run Dagre layout → Excalidraw elements
-  return layoutGraph(graph)
+  return { elements: layoutGraph(graph), graph }
 }

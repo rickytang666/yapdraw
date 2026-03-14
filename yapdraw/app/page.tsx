@@ -4,11 +4,12 @@ import { useRef, useState } from 'react'
 import ExcalidrawCanvas, { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
 import VoicePanel from '@/components/VoicePanel'
 import LoadingIndicator from '@/components/LoadingIndicator'
-import { ExcalidrawElement } from '@/types/diagram'
+import type { ExcalidrawElement, GraphResponse } from '@/types/diagram'
 
 export default function Home() {
   const canvasRef = useRef<ExcalidrawCanvasHandle>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [lastGraph, setLastGraph] = useState<GraphResponse | null>(null)
 
   async function handleSilence(text: string) {
     if (!text.trim()) return
@@ -17,9 +18,10 @@ export default function Home() {
       const res = await fetch('/api/generate-diagram', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcript: text, currentElements: [] }),
+        body: JSON.stringify({ transcript: text, currentGraph: lastGraph }),
       })
-      const { elements }: { elements: ExcalidrawElement[] } = await res.json()
+      const { elements, graph }: { elements: ExcalidrawElement[]; graph: GraphResponse } = await res.json()
+      setLastGraph(graph)
       canvasRef.current?.updateDiagram(elements, { replace: true })
     } catch (err) {
       console.error('Failed to generate diagram:', err)
