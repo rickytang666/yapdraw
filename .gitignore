@@ -1,0 +1,100 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Next.js
+.next/
+out/
+build/
+
+# Environment variables — NEVER commit these
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Testing
+coverage/
+.nyc_output/
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Package managers — commit only one lockfile, ignore the rest
+# (uncomment the ones you're NOT using)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Cache
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+*.tgz
+
+# Exports / generated output
+*.png
+*.svg
+*.excalidraw
+# ^ uncomment if you don't want accidental diagram exports committed
+# leave commented if you want to commit sample diagrams to the repo
+
+# Python (IBM watsonx / Moorcheh boilerplate)
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.Python
+venv/
+.venv/
+env/
+ENV/
+*.egg-info/
+dist/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Misc
+.turbo/
+.swc/
+excalidraw-mcp/
