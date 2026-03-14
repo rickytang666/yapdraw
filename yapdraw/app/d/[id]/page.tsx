@@ -130,7 +130,7 @@ export default function EditorPage({ params }: Props) {
       <EditorTopBar
         diagram={diagram!}
         saveStatus={saveStatus}
-        onBack={() => router.push('/')}
+  onBack={() => router.push('/library')}
         onRename={name => db.diagrams.update(id, { name, updatedAt: Date.now() })}
         onStar={starred => db.diagrams.update(id, { starred })}
         onShowHistory={() => setShowVersionHistory(true)}
