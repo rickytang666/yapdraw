@@ -69,7 +69,7 @@ export default function EditorPage({ params }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           transcript: text,
-          currentGraph: lastGraph,
+          currentGraph: (canvasRef.current?.getElements() ?? []).length > 0 ? lastGraph : null,
         }),
       })
       const data = await res.json()
