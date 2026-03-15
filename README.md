@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/banner.png" alt="YapDraw Logo" width="100" height="100">
+<img src="assets/banner.png" alt="YapDraw Logo" width="200" height="200">
 
-"Why draw it with your mouse when you can just yap it out?"
+_Why draw it with your mouse when you can just yap it out?_
 
 </div>
 
