@@ -5,7 +5,7 @@ import { getSystemPrompt } from "./prompts";
 import { layoutGraph } from "./layout";
 import { fetchIcons } from "./icons";
 
-const USE_WATSONX = process.env.USE_WATSONX === "false";
+const USE_WATSONX = process.env.USE_WATSONX === "true";
 
 const client = new OpenAI({
   baseURL:
