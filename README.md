@@ -14,7 +14,7 @@ YapDraw is Wispr Flow for Excalidraw. Describe anything out loud — a system ar
 
 For engineers, students, educators, researchers, business analysts, or anyone who has ever stared at a blank whiteboard.
 
----
+## [Demo Video](https://youtu.be/JoLELmPKW6w?si=vIdsas2C-dv69O4P)
 
 ## Features
 
@@ -25,8 +25,6 @@ For engineers, students, educators, researchers, business analysts, or anyone wh
 - **Undo AI changes** — every generation is snapshotted. Cmd+Z reverts the last AI change without touching anything you edited manually
 - **Three modes** — Freeform (anything), System Architecture (layered service graphs), Process Flowchart (decision trees, approval flows, research pipelines)
 - **Local-first** — auto-saves to your browser, no account needed
-
----
 
 ## How to Use
 
@@ -42,8 +40,6 @@ For engineers, students, educators, researchers, business analysts, or anyone wh
 - Corrections are handled automatically: "it connects to S3 — actually we use GCS" will use GCS.
 - For updates, just say what changed: "remove the message queue" or "add an analytics service between the API and the database."
 
----
-
 ## Tech Stack
 
 | Layer               | Tech       |
@@ -53,8 +49,6 @@ For engineers, students, educators, researchers, business analysts, or anyone wh
 | Layout engine       | Dagre      |
 | Voice transcription | Deepgram   |
 | Storage             | Supabase   |
-
----
 
 ## Setup
 
