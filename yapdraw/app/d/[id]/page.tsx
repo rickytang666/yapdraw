@@ -27,6 +27,7 @@ export default function EditorPage({ params }: Props) {
   const abortRef = useRef<AbortController | null>(null)
   const [loadingPhase, setLoadingPhase] = useState<LoadingPhase>('idle')
   const [lastGraph, setLastGraph] = useState<GraphResponse | null>(null)
+  const lastGraphInitRef = useRef(false)
   const [restoreFlash, setRestoreFlash] = useState(false)
 
   function triggerRestoreAnimation() {
@@ -40,10 +41,14 @@ export default function EditorPage({ params }: Props) {
 
   const diagram = useLiveQuery(() => db.diagrams.get(id), [id])
 
-  // Mark as opened
+  // Mark as opened + hydrate lastGraph from persisted graph on first load
   useEffect(() => {
     if (diagram) {
       db.diagrams.update(id, { lastOpenedAt: Date.now() })
+      if (!lastGraphInitRef.current && diagram.graph) {
+        setLastGraph(diagram.graph)
+        lastGraphInitRef.current = true
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, diagram?.id])
@@ -133,6 +138,7 @@ export default function EditorPage({ params }: Props) {
       await db.diagrams.update(id, {
         transcript: (diagram.transcript + '\n' + text).trim(),
         metadata: { ...diagram.metadata, generatedVia: 'voice' },
+        graph,
       })
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return

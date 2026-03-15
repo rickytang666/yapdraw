@@ -23,6 +23,7 @@ export interface Diagram {
   folderId: string | null         // null = root level
   elements: ExcalidrawElement[]   // the Excalidraw scene
   files: Record<string, BinaryFileData> // icon SVG data keyed by fileId
+  graph: import('./diagram').GraphResponse | null  // last LLM graph — used for incremental updates
   transcript: string              // full voice transcript that produced this
   diagramType: DiagramType
   thumbnail: string | null        // base64 data URL, ~200x150 PNG

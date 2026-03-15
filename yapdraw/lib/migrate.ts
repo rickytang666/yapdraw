@@ -22,7 +22,7 @@ export async function migrateFromLocalStorage(): Promise<void> {
           elements,
           transcript: '',
           diagramType: 'freeform',
-          thumbnail: null, files: {},
+          thumbnail: null, files: {}, graph: null,
           tags: [],
           starred: false,
           locked: false,
