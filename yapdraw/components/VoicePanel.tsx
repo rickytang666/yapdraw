@@ -7,6 +7,7 @@ import InterimIndicator from './InterimIndicator'
 import VersionTimeline from './editor/VersionTimeline'
 import { useDeepgram } from '@/hooks/useDeepgram'
 import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
+import type { ExcalidrawElement } from '@/types/diagram'
 
 interface VoicePanelProps {
   diagramId: string
@@ -15,6 +16,8 @@ interface VoicePanelProps {
   onMockSubmit?: (text: string) => void
   canvasRef: React.RefObject<ExcalidrawCanvasHandle | null>
   onRestoreAnimation: () => void
+  pauseSave: (liveElements: ExcalidrawElement[]) => void
+  resumeSave: () => void
 }
 
 export default function VoicePanel({
@@ -24,6 +27,8 @@ export default function VoicePanel({
   onMockSubmit,
   canvasRef,
   onRestoreAnimation,
+  pauseSave,
+  resumeSave,
 }: VoicePanelProps) {
   const [mockInput, setMockInput] = useState('')
   const { isListening, interimTranscript, finalTranscript, start, stop, reset } =
@@ -57,6 +62,8 @@ export default function VoicePanel({
         diagramId={diagramId}
         canvasRef={canvasRef}
         onRestoreAnimation={onRestoreAnimation}
+        pauseSave={pauseSave}
+        resumeSave={resumeSave}
       />
 
       {/* Mic button */}

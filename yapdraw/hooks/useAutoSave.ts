@@ -19,6 +19,8 @@ export function useAutoSave(
   const lastVersionTimeRef = useRef<number>(Date.now())
   const saveCountRef = useRef(0)
   const saveRef = useRef<(elements: ExcalidrawElement[]) => Promise<void>>(() => Promise.resolve())
+  const pausedRef = useRef(false)
+  const liveElementsRef = useRef<ExcalidrawElement[] | null>(null)
 
   const save = useCallback(async (elements: ExcalidrawElement[]) => {
     setSaveStatus('saving')
@@ -86,7 +88,22 @@ export function useAutoSave(
   // Keep saveRef in sync so event listeners always call the latest save
   saveRef.current = save
 
+  const pauseSave = useCallback((liveElements: ExcalidrawElement[]) => {
+    pausedRef.current = true
+    liveElementsRef.current = liveElements
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current)
+      saveTimerRef.current = null
+    }
+  }, [])
+
+  const resumeSave = useCallback(() => {
+    pausedRef.current = false
+    liveElementsRef.current = null
+  }, [])
+
   const triggerSave = useCallback((elements: ExcalidrawElement[]) => {
+    if (pausedRef.current) return
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
     saveTimerRef.current = setTimeout(() => save(elements), SAVE_DEBOUNCE_MS)
   }, [save])
@@ -103,6 +120,7 @@ export function useAutoSave(
         clearTimeout(saveTimerRef.current)
         saveTimerRef.current = null
       }
+      if (pausedRef.current) return
       const elements = canvasRef.current?.getElements() ?? []
       if (elements.length > 0) saveRef.current(elements)
     }
@@ -113,6 +131,7 @@ export function useAutoSave(
           clearTimeout(saveTimerRef.current)
           saveTimerRef.current = null
         }
+        if (pausedRef.current) return
         const elements = canvasRef.current?.getElements() ?? []
         if (elements.length > 0) saveRef.current(elements)
       }
@@ -130,5 +149,5 @@ export function useAutoSave(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return { triggerSave, forceSave, saveStatus }
+  return { triggerSave, forceSave, saveStatus, pauseSave, resumeSave }
 }

@@ -12,6 +12,8 @@ interface Props {
   diagramId: string
   canvasRef: React.RefObject<ExcalidrawCanvasHandle | null>
   onRestoreAnimation: () => void
+  pauseSave: (liveElements: ExcalidrawElement[]) => void
+  resumeSave: () => void
 }
 
 function relativeTime(ts: number): string {
@@ -34,7 +36,7 @@ function versionLabel(v: DiagramVersion): string | null {
   return null
 }
 
-export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimation }: Props) {
+export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimation, pauseSave, resumeSave }: Props) {
   const { versions, restoreVersion } = useVersionHistory(diagramId)
   const scrollRef = useRef<HTMLDivElement>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -62,9 +64,11 @@ export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimati
       return
     }
 
-    // Save live state on first preview
+    // Save live state on first preview and pause auto-save
     if (!isViewing) {
-      liveSnapshotRef.current = canvasRef.current?.getElements() ?? []
+      const live = canvasRef.current?.getElements() ?? []
+      liveSnapshotRef.current = live
+      pauseSave(live)
     }
 
     setSelectedId(v.id)
@@ -76,6 +80,7 @@ export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimati
     if (liveSnapshotRef.current) {
       canvasRef.current?.updateDiagram(liveSnapshotRef.current, { replace: true })
     }
+    resumeSave()
     setSelectedId(null)
     setIsViewing(false)
     liveSnapshotRef.current = null
@@ -90,6 +95,7 @@ export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimati
       canvasRef.current?.updateDiagram(target.elements as ExcalidrawElement[], { replace: true })
     }
 
+    resumeSave()
     await restoreVersion(versionId)
     onRestoreAnimation()
     setSelectedId(null)

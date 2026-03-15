@@ -49,7 +49,7 @@ export default function EditorPage({ params }: Props) {
   }, [id, diagram?.id])
 
   const isLoading = loadingPhase !== 'idle'
-  const { triggerSave, forceSave, saveStatus } = useAutoSave(id, canvasRef)
+  const { triggerSave, forceSave, saveStatus, pauseSave, resumeSave } = useAutoSave(id, canvasRef)
   const { restoreVersion } = useVersionHistory(id)
   const aiHistory = useAIChangeHistory(id)
 
@@ -213,6 +213,8 @@ export default function EditorPage({ params }: Props) {
             onMockSubmit={handleSilence}
             canvasRef={canvasRef}
             onRestoreAnimation={triggerRestoreAnimation}
+            pauseSave={pauseSave}
+            resumeSave={resumeSave}
           />
         </div>
         <div className="flex-1 min-w-0 min-h-0 p-3 bg-[#FAFAFA]">

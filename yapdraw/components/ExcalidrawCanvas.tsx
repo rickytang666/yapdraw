@@ -95,6 +95,25 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
       updateDiagram(incoming: ExcalidrawElement[], { replace = false } = {}) {
         if (!apiRef.current || !convertToExcalidrawElements) return
 
+        // Elements saved from getSceneElements() are already in native Excalidraw format
+        // (they carry `version`/`versionNonce`). Running them through prepareForConversion
+        // and convertToExcalidrawElements mangles arrow bindings, repositions bound text,
+        // and stripIndex destroys the already-correct fractional z-order indices.
+        // Detect native format and pass them straight to updateScene.
+        if (incoming.length === 0 || isNativeFormat(incoming[0] as Record<string, unknown>)) {
+          if (replace) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            apiRef.current.updateScene({ elements: incoming as any })
+          } else {
+            const existing = [...apiRef.current.getSceneElements()] as ExcalidrawElement[]
+            const merged = mergeElements(existing, incoming)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            apiRef.current.updateScene({ elements: merged as any })
+          }
+          apiRef.current.scrollToContent(undefined, { fitToContent: true, animate: true, duration: 400 })
+          return
+        }
+
         const prepared = prepareForConversion(incoming)
 
         // Arrows from layoutGraph are already native-format (explicit x/y/points).
