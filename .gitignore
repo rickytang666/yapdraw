@@ -72,8 +72,6 @@ Desktop.ini
 *.tgz
 
 # Exports / generated output
-*.png
-*.svg
 *.excalidraw
 # ^ uncomment if you don't want accidental diagram exports committed
 # leave commented if you want to commit sample diagrams to the repo

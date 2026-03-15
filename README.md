@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/banner.png" alt="YapDraw Logo" width="100" height="100">
+<img src="assets/banner.png" alt="YapDraw Logo" width="200" height="200">
 
-"Why draw it with your mouse when you can just yap it out?"
+_Why draw it with your mouse when you can just yap it out?_
 
 </div>
 
@@ -10,37 +10,37 @@
 
 ## Overview
 
-YapDraw turns spoken descriptions into structured diagrams — instantly. No drag-and-drop. No clicking through menus. Just describe your system, workflow, or process out loud, and watch it render.
+YapDraw is Wispr Flow for Excalidraw. Describe anything out loud — a system architecture, a business process, a research workflow, a project plan — and it draws it as a clean, editable Excalidraw diagram. No code, no syntax, no drag-and-drop.
 
-Built for engineers, researchers, and anyone who thinks faster than they can point and click.
+For engineers, students, educators, researchers, business analysts, or anyone who has ever stared at a blank whiteboard.
 
 ---
 
 ## Features
 
-- **Voice-to-diagram** — speak naturally, correct yourself mid-sentence, and the right diagram still comes out
-- **Three diagram modes** — System Architecture (LR service graphs with layers), Process Flowchart (TB with decision branches), and Freeform (anything else)
-- **Incremental updates** — say "add a Redis cache" or "remove the message queue" and only that changes; everything else stays put
-- **Version history** — every AI-generated change is snapshotted; hit Cmd+Z to revert the last one
-- **Editable canvas** — drag nodes, rearrange, tweak manually after generation
-- **Diagram library** — star, duplicate, rename, lock, or trash your diagrams
-- **Auto-save** — changes persist locally, no account needed
+- **Just talk** — no special syntax, no templates. Describe it the way you'd explain it to a colleague and it figures out the rest
+- **Handles how people actually speak** — mid-sentence corrections, filler words, backtracking — the final diagram reflects your intent, not your exact words
+- **Truly incremental** — say "add X" or "remove Y" and only that changes. The rest of your diagram stays exactly where it is
+- **Fully editable output** — every diagram lands on an Excalidraw canvas. Drag nodes, adjust layout, add annotations — it's yours to edit
+- **Undo AI changes** — every generation is snapshotted. Cmd+Z reverts the last AI change without touching anything you edited manually
+- **Three modes** — Freeform (anything), System Architecture (layered service graphs), Process Flowchart (decision trees, approval flows, research pipelines)
+- **Local-first** — auto-saves to your browser, no account needed
 
 ---
 
 ## How to Use
 
-1. Create a new diagram from the library
-2. Pick a mode: Freeform, System Architecture, or Process Flowchart
-3. Click the mic and describe your system or process
-4. Watch the diagram generate — keep talking to refine it
-5. Drag nodes or hit Cmd+Z to undo the last AI change
+1. Open the library and create a new diagram
+2. Pick a mode — when in doubt, use Freeform
+3. Hit the mic and describe what you want
+4. Keep talking to refine — add, remove, or change anything
+5. Drag nodes around or hit Cmd+Z to undo the last AI change
 
 **Tips:**
 
-- You don't need to be precise. "We have a React frontend, it talks to a Node API, which hits Postgres and also Redis for caching" works perfectly.
-- Self-corrections are handled: "it goes to S3 — actually no, we use GCS" will use GCS.
-- For incremental edits, just say what changed: "add an Elasticsearch node connected to the API."
+- Talk like you're explaining it to someone, not writing a spec. "So we have a React frontend, it calls our Node API, which reads from Postgres — oh and Redis for session caching" works perfectly.
+- Corrections are handled automatically: "it connects to S3 — actually we use GCS" will use GCS.
+- For updates, just say what changed: "remove the message queue" or "add an analytics service between the API and the database."
 
 ---
 
