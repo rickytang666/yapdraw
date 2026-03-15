@@ -6,6 +6,7 @@ import TranscriptDisplay from './TranscriptDisplay'
 import InterimIndicator from './InterimIndicator'
 import VersionTimeline from './editor/VersionTimeline'
 import { useDeepgram } from '@/hooks/useDeepgram'
+import Image from 'next/image'
 import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
 import type { ExcalidrawElement } from '@/types/diagram'
 
@@ -53,8 +54,11 @@ export default function VoicePanel({
     <div className="flex flex-col h-full bg-white text-[#0F172A]">
       {/* Header */}
       <div className="px-6 py-4 border-b border-[#E5E7EB]">
-        <h1 className="text-lg font-semibold tracking-tight text-[#0F172A]">YapDraw</h1>
-        <p className="text-[#64748B] text-xs mt-0.5">Describe your diagram</p>
+        <div className="flex items-center gap-2">
+          <Image src="/yapdraw_logo.png" alt="YapDraw" width={24} height={24} className="rounded-sm" />
+          <h1 className="text-lg font-semibold tracking-tight text-[#0F172A]">YapDraw</h1>
+        </div>
+        <p className="text-[#64748B] text-xs mt-0.5">Start decribing a flow. Watch it appear before your eyes.</p>
       </div>
 
       {/* Version timeline — above the chat */}
