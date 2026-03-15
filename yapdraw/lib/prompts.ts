@@ -24,7 +24,7 @@ const BASE_PROMPT = `You are a diagram generator. Convert natural language descr
 
 ## edges
 - "from" and "to" must be existing node ids
-- "label": **ALWAYS include** — every edge must have a label. Describe what flows or happens: protocol ("HTTP", "gRPC", "SQL"), data type ("events", "cache", "stream"), or decision branch ("Yes", "No", "on failure"). Omitting a label is an error.
+- "label": include when it adds clarity — protocol ("HTTP", "SQL"), data type ("events", "stream"), or decision branch ("Yes", "No"). Skip if the relationship is already obvious from the node names.
 - No self-loops
 
 ## groups

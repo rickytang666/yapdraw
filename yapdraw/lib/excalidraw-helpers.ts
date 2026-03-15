@@ -20,29 +20,91 @@ const VALID_TYPES = new Set([
  * to normalize them against a shape.
  */
 export function enrichArrows(arrows: ExcalidrawElement[]): ExcalidrawElement[] {
-  return arrows.map(el => ({
-    angle: 0,
-    opacity: 100,
-    roughness: 0,
-    fillStyle: 'solid',
-    strokeStyle: 'solid',
-    backgroundColor: 'transparent',
-    seed: Math.floor(Math.random() * 2147483647),
-    version: 1,
-    versionNonce: Math.floor(Math.random() * 2147483647),
-    isDeleted: false as const,
-    groupIds: [],
-    boundElements: [],
-    updated: Date.now(),
-    link: null,
-    locked: false,
-    lastCommittedPoint: null,
-    frameId: null,
-    ...el,
-    // Force null AFTER spread — these must never be set on layout arrows
-    startBinding: null,
-    endBinding: null,
-  }))
+  const result: ExcalidrawElement[] = []
+
+  for (const el of arrows) {
+    const labelText = el.label && typeof el.label === 'object'
+      ? (el.label as Record<string, unknown>).text as string | undefined
+      : undefined
+    const labelFontSize = el.label && typeof el.label === 'object'
+      ? ((el.label as Record<string, unknown>).fontSize as number | undefined) ?? 13
+      : 13
+    const textId = `${el.id}-label`
+
+    // Compute label position: midpoint of the arrow path
+    const points = Array.isArray(el.points) ? el.points as [number, number][] : []
+    const last = points.length > 0 ? points[points.length - 1] : [0, 0]
+    const midX = (el.x ?? 0) + last[0] / 2
+    const midY = (el.y ?? 0) + last[1] / 2
+
+    const arrow: ExcalidrawElement = {
+      angle: 0,
+      opacity: 100,
+      roughness: 0,
+      fillStyle: 'solid',
+      strokeStyle: 'solid',
+      backgroundColor: 'transparent',
+      seed: Math.floor(Math.random() * 2147483647),
+      version: 1,
+      versionNonce: Math.floor(Math.random() * 2147483647),
+      isDeleted: false as const,
+      groupIds: [],
+      updated: Date.now(),
+      link: null,
+      locked: false,
+      lastCommittedPoint: null,
+      frameId: null,
+      ...el,
+      // Bind label text element if present
+      boundElements: labelText ? [{ type: 'text', id: textId }] : [],
+      // Force null AFTER spread — these must never be set on layout arrows
+      startBinding: null,
+      endBinding: null,
+    }
+    // Remove the label skeleton — Excalidraw uses the bound text element instead
+    delete (arrow as Record<string, unknown>).label
+    result.push(arrow)
+
+    if (labelText) {
+      const lineHeight = 1.25
+      result.push({
+        type: 'text',
+        id: textId,
+        x: midX,
+        y: midY,
+        width: labelText.length * labelFontSize * 0.6,
+        height: labelFontSize * lineHeight,
+        text: labelText,
+        containerId: el.id,
+        textAlign: 'center',
+        verticalAlign: 'middle',
+        fontSize: labelFontSize,
+        fontFamily: 1,
+        lineHeight,
+        baseline: labelFontSize,
+        autoResize: true,
+        angle: 0,
+        opacity: 100,
+        strokeColor: '#1e1e1e',
+        backgroundColor: 'transparent',
+        fillStyle: 'solid',
+        strokeWidth: 1,
+        roughness: 0,
+        seed: Math.floor(Math.random() * 2147483647),
+        version: 1,
+        versionNonce: Math.floor(Math.random() * 2147483647),
+        isDeleted: false as const,
+        groupIds: [],
+        boundElements: [],
+        updated: Date.now(),
+        link: null,
+        locked: false,
+        frameId: null,
+      } as ExcalidrawElement)
+    }
+  }
+
+  return result
 }
 
 /**
