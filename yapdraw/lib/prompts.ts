@@ -25,6 +25,7 @@ export const SYSTEM_PROMPT = `You are a diagram generator. Convert natural langu
 
 ## groups
 Background zone rectangles. Use for layered architectures (UI Layer / Service Layer / Data Layer).
+- "color": must be one of the named colors above (blue, green, purple, orange, red, teal, yellow, grey) — never hex values
 
 ## Topology rules — CRITICAL
 Real systems are NOT linear chains. Model the actual structure:
