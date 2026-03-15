@@ -118,16 +118,23 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
         const enrichedArrows = enrichArrows(arrows)
         const allElements = [...convertedShapes, ...enrichedArrows] as ExcalidrawElement[]
 
+        // Strip fractional indices so Excalidraw re-assigns them based on array order.
+        // Without this, merging existing elements (which carry stale indices) with new
+        // bound text/arrow pairs can violate the invariant that a bound element's index
+        // must be greater than its container's index.
+        const stripIndex = (els: ExcalidrawElement[]) =>
+          els.map(({ index: _i, ...rest }) => rest as ExcalidrawElement)
+
         if (replace) {
           // Excalidraw API expects its own element types; our ExcalidrawElement is a
           // lightweight/shared type used across the app.
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          apiRef.current.updateScene({ elements: allElements as any })
+          apiRef.current.updateScene({ elements: stripIndex(allElements) as any })
         } else {
           const existing = [...apiRef.current.getSceneElements()] as ExcalidrawElement[]
           const merged = mergeElements(existing, allElements)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          apiRef.current.updateScene({ elements: merged as any })
+          apiRef.current.updateScene({ elements: stripIndex(merged) as any })
         }
 
         apiRef.current.scrollToContent(undefined, { fitToContent: true, animate: true, duration: 400 })
