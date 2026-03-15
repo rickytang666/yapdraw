@@ -57,14 +57,14 @@ export default function FolderTreeItem({
         ref={setNodeRef}
         onClick={() => onSection(`folder:${folder.id}`)}
         onContextMenu={e => onContextMenu(e, folder)}
-        className={`group flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm cursor-pointer select-none transition-colors ${
+        className={`group flex items-center gap-2 py-2 text-[13px] cursor-pointer select-none transition-colors ${
           isOver
-            ? 'bg-[#5B57D1]/30 border border-[#5B57D1]/50'
+            ? 'bg-[#5B57D1]/10 border-l-2 border-[#5B57D1]'
             : isActive
-            ? 'bg-[#5B57D1]/15 text-[#5B57D1]'
-            : 'text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A]'
+            ? 'bg-[#F1F5F9] text-[#0F172A] font-medium'
+            : 'text-[#64748B] hover:bg-[#FAFAFA] hover:text-[#0F172A]'
         }`}
-        style={{ paddingLeft: `${8 + indentPx}px` }}
+        style={{ paddingLeft: `${16 + indentPx}px`, paddingRight: '16px' }}
       >
         {/* Chevron / spacer */}
         <span className="shrink-0 w-4 flex items-center justify-center">
@@ -81,13 +81,13 @@ export default function FolderTreeItem({
         {/* Folder icon */}
         {isActive || isOver ? (
           <IconFolderOpen
-            size={15}
-            className={`shrink-0 ${folder.color ? COLOR_CLASS[folder.color] : 'text-[#5B57D1]'}`}
+            size={16}
+            className={`shrink-0 ${folder.color ? COLOR_CLASS[folder.color] : 'text-[#0F172A]'}`}
           />
         ) : (
           <IconFolder
-            size={15}
-            className={`shrink-0 ${folder.color ? COLOR_CLASS[folder.color] : 'text-[#64748B]'}`}
+            size={16}
+            className={`shrink-0 ${folder.color ? COLOR_CLASS[folder.color] : 'text-[#94A3B8]'}`}
           />
         )}
 
@@ -96,7 +96,7 @@ export default function FolderTreeItem({
 
         {/* Diagram count */}
         {folder.diagramCount > 0 && (
-          <span className="ml-auto text-xs text-[#94A3B8] tabular-nums shrink-0">
+          <span className="ml-auto text-xs text-[#94A3B8] bg-[#F1F5F9] px-1.5 py-0.5 rounded tabular-nums shrink-0">
             {folder.diagramCount}
           </span>
         )}

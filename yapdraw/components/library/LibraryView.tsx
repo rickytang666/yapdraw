@@ -276,7 +276,7 @@ export default function LibraryView() {
 
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           {/* Header */}
-          <header className="flex items-center gap-3 h-14 px-6 border-b border-[#E5E7EB] shrink-0">
+          <header className="flex items-center gap-3 h-14 px-6 border-b border-[#F1F5F9] bg-white shrink-0">
             <h2 className="text-[#0F172A] font-semibold text-base shrink-0">{sectionLabel()}</h2>
 
             {/* Search */}
