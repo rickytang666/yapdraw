@@ -24,11 +24,9 @@ function formatDate(ts: number): string {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  architecture: 'bg-blue-900/50 text-blue-300',
-  flowchart: 'bg-green-900/50 text-green-300',
-  sequence: 'bg-purple-900/50 text-purple-300',
-  er: 'bg-orange-900/50 text-orange-300',
   freeform: 'bg-zinc-700 text-zinc-300',
+  'system-architecture': 'bg-blue-900/50 text-blue-300',
+  'operations-flowchart': 'bg-green-900/50 text-green-300',
 }
 
 export default function DiagramRow({

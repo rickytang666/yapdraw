@@ -2,7 +2,7 @@ import { ExcalidrawElement } from './diagram'
 
 // ─── Enums & Literals ───────────────────────────────────────────
 
-export type DiagramType = 'architecture' | 'flowchart' | 'sequence' | 'er' | 'freeform'
+export type DiagramType = 'freeform' | 'system-architecture' | 'operations-flowchart'
 export type GenerationMethod = 'voice' | 'manual' | 'template' | 'import'
 export type SortField = 'updatedAt' | 'lastOpenedAt' | 'createdAt' | 'name' | 'diagramType' | 'elementCount'
 export type SortDirection = 'asc' | 'desc'
