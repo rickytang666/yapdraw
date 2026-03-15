@@ -205,7 +205,7 @@ export default function EditorPage({ params }: Props) {
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* Voice panel — 35% wide, version timeline above chat */}
-        <div className="w-[35%] h-full border-r border-[#E5E7EB] shrink-0">
+        <div className="w-[35%] h-full border-r border-zinc-800 shrink-0">
           <VoicePanel
             diagramId={id}
             isLoading={isLoading}
@@ -215,8 +215,8 @@ export default function EditorPage({ params }: Props) {
             onRestoreAnimation={triggerRestoreAnimation}
           />
         </div>
-        <div className="flex-1 min-w-0 min-h-0 p-3 bg-[#FAFAFA]">
-          <div className="relative w-full h-full rounded-2xl overflow-hidden bg-white border border-[#E5E7EB]">
+        <div className="flex-1 min-w-0 min-h-0 p-3 bg-zinc-900">
+          <div className="relative w-full h-full rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800">
             {/* Restore flash overlay */}
             <div
               className={`absolute inset-0 z-20 pointer-events-none bg-white transition-opacity duration-500 ${

@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import {
   IconLayoutGrid,
   IconStar,
@@ -43,55 +42,44 @@ export default function Sidebar({
   onAddSubfolder,
 }: Props) {
   return (
-    <aside className="w-60 shrink-0 bg-white border-r border-[#E5E7EB] flex flex-col overflow-y-auto">
-      {/* Logo + Name */}
-      <div className="px-4 py-4 flex items-center gap-2.5 border-b border-[#F1F5F9]">
-        <Image
-          src="/yapdraw_logo.png.webp"
-          alt="YapDraw"
-          width={24}
-          height={24}
-          className="rounded"
-        />
-        <h1 className="text-sm font-semibold text-[#0F172A] tracking-tight">YapDraw</h1>
+    <aside className="w-52 shrink-0 bg-[#F1F5F9] border-r border-[#E5E7EB] flex flex-col overflow-y-auto">
+      <div className="px-4 py-4">
+        <h1 className="text-lg font-bold text-[#0F172A] tracking-tight">YapDraw</h1>
       </div>
 
       {/* Fixed sections */}
-      <nav className="flex flex-col py-2">
+      <nav className="flex flex-col gap-0.5 px-2">
         {FIXED_SECTIONS.map(({ id, label, icon }) => {
           const isActive = activeSection === id
           return (
             <button
               key={id}
               onClick={() => onSection(id)}
-              className={`flex items-center gap-3 px-4 py-2 text-[13px] transition-colors text-left w-full ${
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors text-left w-full ${
                 isActive
-                  ? 'bg-[#F1F5F9] text-[#0F172A] font-medium'
-                  : 'text-[#64748B] hover:bg-[#FAFAFA] hover:text-[#0F172A]'
+                  ? 'bg-[#5B57D1]/15 text-[#5B57D1]'
+                  : 'text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A]'
               }`}
             >
-              <span className={isActive ? 'text-[#0F172A]' : 'text-[#94A3B8]'}>{icon}</span>
+              {icon}
               <span>{label}</span>
               {id === 'trash' && trashedCount > 0 && (
-                <span className="ml-auto text-xs text-[#94A3B8] bg-[#F1F5F9] px-1.5 py-0.5 rounded">{trashedCount}</span>
+                <span className="ml-auto text-xs text-[#94A3B8]">{trashedCount}</span>
               )}
             </button>
           )
         })}
       </nav>
 
-      {/* Divider */}
-      <div className="h-px bg-[#F1F5F9] mx-3" />
-
       {/* Folders section */}
-      <div className="py-2 flex-1">
-        <div className="flex items-center justify-between px-4 py-1.5">
-          <span className="text-[11px] font-medium text-[#94A3B8] uppercase tracking-wider">
+      <div className="mt-4 px-2 flex-1">
+        <div className="flex items-center justify-between px-2 mb-1">
+          <span className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">
             Folders
           </span>
           <button
             onClick={onCreateFolder}
-            className="p-1 rounded text-[#94A3B8] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
+            className="p-1 rounded text-[#64748B] hover:text-[#0F172A] hover:bg-[#E2E8F0] transition-colors"
             title="New folder"
           >
             <IconFolderPlus size={14} />
@@ -99,7 +87,7 @@ export default function Sidebar({
         </div>
 
         {folders.length === 0 ? (
-          <p className="px-4 py-1 text-xs text-[#94A3B8]">No folders yet</p>
+          <p className="px-2 py-1 text-xs text-[#94A3B8] italic">No folders yet</p>
         ) : (
           <FolderTree
             folders={folders}
