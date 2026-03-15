@@ -5,10 +5,19 @@ import type { DiagramType } from '@/types/library'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as {
+    let body: {
       transcript?: string
       currentGraph?: GraphResponse
       diagramType?: DiagramType
+    }
+
+    try {
+      body = await request.json()
+    } catch {
+      return Response.json(
+        { error: 'request body must be valid JSON' },
+        { status: 400 }
+      )
     }
 
     if (typeof body.transcript !== 'string' || !body.transcript.trim()) {
