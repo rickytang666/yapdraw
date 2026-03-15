@@ -105,7 +105,7 @@ Now generate the graph for the user's description.`;
 const SYSTEM_ARCHITECTURE_PROMPT = `
 ## Mode: System Architecture
 - Always use "LR" direction
-- Always include group zones: "Client Layer", "Service Layer", "Data Layer" (or equivalent)
+- Use group zones (e.g. "Client Layer", "Service Layer", "Data Layer") when the architecture clearly has 3+ nodes in a logical tier — skip groups for small or simple diagrams
 - Color rules: blue = clients/frontends, green = backend services, purple = gateways/load balancers, teal = databases/caches/storage, orange = external APIs/CDNs
 - Edge labels MUST be protocols: "HTTP", "gRPC", "REST", "SQL", "AMQP", "WebSocket", "S3 API", "TCP", etc.
 - Aim for many nodes to match the user's description as closely as possible.
