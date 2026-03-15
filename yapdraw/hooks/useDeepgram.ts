@@ -20,6 +20,8 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
     silenceTimerRef.current = setTimeout(() => {
       if (finalTranscriptRef.current.trim()) {
         onSilenceRef.current(finalTranscriptRef.current)
+        finalTranscriptRef.current = ''
+        setFinalTranscript('')
       }
     }, 1500)
   }, [])

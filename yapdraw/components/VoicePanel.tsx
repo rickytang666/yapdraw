@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import MicButton from './MicButton'
-import TranscriptDisplay from './TranscriptDisplay'
 import InterimIndicator from './InterimIndicator'
 import VersionTimeline from './editor/VersionTimeline'
 import { useDeepgram } from '@/hooks/useDeepgram'
@@ -32,8 +31,15 @@ export default function VoicePanel({
   resumeSave,
 }: VoicePanelProps) {
   const [mockInput, setMockInput] = useState('')
+  const [messages, setMessages] = useState<string[]>([])
+
+  const handleSilence = (transcript: string) => {
+    setMessages((prev) => [...prev, transcript])
+    onSilence(transcript)
+  }
+
   const { isListening, interimTranscript, finalTranscript, start, stop, reset } =
-    useDeepgram(onSilence)
+    useDeepgram(handleSilence)
 
   const handleToggle = () => {
     if (isListening) {
@@ -46,7 +52,9 @@ export default function VoicePanel({
 
   const submitMock = () => {
     if (!mockInput.trim()) return
-    onMockSubmit?.(mockInput.trim())
+    const text = mockInput.trim()
+    setMessages((prev) => [...prev, text])
+    onMockSubmit?.(text)
     setMockInput('')
   }
 
@@ -81,7 +89,15 @@ export default function VoicePanel({
       {/* Scrollable area: transcript */}
       <div className="flex-1 overflow-y-auto">
         <div className="py-4 space-y-2 px-4">
-          <TranscriptDisplay transcript={finalTranscript} />
+          {messages.length === 0 && !finalTranscript && (
+            <p className="text-[#94A3B8] text-sm px-4">Your transcript will appear here...</p>
+          )}
+          {messages.map((msg, i) => (
+            <p key={i} className="text-[#0F172A] text-sm px-4 leading-relaxed whitespace-pre-wrap">{msg}</p>
+          ))}
+          {finalTranscript && (
+            <p className="text-[#0F172A] text-sm px-4 leading-relaxed whitespace-pre-wrap">{finalTranscript}</p>
+          )}
           <InterimIndicator text={interimTranscript} />
         </div>
       </div>
