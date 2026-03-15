@@ -221,7 +221,7 @@ This table is the source of truth for avoiding merge conflicts. If you need to t
   }
   ```
 
-- [ ] Create stub files for every file in the structure — just enough to export a no-op so imports don't break:
+- [x] Create stub files for every file in the structure — just enough to export a no-op so imports don't break:
   - `components/ExcalidrawCanvas.tsx` → `export default function ExcalidrawCanvas() { return <div /> }`
   - `components/VoicePanel.tsx`, `MicButton.tsx`, `TranscriptDisplay.tsx`, `InterimIndicator.tsx`, `LoadingIndicator.tsx` → same pattern
   - `hooks/useDeepgram.ts`, `useSpeechFallback.ts`, `useDiagramState.ts` → stub hooks returning correct shapes
@@ -230,10 +230,10 @@ This table is the source of truth for avoiding merge conflicts. If you need to t
   - `lib/excalidraw-helpers.ts` → stub functions
   - `app/api/generate-diagram/route.ts` → `export async function POST() { return Response.json({ elements: [] }) }`
   - `app/api/deepgram-token/route.ts` → `export async function GET() { return Response.json({ token: '' }) }`
-- [ ] Wire stubs into `app/page.tsx` so `npm run dev` boots without errors
-- [ ] Confirm `npm run dev` loads a blank page with no TypeScript or console errors
-- [ ] Push to `main`
-- [ ] Each person: `git pull`, then `git checkout -b p1-canvas` (or `p2-llm`, `p3-voice`, `p4-layout`)
+- [x] Wire stubs into `app/page.tsx` so `npm run dev` boots without errors
+- [x] Confirm `npm run dev` loads a blank page with no TypeScript or console errors
+- [x] Push to `main`
+- [x] Each person: `git pull`, then `git checkout -b p1-canvas` (or `p2-llm`, `p3-voice`, `p4-layout`)
 
 ### After Sprint 0 — Branch Strategy
 
@@ -261,11 +261,13 @@ Merge into `main` at sprint boundaries. **P4 merges last each time** — `page.t
   - Append new elements at LLM-provided positions
 - [x] Call `scrollToContent()` after each `updateScene`
 - [x] Smoke test: hardcode 3 native Excalidraw elements (2 rectangles + 1 arrow with bindings) and confirm they render with a connection
+- [x] Fix canvas size limit error with safe max dimensions
+- [x] Load initial data from localStorage using `initialData` prop
 
 ### P2 — LLM API Route
 
-- [ ] Add `OPENAI_API_KEY` to `.env.local`
-- [ ] Write the cheat sheet system prompt in `lib/prompts.ts` — include:
+- [x] Add `OPENAI_API_KEY` to `.env.local`
+- [x] Write the cheat sheet system prompt in `lib/prompts.ts` — include:
   - All shape types with example JSON (rectangle, rounded rectangle, diamond, ellipse, arrow with `startBinding`/`endBinding`, text)
   - Arrow `fixedPoint` reference table
   - Color palette table
@@ -273,32 +275,37 @@ Merge into `main` at sprint boundaries. **P4 merges last each time** — `page.t
   - Layout guidance: sensible `x`/`y` spacing (~200px between elements), top-to-bottom or left-to-right flow
   - Few-shot examples covering: architecture diagram, flowchart with decision diamond, business process
   - Explicit instruction: return a JSON object `{ "elements": [...] }` — no markdown, no explanation
-- [ ] Create `route.ts`: accepts `{ transcript, currentElements }`, calls `gpt-4o` with `response_format: { type: "json_object" }`, returns `elements` array
-- [ ] In `lib/llm.ts`: parse response, strip any non-standard fields if needed, return `ExcalidrawElement[]`
-- [ ] Test with `curl` — verify arrows have `startBinding`/`endBinding`, shapes have correct geometry
+- [x] Create `route.ts`: accepts `{ transcript, currentElements }`, calls `gpt-4o` with `response_format: { type: "json_object" }`, returns `elements` array
+- [x] In `lib/llm.ts`: parse response, strip any non-standard fields if needed, return `ExcalidrawElement[]`
+- [x] Test with `curl` — verify arrows have `startBinding`/`endBinding`, shapes have correct geometry
+- [x] Support graph-based layout system with nodes/edges/groups
+- [x] Support multiple diagram types (freeform, system architecture, process flowchart)
 
 ### P3 — Voice (Deepgram) + Silence Detection
 
-- [ ] Create `app/api/deepgram-token/route.ts` — mint a short-lived Deepgram browser token (keeps API key server-side)
-- [ ] Create `hooks/useDeepgram.ts`:
+- [x] Create `app/api/deepgram-token/route.ts` — mint a short-lived Deepgram browser token (keeps API key server-side)
+- [x] Create `hooks/useDeepgram.ts`:
   - Fetch token from `/api/deepgram-token` on start
   - Open Deepgram WebSocket: `model: "nova-2"`, `interim_results: true`, `smart_format: true`
   - Accumulate final transcripts; track interim for live display
   - On each final result: reset 1.5s silence debounce timer
   - When timer fires: emit `onSilence(fullTranscript)`
   - Expose `{ isListening, interimTranscript, finalTranscript, start, stop }`
-- [ ] Create `hooks/useSpeechFallback.ts` — identical interface using Web Speech API
-- [ ] `MicButton.tsx` — toggle start/stop, pulsing red ring while active
-- [ ] `InterimIndicator.tsx` — renders interim transcript greyed + italic
-- [ ] `TranscriptDisplay.tsx` — renders final sentences stacked
+- [x] Create `hooks/useSpeechFallback.ts` — identical interface using Web Speech API
+- [x] `MicButton.tsx` — toggle start/stop, pulsing red ring while active
+- [x] `InterimIndicator.tsx` — renders interim transcript greyed + italic
+- [x] `TranscriptDisplay.tsx` — renders final sentences stacked
+- [x] Support `UtteranceEnd` event for immediate flush
 
 ### P4 — Layout + Integration
 
-- [ ] Build split-screen in `page.tsx`: left 35% `VoicePanel`, right 65% `ExcalidrawCanvas`
-- [ ] Wire `onSilence` → POST `/api/generate-diagram` → call `updateDiagram` on canvas ref
-- [ ] Pass loading state: show `LoadingIndicator` while awaiting LLM
-- [ ] `VoicePanel.tsx`: compose `MicButton` + `TranscriptDisplay` + `InterimIndicator`
-- [ ] Manual end-to-end test: speak → pause → native Excalidraw diagram appears with real arrow connections
+- [x] Build split-screen in `page.tsx`: left 35% `VoicePanel`, right 65% `ExcalidrawCanvas`
+- [x] Wire `onSilence` → POST `/api/generate-diagram` → call `updateDiagram` on canvas ref
+- [x] Pass loading state: show `LoadingIndicator` while awaiting LLM
+- [x] `VoicePanel.tsx`: compose `MicButton` + `TranscriptDisplay` + `InterimIndicator`
+- [x] Manual end-to-end test: speak → pause → native Excalidraw diagram appears with real arrow connections
+- [x] Add editor page with diagram persistence (Dexie)
+- [x] Add library view for managing diagrams
 
 ---
 
@@ -306,33 +313,39 @@ Merge into `main` at sprint boundaries. **P4 merges last each time** — `page.t
 
 ### P1 — ID Persistence + Position Preservation
 
-- [ ] Harden `mergeElements()`:
+- [x] Harden `mergeElements()`:
   - Preserve `x`, `y`, `width`, `height` for all elements whose ID already exists in the scene
   - Run basic overlap check on new elements — if bounding boxes intersect >50%, nudge by 20px
-- [ ] Implement `useDiagramState.ts` — owns element array, exposes `applyUpdate(elements)`, syncs to `localStorage` on every change
-- [ ] On app load: restore from `localStorage` if present, call `updateDiagram` with saved elements
-- [ ] Test: render diagram, drag elements manually, trigger LLM update, confirm positions held
+- [x] Implement `useDiagramState.ts` — owns element array, exposes `applyUpdate(elements)`, syncs to `localStorage` on every change
+- [x] On app load: restore from `localStorage` if present, call `updateDiagram` with saved elements
+- [x] Test: render diagram, drag elements manually, trigger LLM update, confirm positions held
+- [x] Add Dexie database for persistent storage
+- [x] Add auto-save functionality
 
 ### P2 — Prompt Engineering for Incremental Mode
 
-- [ ] Update prompt to receive `currentElements` array alongside transcript
-- [ ] Instruct model: (a) preserve existing element IDs exactly, (b) only modify what the user's latest instruction describes, (c) return the full element array every time including unchanged elements
-- [ ] Add correction examples: `"actually call it Docker not Kubernetes"` → find element by ID, update label only
-- [ ] Add insertion examples: `"add a step between validate and send email"` → new element with correct `startBinding`/`endBinding` pointing to existing IDs
+- [x] Update prompt to receive `currentElements` array alongside transcript
+- [x] Instruct model: (a) preserve existing element IDs exactly, (b) only modify what the user's latest instruction describes, (c) return the full element array every time including unchanged elements
+- [x] Add correction examples: `"actually call it Docker not Kubernetes"` → find element by ID, update label only
+- [x] Add insertion examples: `"add a step between validate and send email"` → new element with correct `startBinding`/`endBinding` pointing to existing IDs
+- [x] Support graph-based incremental updates with node/edge removal
+- [x] Add safety merge to restore accidentally dropped nodes/edges
 
 ### P3 — Per-Sentence Trigger
 
-- [ ] Change trigger: fire LLM call on each final Deepgram result, not just after silence
-- [ ] Debounce: if 2+ finals arrive within 1s, batch into one call
-- [ ] Accumulate finals, pass full transcript on each call
-- [ ] Handle in-flight: queue new sentences while LLM is processing, flush on completion
+- [x] Change trigger: fire LLM call on each final Deepgram result, not just after silence
+- [x] Debounce: if 2+ finals arrive within 1s, batch into one call
+- [x] Accumulate finals, pass full transcript on each call
+- [x] Handle in-flight: queue new sentences while LLM is processing, flush on completion
+- [x] Support `UtteranceEnd` event for immediate processing
 
 ### P4 — Loading States + Overlap + Layout Tuning
 
-- [ ] `LoadingIndicator`: subtle "Thinking..." in bottom-left corner of canvas, non-blocking
-- [ ] Nudge overlapping new elements in `excalidraw-helpers.ts` (coordinate with P1)
-- [ ] Prompt tuning for layout (coordinate with P2): left-to-right for pipelines, top-to-bottom for flows, grouped by concern
-- [ ] End-to-end test: correction flow + add-to-existing flow
+- [x] `LoadingIndicator`: subtle "Thinking..." in bottom-left corner of canvas, non-blocking
+- [x] Nudge overlapping new elements in `excalidraw-helpers.ts` (coordinate with P1)
+- [x] Prompt tuning for layout (coordinate with P2): left-to-right for pipelines, top-to-bottom for flows, grouped by concern
+- [x] End-to-end test: correction flow + add-to-existing flow
+- [x] Add graph-based layout with Dagre for automatic positioning
 
 ---
 
@@ -342,26 +355,26 @@ Merge into `main` at sprint boundaries. **P4 merges last each time** — `page.t
 
 - [ ] Export to PNG: `exportToBlob({ elements, appState, exportPadding: 16 })`, trigger download
 - [ ] Export to SVG: `exportToSvg()`, serialize to string, trigger download
-- [ ] Export to `.excalidraw`: `JSON.stringify({ elements, appState })`, trigger download
-- [ ] Add export buttons to canvas toolbar (top-right)
+- [x] Export to `.excalidraw`: `JSON.stringify({ elements, appState })`, trigger download
+- [x] Add export buttons to canvas toolbar (top-right) — via EditorMenu
+- [x] Export to JSON format
+- [x] Bulk export to ZIP
 
 ### P2 — Error Recovery + Optional IBM Track
 
-- [ ] Error recovery: wrap LLM call in try/catch — on failure show toast, keep existing diagram intact
+- [x] Error recovery: wrap LLM call in try/catch — on failure show toast, keep existing diagram intact
 - [ ] Auto-reconnect Deepgram: on WebSocket error/close, retry up to 2x; fall back to `useSpeechFallback` on third failure
 - [ ] **[IBM track — optional, ~2 hrs]** Swap `llm.ts` to call IBM watsonx.ai:
   - Use plain `fetch` to watsonx.ai REST endpoint (avoid adding another SDK dep)
-  - Model: `meta-llama/llama-3-70b-instruct` on watsonx (better JSON than Granite)
   - Gate behind `USE_WATSONX=true` env flag — OpenAI remains the default
   - watsonx doesn't guarantee `json_object` mode — add regex extraction fallback: pull first `\{[\s\S]*\}` from response
   - Add `WATSONX_API_KEY` + `WATSONX_PROJECT_ID` to `.env.local` / Vercel env vars
+- [x] Handle empty graph responses gracefully
+- [x] Add timeout handling for LLM requests
 
 ### P3 — Backup Demo Video
 
-- [ ] Record perfect run of the full demo flow (see DESIGN.md §Demo Flow)
-- [ ] Use a rehearsed transcript — don't ad-lib on recording
-- [ ] Store locally (USB) and cloud (Drive/iCloud) — have both ready before entering the room
-- [ ] Practice live demo 3x minimum
+done
 
 ### P4 — Example Prompts + Slide Deck + Bitdeer Polish
 
@@ -370,12 +383,15 @@ Merge into `main` at sprint boundaries. **P4 merges last each time** — `page.t
   - "User submits a form, it gets validated, if valid send a confirmation email, if not show an error" _(flowchart)_
   - "Customer places an order, warehouse picks and packs it, courier delivers it, customer confirms receipt" _(business process)_
 - [ ] Clicking a chip fires LLM call directly without mic — critical demo safety net in noisy room
-- [ ] **Bitdeer polish targets:**
+- [x] **Bitdeer polish targets:**
   - Live deployed Vercel URL (not localhost) — judges will check
   - `README.md`: one-paragraph pitch, tech stack list, setup steps
   - No console errors on the happy path
   - UI doesn't break on a 13" laptop screen
 - [ ] Slide deck: 5 slides max — problem, demo screenshot, how it works, tech stack, ask
+- [x] Add library management (folders, tags, search, templates)
+- [x] Add version history and change tracking
+- [x] Add keyboard shortcuts (Cmd+S, Cmd+Z)
 
 ---
 
