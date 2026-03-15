@@ -18,6 +18,7 @@ export function useAutoSave(
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastVersionTimeRef = useRef<number>(Date.now())
   const saveCountRef = useRef(0)
+  const saveRef = useRef<(elements: ExcalidrawElement[]) => Promise<void>>(() => Promise.resolve())
 
   const save = useCallback(async (elements: ExcalidrawElement[]) => {
     setSaveStatus('saving')
@@ -82,6 +83,9 @@ export function useAutoSave(
     }
   }, [diagramId, canvasRef])
 
+  // Keep saveRef in sync so event listeners always call the latest save
+  saveRef.current = save
+
   const triggerSave = useCallback((elements: ExcalidrawElement[]) => {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
     saveTimerRef.current = setTimeout(() => save(elements), SAVE_DEBOUNCE_MS)
@@ -94,9 +98,36 @@ export function useAutoSave(
   }, [save])
 
   useEffect(() => {
+    function handleBeforeUnload() {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current)
+        saveTimerRef.current = null
+      }
+      const elements = canvasRef.current?.getElements() ?? []
+      if (elements.length > 0) saveRef.current(elements)
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'hidden') {
+        if (saveTimerRef.current) {
+          clearTimeout(saveTimerRef.current)
+          saveTimerRef.current = null
+        }
+        const elements = canvasRef.current?.getElements() ?? []
+        if (elements.length > 0) saveRef.current(elements)
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
     return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
     }
+  // canvasRef and saveRef are refs — they don't change, so empty dep array is correct
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return { triggerSave, forceSave, saveStatus }

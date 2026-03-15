@@ -108,6 +108,12 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
         const convertedShapes = convertToExcalidrawElements(
           shapes as Parameters<typeof convertToExcalidrawElements>[0],
           { regenerateIds: false }
+        ).map(el =>
+          // convertToExcalidrawElements generates bound text elements with verticalAlign: 'top'
+          // by default. Patch them to center so labels sit in the middle of their box.
+          el.type === 'text' && (el as Record<string, unknown>).containerId
+            ? { ...el, textAlign: 'center', verticalAlign: 'middle' }
+            : el
         )
         const enrichedArrows = enrichArrows(arrows)
         const allElements = [...convertedShapes, ...enrichedArrows] as ExcalidrawElement[]
