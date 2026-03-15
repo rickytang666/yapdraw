@@ -134,6 +134,9 @@
   --color-recording: var(--recording);
   --color-recording-pulse: var(--recording-pulse);
   --color-canvas-bg: var(--canvas-bg);
+}
+
+@theme {
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains);
 }

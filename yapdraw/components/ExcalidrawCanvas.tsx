@@ -148,11 +148,12 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
             appState: {
               exportBackground: true,
               exportWithDarkMode: false,
-              width: 200,
-              height: 150,
             } as Parameters<typeof exportToBlob>[0]['appState'],
             files: apiRef.current.getFiles(),
-            getDimensions: () => ({ width: 200, height: 150, scale: 1 }),
+            getDimensions: (w: number, h: number) => {
+              const scale = Math.min(400 / w, 300 / h, 1)
+              return { width: Math.round(w * scale), height: Math.round(h * scale), scale }
+            },
           })
           return new Promise<string>((resolve) => {
             const reader = new FileReader()

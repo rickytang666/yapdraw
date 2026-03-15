@@ -29,11 +29,11 @@ export default function LandingPage() {
       {/* Hero Section: The "Kinetic Canvas" */}
       <header className="max-w-5xl mx-auto pt-20 pb-32 px-6 text-center">
         <div className="inline-block px-3 py-1 mb-6 text-xs font-mono tracking-widest uppercase border border-slate-200 rounded-full bg-white/50 backdrop-blur-sm">
-          Powered by Voice &amp; Excalidraw
+          Powered by Deepgram &amp; Excalidraw
         </div>
         <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-slate-900 mb-8 leading-[1.1]">
           Describe your system. <br/>
-          <span className="text-[#6965db] italic underline decoration-wavy decoration-2 underline-offset-8 mt-4 inline-block">Watch it appear.</span>
+          <span className="text-[#6965db] italic underline decoration-wavy decoration-2 underline-offset-8 mt-4 inline-block font-serif">Watch it appear.</span>
         </h1>
         <p className="text-xl text-slate-500 max-w-2xl mx-auto mb-12 leading-relaxed font-light">
           Skip the drag-and-drop. Describe architecture, flows, and sketches naturally. We&apos;ll draw the nodes, you lead the session.
