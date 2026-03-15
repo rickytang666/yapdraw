@@ -24,6 +24,9 @@ const architectsDaughter = Architects_Daughter({
 export const metadata: Metadata = {
   title: "YapDraw",
   description: "Draw diagrams in real-time as you work",
+  icons: {
+    icon: "/yapdraw_logo.png",
+  },
 };
 
 export default function RootLayout({
