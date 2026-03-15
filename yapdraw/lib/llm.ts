@@ -111,7 +111,7 @@ export async function generateDiagram(
         direction: graph.direction ?? currentGraph.direction,
         nodes: [...graph.nodes, ...restoredNodes],
         edges: [...graph.edges, ...restoredEdges],
-        groups: graph.groups ?? currentGraph.groups,
+        groups: (graph.groups && graph.groups.length > 0) ? graph.groups : (currentGraph.groups ?? []),
       }
     }
   }

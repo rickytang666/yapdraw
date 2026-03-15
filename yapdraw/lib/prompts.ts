@@ -28,7 +28,8 @@ const BASE_PROMPT = `You are a diagram generator. Convert natural language descr
 - No self-loops
 
 ## groups
-Background zone rectangles. Use for layered architectures (UI Layer / Service Layer / Data Layer).
+Background zone rectangles. Use whenever nodes naturally cluster into logical groups — layers (Client / Service / Data), teams, phases, domains, or any meaningful category. When in doubt, add groups; they make diagrams significantly easier to read.
+- Cloud/hosting infrastructure (AWS, GCP, Azure, Vercel, etc.) should be grouped together as an "Infrastructure" or provider-named group, not mixed into service or data layers.
 - "color": must be one of the named colors above (blue, green, purple, orange, red, teal, yellow, grey) — never hex values
 
 ## Topology rules — CRITICAL
@@ -62,7 +63,7 @@ You are in freeform mode. There are no structural constraints.
 - Accept any topology — hierarchies, networks, mind maps, timelines, or anything else
 - Do not impose a preferred direction; infer the best layout from the content
 - Use shapes and colors freely to reflect whatever the user describes
-- Prefer simplicity: avoid adding groups or zones unless the user mentions layers or regions
+- Use groups freely whenever nodes cluster into logical categories — layers, roles, phases, domains. Groups make diagrams easier to read.
 
 ## Examples
 
