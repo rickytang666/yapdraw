@@ -117,7 +117,7 @@ export default function DiagramCard({
             <img
               src={diagram.thumbnail}
               alt={diagram.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain p-2"
             />
           ) : (
             <span className="text-[#94A3B8] text-xs">No preview</span>

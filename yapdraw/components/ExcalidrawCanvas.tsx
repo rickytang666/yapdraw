@@ -150,9 +150,9 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
               exportWithDarkMode: false,
             } as Parameters<typeof exportToBlob>[0]['appState'],
             files: apiRef.current.getFiles(),
-            getDimensions: (w: number, h: number) => {
-              const scale = Math.min(400 / w, 300 / h, 1)
-              return { width: Math.round(w * scale), height: Math.round(h * scale), scale }
+            getDimensions: (width, height) => {
+              const scale = Math.min(400 / width, 300 / height, 1)
+              return { width: Math.round(width * scale), height: Math.round(height * scale), scale }
             },
           })
           return new Promise<string>((resolve) => {

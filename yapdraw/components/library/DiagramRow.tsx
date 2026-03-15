@@ -76,7 +76,7 @@ export default function DiagramRow({
           <img
             src={diagram.thumbnail}
             alt={diagram.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
