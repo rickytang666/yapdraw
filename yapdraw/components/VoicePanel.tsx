@@ -86,6 +86,30 @@ export default function VoicePanel({
         </span>
       </div>
 
+      {/* Example prompt chips */}
+      {messages.length === 0 && !finalTranscript && (
+        <div className="px-4 pb-3 flex flex-col gap-2">
+          <p className="text-[#94A3B8] text-xs px-1">Try an example:</p>
+          {[
+            { label: 'React → Node API → Postgres & Redis', prompt: 'React frontend calls a Node API, which reads from Postgres and caches in Redis' },
+            { label: 'Form validation flow', prompt: 'User submits a form, it gets validated, if valid send a confirmation email, if not show an error' },
+            { label: 'Order fulfillment process', prompt: 'Customer places an order, warehouse picks and packs it, courier delivers it, customer confirms receipt' },
+          ].map(({ label, prompt }) => (
+            <button
+              key={label}
+              disabled={isLoading || isListening}
+              onClick={() => {
+                setMessages(prev => [...prev, prompt])
+                onMockSubmit?.(prompt)
+              }}
+              className="text-left text-xs px-3 py-2 rounded-lg border border-[#E5E7EB] bg-[#F8FAFC] text-[#475569] hover:bg-[#EFF6FF] hover:border-[#BFDBFE] hover:text-[#1D4ED8] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Scrollable area: transcript */}
       <div className="flex-1 overflow-y-auto">
         <div className="py-4 space-y-2 px-4">
