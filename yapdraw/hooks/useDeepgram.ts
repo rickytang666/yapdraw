@@ -13,6 +13,7 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const finalTranscriptRef = useRef('')
   const onSilenceRef = useRef(onSilence)
+  const stopRequestedRef = useRef(false)
   onSilenceRef.current = onSilence
 
   const resetSilenceTimer = useCallback(() => {
@@ -27,12 +28,18 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
   }, [])
 
   const start = useCallback(async () => {
+    stopRequestedRef.current = false
     try {
       const res = await fetch('/api/deepgram-token')
       const { key, error } = await res.json()
       if (error) throw new Error(error)
+      if (stopRequestedRef.current) return
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      if (stopRequestedRef.current) {
+        stream.getTracks().forEach(t => t.stop())
+        return
+      }
       streamRef.current = stream
 
       const params = new URLSearchParams({
@@ -103,6 +110,7 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
   }, [resetSilenceTimer])
 
   const stop = useCallback(() => {
+    stopRequestedRef.current = true
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
     // Flush any accumulated transcript that hasn't been sent yet
     if (finalTranscriptRef.current.trim()) {
