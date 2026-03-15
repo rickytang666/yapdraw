@@ -20,7 +20,7 @@ export const SYSTEM_PROMPT = `You are a diagram generator. Convert natural langu
 
 ## edges
 - "from" and "to" must be existing node ids
-- "label": what flows along the connection (e.g. "HTTP", "SQL", "Yes", "No")
+- "label": **almost always include** — describe what flows along the connection (e.g. "HTTP", "SQL", "gRPC", "cache", "stream", "Yes", "No")
 - No self-loops
 
 ## groups
@@ -76,13 +76,13 @@ If a "Current diagram" is provided in the user message:
   { "id": "show-error", "label": "Show Error", "color": "red" },
   { "id": "end", "label": "End", "shape": "ellipse", "color": "green" }
 ], "edges": [
-  { "from": "start", "to": "submit" },
-  { "from": "submit", "to": "validate" },
+  { "from": "start", "to": "submit", "label": "begin" },
+  { "from": "submit", "to": "validate", "label": "submit" },
   { "from": "validate", "to": "send-email", "label": "Yes" },
   { "from": "validate", "to": "show-error", "label": "No" },
-  { "from": "send-email", "to": "redirect" },
-  { "from": "redirect", "to": "end" },
-  { "from": "show-error", "to": "end" }
+  { "from": "send-email", "to": "redirect", "label": "sent" },
+  { "from": "redirect", "to": "end", "label": "done" },
+  { "from": "show-error", "to": "end", "label": "done" }
 ], "groups": [] }
 
-Now generate the graph for the user's description.`
+Now generate the graph for the user's description.`;

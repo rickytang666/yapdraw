@@ -7,8 +7,7 @@ import { db } from '@/lib/db'
 import { nanoid } from 'nanoid'
 import ExcalidrawCanvas, { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
 import VoicePanel from '@/components/VoicePanel'
-import LoadingIndicator, { type LoadingPhase } from '@/components/LoadingIndicator'
-import SkeletonOverlay from '@/components/SkeletonOverlay'
+import { type LoadingPhase } from '@/components/LoadingIndicator'
 import EditorTopBar from '@/components/editor/EditorTopBar'
 import VersionHistoryPanel from '@/components/editor/VersionHistoryPanel'
 import { useAutoSave } from '@/hooks/useAutoSave'
@@ -164,8 +163,9 @@ export default function EditorPage({ params }: Props) {
               initialElements={diagram!.elements}
               onChange={elements => triggerSave(elements)}
             />
-            {loadingPhase === 'generating' && <SkeletonOverlay />}
-            <LoadingIndicator phase={loadingPhase} />
+            {loadingPhase !== 'idle' && (
+              <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-zinc-400 animate-pulse pointer-events-none" />
+            )}
 
             {/* Locked overlay */}
             {diagram?.locked && (
