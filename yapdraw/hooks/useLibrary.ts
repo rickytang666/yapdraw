@@ -96,7 +96,8 @@ export function useLibrary() {
     })
 
     return filtered
-  }, [allDiagrams, trashedDiagrams, state])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allDiagrams, trashedDiagrams, state.activeSection, state.searchQuery, state.sortField, state.sortDirection])
 
   // ─── Navigation ───────────────────────────────────────────
 
@@ -249,7 +250,7 @@ export function useLibrary() {
   const purgeExpiredTrash = useCallback(async () => {
     const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000
     const expired = await db.diagrams
-      .filter(d => d.trashedAt !== null && d.trashedAt! < cutoff)
+      .filter(d => d.trashedAt !== null && d.trashedAt < cutoff)
       .toArray()
 
     if (expired.length === 0) return

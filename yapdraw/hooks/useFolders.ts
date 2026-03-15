@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/lib/db'
 import { nanoid } from 'nanoid'
@@ -83,14 +83,19 @@ export function useFolders() {
 
   const folders: Folder[] = rawFolders || []
 
-  const diagramCounts = (allDiagrams || []).reduce<Record<string, number>>((acc, d) => {
-    if (d.folderId) {
-      acc[d.folderId] = (acc[d.folderId] || 0) + 1
-    }
-    return acc
-  }, {})
+  const diagramCounts = useMemo(() =>
+    (allDiagrams || []).reduce<Record<string, number>>((acc, d) => {
+      if (d.folderId) {
+        acc[d.folderId] = (acc[d.folderId] || 0) + 1
+      }
+      return acc
+    }, {}),
+  [allDiagrams])
 
-  const tree: FolderNode[] = buildTree(folders, diagramCounts)
+  const tree: FolderNode[] = useMemo(
+    () => buildTree(folders, diagramCounts),
+    [folders, diagramCounts]
+  )
 
   const createFolder = useCallback(async (name: string, parentId?: string): Promise<string> => {
     const currentFolders = await db.folders.toArray()

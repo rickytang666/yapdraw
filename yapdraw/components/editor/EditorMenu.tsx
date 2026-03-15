@@ -6,7 +6,6 @@ import {
   IconPhoto,
   IconFileExport,
   IconFileCode,
-  IconHistory,
   IconCopy,
   IconLock,
   IconLockOpen,
@@ -20,7 +19,6 @@ interface Props {
   canvasRef: React.RefObject<ExcalidrawCanvasHandle | null>
   onDuplicate: () => void
   onToggleLock: () => void
-  onShowHistory: () => void
 }
 
 export default function EditorMenu({
@@ -28,7 +26,6 @@ export default function EditorMenu({
   canvasRef,
   onDuplicate,
   onToggleLock,
-  onShowHistory,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -77,11 +74,6 @@ export default function EditorMenu({
   function handleExportJSON() {
     setIsOpen(false)
     exportAsJSON(diagram)
-  }
-
-  function handleShowHistory() {
-    setIsOpen(false)
-    onShowHistory()
   }
 
   function handleDuplicate() {
@@ -136,14 +128,6 @@ export default function EditorMenu({
           </button>
 
           <div className="my-1 border-t border-zinc-700" />
-
-          <button
-            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
-            onClick={handleShowHistory}
-          >
-            <IconHistory size={14} className="shrink-0" />
-            Version History
-          </button>
 
           <button
             className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"

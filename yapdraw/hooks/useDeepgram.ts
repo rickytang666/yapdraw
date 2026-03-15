@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useCallback } from 'react'
+import { useRef, useState, useCallback, useEffect } from 'react'
 
 export function useDeepgram(onSilence: (transcript: string) => void) {
   const [isListening, setIsListening] = useState(false)
@@ -87,7 +87,13 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
         }
       }
 
-      ws.onerror = (e) => console.error('Deepgram WS error', e)
+      ws.onerror = (e) => {
+        console.error('Deepgram WS error', e)
+        setIsListening(false)
+        mediaRecorderRef.current?.stop()
+        streamRef.current?.getTracks().forEach(t => t.stop())
+        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
+      }
       ws.onclose = () => setIsListening(false)
     } catch (err) {
       console.error('Failed to start Deepgram', err)
@@ -113,6 +119,16 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
     finalTranscriptRef.current = ''
     setFinalTranscript('')
     setInterimTranscript('')
+  }, [])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
+      mediaRecorderRef.current?.stop()
+      wsRef.current?.close()
+      streamRef.current?.getTracks().forEach(t => t.stop())
+    }
   }, [])
 
   return { isListening, interimTranscript, finalTranscript, start, stop, reset }

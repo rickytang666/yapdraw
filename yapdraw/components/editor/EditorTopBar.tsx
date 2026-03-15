@@ -1,6 +1,6 @@
 'use client'
 
-import { IconArrowLeft, IconStar, IconStarFilled, IconLock } from '@tabler/icons-react'
+import { IconArrowLeft, IconStar, IconStarFilled, IconLock, IconHistory } from '@tabler/icons-react'
 import type { Diagram } from '@/types/library'
 import type { SaveStatus } from '@/hooks/useAutoSave'
 import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
@@ -14,9 +14,9 @@ interface Props {
   onBack: () => void
   onRename?: (name: string) => void
   onStar?: (starred: boolean) => void
-  onShowHistory?: () => void
   onDuplicate?: () => void
   onToggleLock?: () => void
+  onHistoryOpen?: () => void
   canvasRef?: React.RefObject<ExcalidrawCanvasHandle | null>
 }
 
@@ -26,9 +26,9 @@ export default function EditorTopBar({
   onBack,
   onRename,
   onStar,
-  onShowHistory,
   onDuplicate,
   onToggleLock,
+  onHistoryOpen,
   canvasRef,
 }: Props) {
   return (
@@ -68,11 +68,21 @@ export default function EditorTopBar({
 
       <SaveStatusIndicator status={saveStatus} />
 
-      {canvasRef && onShowHistory && onDuplicate && onToggleLock && (
+      {onHistoryOpen && (
+        <button
+          onClick={onHistoryOpen}
+          className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors"
+          aria-label="Version history"
+          title="Version history"
+        >
+          <IconHistory size={16} />
+        </button>
+      )}
+
+      {canvasRef && onDuplicate && onToggleLock && (
         <EditorMenu
           diagram={diagram}
           canvasRef={canvasRef}
-          onShowHistory={onShowHistory}
           onDuplicate={onDuplicate}
           onToggleLock={onToggleLock}
         />

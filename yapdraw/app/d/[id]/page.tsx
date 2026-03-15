@@ -12,6 +12,7 @@ import EditorTopBar from '@/components/editor/EditorTopBar'
 import VersionHistoryPanel from '@/components/editor/VersionHistoryPanel'
 import { useAutoSave } from '@/hooks/useAutoSave'
 import { useVersionHistory } from '@/hooks/useVersionHistory'
+import { useAIChangeHistory } from '@/hooks/useAIChangeHistory'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import type { ExcalidrawElement, GraphResponse } from '@/types/diagram'
 import type { Diagram } from '@/types/library'
@@ -25,8 +26,18 @@ export default function EditorPage({ params }: Props) {
   const router = useRouter()
   const canvasRef = useRef<ExcalidrawCanvasHandle>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [showVersionHistory, setShowVersionHistory] = useState(false)
   const [lastGraph, setLastGraph] = useState<GraphResponse | null>(null)
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
+  const [restoreFlash, setRestoreFlash] = useState(false)
+
+  function triggerRestoreAnimation() {
+    setRestoreFlash(true)
+    setTimeout(() => setRestoreFlash(false), 500)
+  }
+
+  // Tracks the versionId of the snapshot taken just before the last AI change (for Cmd+Z)
+  const lastAIVersionIdRef = useRef<string | null>(null)
+  const isRestoringRef = useRef(false)
 
   const diagram = useLiveQuery(() => db.diagrams.get(id), [id])
 
@@ -36,33 +47,51 @@ export default function EditorPage({ params }: Props) {
       db.diagrams.update(id, { lastOpenedAt: Date.now() })
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, !!diagram])
+  }, [id, diagram?.id])
 
   const { triggerSave, forceSave, saveStatus } = useAutoSave(id, canvasRef)
-  const { pruneVersions } = useVersionHistory(id)
-
-  // Prune old versions on mount
-  useEffect(() => {
-    pruneVersions()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  const { restoreVersion } = useVersionHistory(id)
+  const aiHistory = useAIChangeHistory(id)
 
   // Redirect if diagram not found
   useEffect(() => {
     if (diagram === null) router.replace('/')
   }, [diagram, router])
 
-  // Keyboard shortcuts
+  // ─── Keyboard shortcuts ────────────────────────────────────────────────────
+
   useKeyboardShortcuts({
     'mod+s': () => {
-      const elements = canvasRef.current?.getElements() || []
+      const elements = canvasRef.current?.getElements() ?? []
       forceSave(elements)
     },
+    'mod+z': () => {
+      const vid = lastAIVersionIdRef.current
+      if (vid && !isRestoringRef.current) {
+        isRestoringRef.current = true
+        handleRestoreChange(vid)
+          .catch(console.error)
+          .finally(() => { isRestoringRef.current = false })
+      }
+    },
   })
+
+  // ─── Voice / AI generation ────────────────────────────────────────────────
 
   async function handleSilence(text: string) {
     if (!text.trim() || !diagram || diagram.locked) return
     setIsLoading(true)
+
+    // 1. Snapshot state BEFORE the AI change
+    const currentElements = canvasRef.current?.getElements() ?? diagram.elements
+    const versionId = await aiHistory.snapshotBeforeChange(
+      currentElements as ExcalidrawElement[],
+      text,
+      diagram.transcript,
+      diagram.version,
+    )
+    lastAIVersionIdRef.current = versionId
+
     try {
       const res = await fetch('/api/generate-diagram', {
         method: 'POST',
@@ -75,11 +104,23 @@ export default function EditorPage({ params }: Props) {
       const data = await res.json()
       if (!res.ok || !data.elements) {
         console.error('generate-diagram failed:', data.error ?? data)
+        // Request failed — remove the orphan snapshot
+        await db.versions.delete(versionId)
+        lastAIVersionIdRef.current = null
         return
       }
+
       const { elements, graph }: { elements: ExcalidrawElement[]; graph: GraphResponse } = data
       setLastGraph(graph)
       canvasRef.current?.updateDiagram(elements, { replace: true })
+
+      // 2. Record the diff — updates DB label and adds card to VoicePanel
+      await aiHistory.recordChange(
+        versionId,
+        text,
+        currentElements as ExcalidrawElement[],
+        elements,
+      )
 
       await db.diagrams.update(id, {
         transcript: (diagram.transcript + '\n' + text).trim(),
@@ -87,10 +128,24 @@ export default function EditorPage({ params }: Props) {
       })
     } catch (err) {
       console.error('Failed to generate diagram:', err)
+      await db.versions.delete(versionId)
+      lastAIVersionIdRef.current = null
     } finally {
       setIsLoading(false)
     }
   }
+
+  // ─── Restore from a history card ──────────────────────────────────────────
+
+  async function handleRestoreChange(versionId: string) {
+    const target = await db.versions.get(versionId)
+    if (!target) return
+    await restoreVersion(versionId)
+    canvasRef.current?.updateDiagram(target.elements as ExcalidrawElement[], { replace: true })
+    lastAIVersionIdRef.current = null
+  }
+
+  // ─── Duplicate ────────────────────────────────────────────────────────────
 
   async function handleDuplicate() {
     if (!diagram) return
@@ -116,6 +171,8 @@ export default function EditorPage({ params }: Props) {
     await db.diagrams.update(id, { locked: !diagram.locked })
   }
 
+  // ─── Loading state ────────────────────────────────────────────────────────
+
   if (diagram === undefined) {
     return (
       <div className="flex items-center justify-center h-screen bg-zinc-900 text-zinc-400">
@@ -132,20 +189,32 @@ export default function EditorPage({ params }: Props) {
         onBack={() => router.push('/')}
         onRename={name => db.diagrams.update(id, { name, updatedAt: Date.now() })}
         onStar={starred => db.diagrams.update(id, { starred })}
-        onShowHistory={() => setShowVersionHistory(true)}
         onDuplicate={handleDuplicate}
         onToggleLock={handleToggleLock}
+        onHistoryOpen={() => setIsHistoryOpen(true)}
         canvasRef={canvasRef}
       />
+
       <div className="flex flex-1 min-h-0 overflow-hidden">
+        {/* Voice panel — 35% wide, shows AI change history above transcript */}
         <div className="w-[35%] h-full border-r border-zinc-800 shrink-0">
           <VoicePanel
             isLoading={isLoading}
             onSilence={handleSilence}
             onMockSubmit={handleSilence}
+            changeHistory={aiHistory.entries}
+            onRestoreChange={handleRestoreChange}
           />
         </div>
+
+        {/* Canvas */}
         <div className="flex-1 min-w-0 min-h-0 relative">
+          {/* Restore flash overlay */}
+          <div
+            className={`absolute inset-0 z-20 pointer-events-none bg-white transition-opacity duration-500 ${
+              restoreFlash ? 'opacity-20' : 'opacity-0'
+            }`}
+          />
           <ExcalidrawCanvas
             ref={canvasRef}
             initialElements={diagram!.elements}
@@ -166,12 +235,12 @@ export default function EditorPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Version History Panel */}
       <VersionHistoryPanel
         diagramId={id}
-        isOpen={showVersionHistory}
-        onClose={() => setShowVersionHistory(false)}
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
         canvasRef={canvasRef}
+        onRestoreAnimation={triggerRestoreAnimation}
       />
     </div>
   )
