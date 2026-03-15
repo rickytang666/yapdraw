@@ -28,7 +28,7 @@ function NewDiagramInner() {
         elements: [],
         transcript: '',
         diagramType: 'freeform',
-        thumbnail: null,
+        thumbnail: null, files: {},
         tags: [],
         starred: false,
         locked: false,

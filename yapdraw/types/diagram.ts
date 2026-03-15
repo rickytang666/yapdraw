@@ -17,7 +17,6 @@ export interface GraphNode {
   shape?: NodeShape
   color?: NodeColor
   group?: string // matches a GraphGroup id
-  icon?: string  // Simple Icons slug e.g. "redis", "postgresql", "docker"
 }
 
 export interface BinaryFileData {

@@ -21,7 +21,6 @@ const BASE_PROMPT = `You are a diagram generator. Convert natural language descr
 - "shape": "rectangle" (default), "diamond" (decisions/branches), "ellipse" (start/end)
 - "color": blue (clients/frontend), green (services/success), purple (gateways/middleware), orange (external/CDN), red (errors), teal (databases/storage), yellow (decisions), grey (generic)
 - "group": (optional) id of the group zone this node belongs to
-- "icon": (optional) Simple Icons slug for well-known technologies. Use for: react, nextdotjs, nodejs, postgresql, mongodb, redis, kafka, docker, kubernetes, nginx, elasticsearch, graphql, amazonaws, googlecloud, microsoftazure, vercel, netlify, github, gitlab, stripe, datadog, grafana, prometheus, supabase, firebase, jenkins. Omit for generic/business nodes (User, API Gateway, Service, Decision, etc.)
 
 ## edges
 - "from" and "to" must be existing node ids
@@ -71,10 +70,10 @@ You are in freeform mode. There are no structural constraints.
 ### Fan-out architecture (LR)
 "React frontend, Node API, which connects to both Postgres and Redis"
 { "direction": "LR", "nodes": [
-  { "id": "react", "label": "React Frontend", "shape": "rectangle", "color": "blue", "icon": "react" },
-  { "id": "node-api", "label": "Node API", "shape": "rectangle", "color": "green", "icon": "nodedotjs" },
-  { "id": "postgres", "label": "PostgreSQL", "shape": "rectangle", "color": "teal", "icon": "postgresql" },
-  { "id": "redis", "label": "Redis Cache", "shape": "rectangle", "color": "teal", "icon": "redis" }
+  { "id": "react", "label": "React Frontend", "shape": "rectangle", "color": "blue" },
+  { "id": "node-api", "label": "Node API", "shape": "rectangle", "color": "green" },
+  { "id": "postgres", "label": "PostgreSQL", "shape": "rectangle", "color": "teal" },
+  { "id": "redis", "label": "Redis Cache", "shape": "rectangle", "color": "teal" }
 ], "edges": [
   { "from": "react", "to": "node-api", "label": "HTTP" },
   { "from": "node-api", "to": "postgres", "label": "SQL" },

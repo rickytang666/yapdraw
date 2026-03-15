@@ -51,8 +51,11 @@ export function useAutoSave(
         } catch { /* keep old thumbnail */ }
       }
 
+      const files = canvasRef.current?.getFiles?.() ?? {}
+
       await db.diagrams.update(diagramId, {
         elements,
+        files,
         updatedAt: now,
         version: newVersion,
         metadata,

@@ -12,6 +12,7 @@ import { mergeElements, prepareForConversion, enrichArrows } from '@/lib/excalid
 export interface ExcalidrawCanvasHandle {
   updateDiagram: (elements: ExcalidrawElement[], opts?: { replace?: boolean; files?: BinaryFileData[] }) => void
   getElements: () => ExcalidrawElement[]
+  getFiles: () => Record<string, BinaryFileData>
   exportThumbnail?: () => Promise<string>
 }
 
@@ -29,11 +30,12 @@ function isNativeFormat(el: Record<string, unknown>): boolean {
 
 interface Props {
   initialElements?: ExcalidrawElement[]
+  initialFiles?: Record<string, BinaryFileData>
   onChange?: (elements: ExcalidrawElement[]) => void
 }
 
 const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
-  ({ initialElements, onChange }, ref) => {
+  ({ initialElements, initialFiles, onChange }, ref) => {
     const [Excalidraw, setExcalidraw] = useState<
       typeof import('@excalidraw/excalidraw').Excalidraw | null
     >(null)
@@ -44,7 +46,7 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
       typeof import('@excalidraw/excalidraw').exportToBlob | null
     >(null)
 
-    const initialDataRef = useRef<{ elements: ExcalidrawElement[] } | undefined>(undefined)
+    const initialDataRef = useRef<{ elements: ExcalidrawElement[]; files?: Record<string, BinaryFileData> } | undefined>(undefined)
     const [hasMountedWithData, setHasMountedWithData] = useState(false)
     const [safeMax, setSafeMax] = useState(4096)
     const apiRef = useRef<ExcalidrawImperativeAPI | null>(null)
@@ -83,7 +85,7 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
                 initialElements as Parameters<typeof mod.convertToExcalidrawElements>[0],
                 { regenerateIds: false }
               )
-          initialDataRef.current = { elements }
+          initialDataRef.current = { elements, files: initialFiles }
         }
         setExcalidraw(() => mod.Excalidraw)
         setConvertToExcalidrawElements(() => mod.convertToExcalidrawElements)
@@ -170,6 +172,12 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
       getElements() {
         if (!apiRef.current) return []
         return [...apiRef.current.getSceneElements()] as ExcalidrawElement[]
+      },
+
+      getFiles() {
+        if (!apiRef.current) return {}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return apiRef.current.getFiles() as any as Record<string, BinaryFileData>
       },
 
       async exportThumbnail() {

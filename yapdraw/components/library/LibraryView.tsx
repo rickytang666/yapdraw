@@ -92,7 +92,7 @@ export default function LibraryView() {
       elements,
       transcript: '',
       diagramType,
-      thumbnail: null,
+      thumbnail: null, files: {},
       tags: [],
       starred: false,
       locked: false,

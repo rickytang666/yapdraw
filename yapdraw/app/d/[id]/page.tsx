@@ -228,6 +228,7 @@ export default function EditorPage({ params }: Props) {
             <ExcalidrawCanvas
               ref={canvasRef}
               initialElements={diagram!.elements}
+              initialFiles={diagram!.files ?? {}}
               onChange={elements => triggerSave(elements)}
             />
             {loadingPhase !== 'idle' && (

@@ -63,7 +63,9 @@ export async function generateDiagram(
     console.warn('Failed to parse LLM response as JSON:', content)
     if (currentGraph && currentGraph.nodes.length > 0) {
       console.warn('Falling back to current graph')
-      return { elements: layoutGraph(currentGraph), graph: currentGraph }
+      const { elements: fbElements, iconRequests: fbRequests } = layoutGraph(currentGraph)
+      const fbFiles = await fetchIcons(fbRequests)
+      return { elements: fbElements, graph: currentGraph, files: fbFiles }
     }
     throw new Error('LLM returned empty graph')
   }
@@ -117,7 +119,7 @@ export async function generateDiagram(
     }
   }
 
-  const elements = layoutGraph(graph)
-  const files = await fetchIcons(graph.nodes)
+  const { elements, iconRequests } = layoutGraph(graph)
+  const files = await fetchIcons(iconRequests)
   return { elements, graph, files }
 }

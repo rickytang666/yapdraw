@@ -1,6 +1,6 @@
 import dagre from 'dagre'
 import type { GraphResponse, NodeColor, NodeShape, ExcalidrawElement } from '@/types/diagram'
-import { normalizeSlug } from './icons'
+import { iconFileId, inferSlugFromLabel, type IconRequest } from './icons'
 
 // ── Sizing ────────────────────────────────────────────────────────────────
 
@@ -41,7 +41,7 @@ interface Box { x: number; y: number; w: number; h: number; shape: NodeShape }
 
 // ── Main layout function ──────────────────────────────────────────────────
 
-export function layoutGraph(graph: GraphResponse): ExcalidrawElement[] {
+export function layoutGraph(graph: GraphResponse): { elements: ExcalidrawElement[]; iconRequests: IconRequest[] } {
   const { nodes, edges, groups = [], direction = 'LR' } = graph
 
   const g = new dagre.graphlib.Graph()
@@ -88,6 +88,7 @@ export function layoutGraph(graph: GraphResponse): ExcalidrawElement[] {
   }
 
   const elements: ExcalidrawElement[] = []
+  const iconRequests: IconRequest[] = []
 
   // ── Group background zones (behind nodes) ─────────────────────────────
 
@@ -117,6 +118,32 @@ export function layoutGraph(graph: GraphResponse): ExcalidrawElement[] {
       verticalAlign: 'top',
       label: { text: group.label, fontSize: 14, verticalAlign: 'top', textAlign: 'left' },
     })
+
+    // Group icon — top-right corner, inferred from label
+    const resolvedGroupIcon = inferSlugFromLabel(group.label)
+    if (resolvedGroupIcon) {
+      const slug = resolvedGroupIcon
+      const colorHex = gc.stroke
+      iconRequests.push({ slug, colorHex })
+      elements.push({
+        type: 'image',
+        id: `icon-group-${group.id}`,
+        fileId: iconFileId(slug, colorHex),
+        x: maxX - GROUP_PADDING + 4,
+        y: minY + 8,
+        width: 20,
+        height: 20,
+        status: 'pending',
+        scale: [1, 1],
+        angle: 0,
+        opacity: 100,
+        isDeleted: false,
+        groupIds: [],
+        frameId: null,
+        link: null,
+        locked: false,
+      })
+    }
   }
 
   // ── Nodes ─────────────────────────────────────────────────────────────
@@ -143,13 +170,16 @@ export function layoutGraph(graph: GraphResponse): ExcalidrawElement[] {
     if (box.shape === 'rectangle') el.roundness = { type: 3 }
     elements.push(el)
 
-    // Icon badge — top-left corner of the node
-    if (node.icon) {
-      const slug = normalizeSlug(node.icon)
+    // Icon badge — top-left corner, inferred from label
+    const resolvedIcon = inferSlugFromLabel(node.label)
+    if (resolvedIcon) {
+      const slug = resolvedIcon
+      const colorHex = c.stroke
+      iconRequests.push({ slug, colorHex })
       elements.push({
         type: 'image',
         id: `icon-${node.id}`,
-        fileId: `simpleicon-${slug}`,
+        fileId: iconFileId(slug, colorHex),
         x: box.x + 8,
         y: box.y + 8,
         width: 20,
@@ -230,5 +260,5 @@ export function layoutGraph(graph: GraphResponse): ExcalidrawElement[] {
     elements.push(arrow)
   }
 
-  return elements
+  return { elements, iconRequests }
 }

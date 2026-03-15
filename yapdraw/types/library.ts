@@ -1,4 +1,4 @@
-import { ExcalidrawElement } from './diagram'
+import { ExcalidrawElement, BinaryFileData } from './diagram'
 
 // ─── Enums & Literals ───────────────────────────────────────────
 
@@ -22,6 +22,7 @@ export interface Diagram {
   name: string                    // user-editable, default "Untitled Diagram"
   folderId: string | null         // null = root level
   elements: ExcalidrawElement[]   // the Excalidraw scene
+  files: Record<string, BinaryFileData> // icon SVG data keyed by fileId
   transcript: string              // full voice transcript that produced this
   diagramType: DiagramType
   thumbnail: string | null        // base64 data URL, ~200x150 PNG
