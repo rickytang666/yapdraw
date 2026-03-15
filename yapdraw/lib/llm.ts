@@ -152,27 +152,27 @@ export async function generateDiagram(
     throw new Error("LLM returned empty graph");
   }
 
+  // Only wipe the canvas if the user explicitly said so — never trust the LLM alone
+  const explicitWipe = /\b(delete|clear|wipe|erase|remove)\s+(every|all)(\s*thing)?\b/i.test(transcript)
+
   if (!Array.isArray(graph.nodes) || graph.nodes.length === 0) {
-    const intentionalClear = (graph.remove?.nodes?.length ?? 0) > 0;
-    if (currentGraph && currentGraph.nodes.length > 0 && !intentionalClear) {
-      // LLM lost its way (no explicit remove signal) — fall back to unchanged current graph
-      console.warn(
-        "LLM returned empty nodes on incremental update; keeping current graph",
-      );
+    if (currentGraph && currentGraph.nodes.length > 0 && !explicitWipe) {
+      // LLM returned empty but user didn't ask to wipe — keep existing graph
+      console.warn("LLM returned empty nodes; keeping current graph (no explicit wipe instruction)")
       graph = currentGraph;
-    } else if (!intentionalClear) {
+    } else if (!explicitWipe) {
       console.error("LLM returned empty graph. Parsed:", JSON.stringify(graph));
       console.error("Raw content:", content);
       throw new Error("LLM returned empty graph");
     }
-    // intentionalClear: user said "delete everything" — allow empty graph through
+    // explicitWipe: user said "delete everything" — allow empty graph through
   }
 
   // Safety merge: if this was an incremental update and the LLM kept at least one
   // existing node ID, restore any nodes/edges it accidentally dropped.
   // Nodes listed in graph.remove are intentional deletions — never restore those.
   // If zero IDs match, the LLM intentionally redesigned — don't merge.
-  if (currentGraph) {
+  if (currentGraph && !explicitWipe) {
     const explicitlyRemovedNodes = new Set(graph.remove?.nodes ?? []);
     const explicitlyRemovedEdgeKeys = new Set(
       (graph.remove?.edges ?? []).map((e) => `${e.from}|${e.to}`),

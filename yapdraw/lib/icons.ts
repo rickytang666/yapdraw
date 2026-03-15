@@ -36,6 +36,7 @@ const SLUG_ALIASES: Record<string, string> = {
   heroku: "heroku",
   digitalocean: "digitalocean",
   azure: "microsoftazure",
+  gmail: "gmail",
 };
 
 export function normalizeSlug(raw: string): string {
@@ -94,6 +95,7 @@ const LABEL_KEYWORDS: Array<[RegExp, string]> = [
   [/\bsendgrid\b/i, "sendgrid"],
   [/\bgraphql\b/i, "graphql"],
   [/\bgrpc\b/i, "grpc"],
+  [/\bgmail\b/i, "gmail"],
 ];
 
 /** Infer a Simple Icons slug from a node/group label. Returns null if no match. */

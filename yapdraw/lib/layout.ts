@@ -119,7 +119,7 @@ export function layoutGraph(graph: GraphResponse): { elements: ExcalidrawElement
       label: { text: group.label, fontSize: 14, verticalAlign: 'top', textAlign: 'left' },
     })
 
-    // Group icon — top-right corner, inferred from label
+    // Group icon — bottom-left corner, inferred from label
     const resolvedGroupIcon = inferSlugFromLabel(group.label)
     if (resolvedGroupIcon) {
       const slug = resolvedGroupIcon
@@ -129,8 +129,8 @@ export function layoutGraph(graph: GraphResponse): { elements: ExcalidrawElement
         type: 'image',
         id: `icon-group-${group.id}`,
         fileId: iconFileId(slug, colorHex),
-        x: maxX - GROUP_PADDING + 4,
-        y: minY + 8,
+        x: minX + 8,
+        y: maxY - 28,
         width: 20,
         height: 20,
         status: 'pending',
