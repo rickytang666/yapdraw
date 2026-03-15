@@ -99,9 +99,6 @@ You are in freeform mode. There are no structural constraints.
   { "from": "show-error", "to": "end", "label": "done" }
 ], "groups": [] }
 
-<<<<<<< HEAD
-Now generate the graph for the user's description.`;
-=======
 Now generate the graph for the user's description.`
 
 const SYSTEM_ARCHITECTURE_PROMPT = `
@@ -143,4 +140,3 @@ export function getSystemPrompt(diagramType: DiagramType): string {
 
 /** @deprecated Use getSystemPrompt(diagramType) instead */
 export const SYSTEM_PROMPT = getSystemPrompt('freeform')
->>>>>>> c5d027b (feat: custom mode prompts)
