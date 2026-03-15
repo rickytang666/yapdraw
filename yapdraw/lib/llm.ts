@@ -1,6 +1,7 @@
 import OpenAI from 'openai'
 import type { ExcalidrawElement, GraphResponse } from '@/types/diagram'
-import { SYSTEM_PROMPT } from './prompts'
+import type { DiagramType } from '@/types/library'
+import { getSystemPrompt } from './prompts'
 import { layoutGraph } from './layout'
 
 const client = new OpenAI({
@@ -33,6 +34,7 @@ function extractJSON(content: string): string {
 export async function generateDiagram(
   transcript: string,
   currentGraph?: GraphResponse | null,
+  diagramType: DiagramType = 'freeform',
 ): Promise<{ elements: ExcalidrawElement[]; graph: GraphResponse }> {
   const userMessage = currentGraph
     ? `Current diagram:\n${JSON.stringify(currentGraph)}\n\nLatest instruction:\n${transcript}`
@@ -41,7 +43,7 @@ export async function generateDiagram(
   const response = await client.chat.completions.create({
     model: MODEL,
     messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: getSystemPrompt(diagramType) },
       { role: 'user', content: userMessage },
     ],
     temperature: 0.2,

@@ -1,14 +1,6 @@
 import { saveAs } from 'file-saver'
 import type { Diagram } from '@/types/library'
 
-export async function exportAsPNG(thumbnailBase64: string, filename: string): Promise<void> {
-  if (!thumbnailBase64) return
-  // Convert base64 data URL to blob
-  const response = await fetch(thumbnailBase64)
-  const blob = await response.blob()
-  saveAs(blob, `${filename}.png`)
-}
-
 export async function exportAsSVG(_api: unknown, filename: string): Promise<void> {
   // SVG export not supported via ExcalidrawCanvasHandle — log a notice
   console.warn(`exportAsSVG: SVG export not available for "${filename}". The canvas handle does not expose exportToSvg.`)

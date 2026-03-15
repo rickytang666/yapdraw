@@ -65,7 +65,7 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
       if (!hasMountedWithData || !initialDataRef.current?.elements?.length) return
       scrollTimeoutRef.current = setTimeout(() => {
         scrollTimeoutRef.current = null
-        apiRef.current?.scrollToContent(undefined, { animate: false })
+        apiRef.current?.scrollToContent(undefined, { fitToContent: true, animate: false })
       }, 100)
       return () => {
         if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
@@ -108,6 +108,12 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
         const convertedShapes = convertToExcalidrawElements(
           shapes as Parameters<typeof convertToExcalidrawElements>[0],
           { regenerateIds: false }
+        ).map(el =>
+          // convertToExcalidrawElements generates bound text elements with verticalAlign: 'top'
+          // by default. Patch them to center so labels sit in the middle of their box.
+          el.type === 'text' && (el as Record<string, unknown>).containerId
+            ? { ...el, textAlign: 'center', verticalAlign: 'middle' }
+            : el
         )
         const enrichedArrows = enrichArrows(arrows)
         const allElements = [...convertedShapes, ...enrichedArrows] as ExcalidrawElement[]
@@ -124,7 +130,7 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
           apiRef.current.updateScene({ elements: merged as any })
         }
 
-        apiRef.current.scrollToContent(undefined, { animate: true, duration: 400 })
+        apiRef.current.scrollToContent(undefined, { fitToContent: true, animate: true, duration: 400 })
       },
 
       getElements() {

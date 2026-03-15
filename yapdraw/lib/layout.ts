@@ -112,6 +112,8 @@ export function layoutGraph(graph: GraphResponse): ExcalidrawElement[] {
       strokeColor: gc.stroke,
       strokeWidth: 1,
       roundness: null,
+      textAlign: 'left',
+      verticalAlign: 'top',
       label: { text: group.label, fontSize: 14, verticalAlign: 'top', textAlign: 'left' },
     })
   }
@@ -133,6 +135,8 @@ export function layoutGraph(graph: GraphResponse): ExcalidrawElement[] {
       fillStyle: 'solid',
       strokeColor: c.stroke,
       strokeWidth: 2,
+      textAlign: 'center',
+      verticalAlign: 'middle',
       label: { text: node.label, fontSize: 15, textAlign: 'center', verticalAlign: 'middle' },
     }
     if (box.shape === 'rectangle') el.roundness = { type: 3 }

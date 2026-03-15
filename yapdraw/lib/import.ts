@@ -50,7 +50,7 @@ export async function importYapDrawJSON(file: File): Promise<string> {
     ? parsed.name.trim()
     : file.name.replace(/\.json$/i, '') || 'Imported Diagram'
 
-  const validTypes: DiagramType[] = ['architecture', 'flowchart', 'sequence', 'er', 'freeform']
+  const validTypes: DiagramType[] = ['freeform', 'system-architecture', 'operations-flowchart']
   const diagramType: DiagramType =
     validTypes.includes(parsed.diagramType) ? parsed.diagramType : 'freeform'
 

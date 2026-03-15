@@ -3,15 +3,13 @@
 import { useState, useRef, useEffect } from 'react'
 import {
   IconDotsVertical,
-  IconPhoto,
   IconFileExport,
   IconFileCode,
-  IconHistory,
   IconCopy,
   IconLock,
   IconLockOpen,
 } from '@tabler/icons-react'
-import { exportAsPNG, exportAsExcalidraw, exportAsJSON } from '@/lib/export'
+import { exportAsExcalidraw, exportAsJSON } from '@/lib/export'
 import type { Diagram } from '@/types/library'
 import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
 
@@ -20,7 +18,6 @@ interface Props {
   canvasRef: React.RefObject<ExcalidrawCanvasHandle | null>
   onDuplicate: () => void
   onToggleLock: () => void
-  onShowHistory: () => void
 }
 
 export default function EditorMenu({
@@ -28,7 +25,6 @@ export default function EditorMenu({
   canvasRef,
   onDuplicate,
   onToggleLock,
-  onShowHistory,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -57,18 +53,6 @@ export default function EditorMenu({
     }
   }, [isOpen])
 
-  async function handleExportPNG() {
-    setIsOpen(false)
-    try {
-      const thumbnail = await canvasRef.current?.exportThumbnail?.()
-      if (thumbnail) {
-        await exportAsPNG(thumbnail, diagram.name)
-      }
-    } catch (err) {
-      console.error('PNG export failed:', err)
-    }
-  }
-
   function handleExportExcalidraw() {
     setIsOpen(false)
     exportAsExcalidraw(diagram)
@@ -77,11 +61,6 @@ export default function EditorMenu({
   function handleExportJSON() {
     setIsOpen(false)
     exportAsJSON(diagram)
-  }
-
-  function handleShowHistory() {
-    setIsOpen(false)
-    onShowHistory()
   }
 
   function handleDuplicate() {
@@ -113,14 +92,6 @@ export default function EditorMenu({
         >
           <button
             className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"
-            onClick={handleExportPNG}
-          >
-            <IconPhoto size={14} className="shrink-0" />
-            Export as PNG
-          </button>
-
-          <button
-            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"
             onClick={handleExportExcalidraw}
           >
             <IconFileExport size={14} className="shrink-0" />
@@ -135,15 +106,7 @@ export default function EditorMenu({
             Export as JSON
           </button>
 
-          <div className="my-1 border-t border-[#E5E7EB]" />
-
-          <button
-            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"
-            onClick={handleShowHistory}
-          >
-            <IconHistory size={14} className="shrink-0" />
-            Version History
-          </button>
+          <div className="my-1 border-t border-zinc-700" />
 
           <button
             className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"

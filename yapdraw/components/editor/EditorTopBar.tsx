@@ -14,7 +14,6 @@ interface Props {
   onBack: () => void
   onRename?: (name: string) => void
   onStar?: (starred: boolean) => void
-  onShowHistory?: () => void
   onDuplicate?: () => void
   onToggleLock?: () => void
   canvasRef?: React.RefObject<ExcalidrawCanvasHandle | null>
@@ -26,7 +25,6 @@ export default function EditorTopBar({
   onBack,
   onRename,
   onStar,
-  onShowHistory,
   onDuplicate,
   onToggleLock,
   canvasRef,
@@ -68,11 +66,10 @@ export default function EditorTopBar({
 
       <SaveStatusIndicator status={saveStatus} />
 
-      {canvasRef && onShowHistory && onDuplicate && onToggleLock && (
+      {canvasRef && onDuplicate && onToggleLock && (
         <EditorMenu
           diagram={diagram}
           canvasRef={canvasRef}
-          onShowHistory={onShowHistory}
           onDuplicate={onDuplicate}
           onToggleLock={onToggleLock}
         />
