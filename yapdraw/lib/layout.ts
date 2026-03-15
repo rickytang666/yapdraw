@@ -1,5 +1,6 @@
 import dagre from 'dagre'
 import type { GraphResponse, NodeColor, NodeShape, ExcalidrawElement } from '@/types/diagram'
+import { normalizeSlug } from './icons'
 
 // ── Sizing ────────────────────────────────────────────────────────────────
 
@@ -141,6 +142,29 @@ export function layoutGraph(graph: GraphResponse): ExcalidrawElement[] {
     }
     if (box.shape === 'rectangle') el.roundness = { type: 3 }
     elements.push(el)
+
+    // Icon badge — top-left corner of the node
+    if (node.icon) {
+      const slug = normalizeSlug(node.icon)
+      elements.push({
+        type: 'image',
+        id: `icon-${node.id}`,
+        fileId: `simpleicon-${slug}`,
+        x: box.x + 8,
+        y: box.y + 8,
+        width: 20,
+        height: 20,
+        status: 'pending',
+        scale: [1, 1],
+        angle: 0,
+        opacity: 100,
+        isDeleted: false,
+        groupIds: [],
+        frameId: null,
+        link: null,
+        locked: false,
+      })
+    }
   }
 
   // ── Edges as UNBOUND arrows (explicit coordinates, no Excalidraw bindings)

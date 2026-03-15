@@ -6,11 +6,11 @@ import {
   useState, useCallback, type ComponentProps,
 } from 'react'
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
-import { ExcalidrawElement } from '@/types/diagram'
+import { ExcalidrawElement, BinaryFileData } from '@/types/diagram'
 import { mergeElements, prepareForConversion, enrichArrows } from '@/lib/excalidraw-helpers'
 
 export interface ExcalidrawCanvasHandle {
-  updateDiagram: (elements: ExcalidrawElement[], opts?: { replace?: boolean }) => void
+  updateDiagram: (elements: ExcalidrawElement[], opts?: { replace?: boolean; files?: BinaryFileData[] }) => void
   getElements: () => ExcalidrawElement[]
   exportThumbnail?: () => Promise<string>
 }
@@ -92,8 +92,16 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
     }, []) // intentionally only run once on mount
 
     useImperativeHandle(ref, () => ({
-      updateDiagram(incoming: ExcalidrawElement[], { replace = false } = {}) {
+      updateDiagram(incoming: ExcalidrawElement[], { replace = false, files = [] }: { replace?: boolean; files?: BinaryFileData[] } = {}) {
         if (!apiRef.current || !convertToExcalidrawElements) return
+
+        // Register icon SVG files before updating the scene so image elements render immediately
+        if (files.length > 0) {
+          const fileMap: Record<string, unknown> = {}
+          for (const f of files) fileMap[f.id] = f
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          apiRef.current.addFiles(fileMap as any)
+        }
 
         // Elements saved from getSceneElements() are already in native Excalidraw format
         // (they carry `version`/`versionNonce`). Running them through prepareForConversion

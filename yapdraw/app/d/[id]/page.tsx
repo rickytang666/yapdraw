@@ -13,7 +13,7 @@ import { useAutoSave } from '@/hooks/useAutoSave'
 import { useVersionHistory } from '@/hooks/useVersionHistory'
 import { useAIChangeHistory } from '@/hooks/useAIChangeHistory'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
-import type { ExcalidrawElement, GraphResponse } from '@/types/diagram'
+import type { ExcalidrawElement, GraphResponse, BinaryFileData } from '@/types/diagram'
 import type { Diagram } from '@/types/library'
 
 interface Props {
@@ -117,10 +117,10 @@ export default function EditorPage({ params }: Props) {
         return
       }
 
-      const { elements, graph }: { elements: ExcalidrawElement[]; graph: GraphResponse } = data
+      const { elements, graph, files = [] }: { elements: ExcalidrawElement[]; graph: GraphResponse; files: BinaryFileData[] } = data
       setLastGraph(graph)
       setLoadingPhase('rendering')
-      canvasRef.current?.updateDiagram(elements, { replace: true })
+      canvasRef.current?.updateDiagram(elements, { replace: true, files })
 
       // 2. Record the diff — updates DB label and adds card to VoicePanel
       await aiHistory.recordChange(

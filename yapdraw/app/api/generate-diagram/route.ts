@@ -27,8 +27,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { elements, graph } = await generateDiagram(body.transcript, body.currentGraph, body.diagramType)
-    return Response.json({ elements, graph })
+    const { elements, graph, files } = await generateDiagram(body.transcript, body.currentGraph, body.diagramType)
+    return Response.json({ elements, graph, files })
   } catch (error) {
     // Expected: LLM refused to generate or returned non-diagram content — silently skip
     if (error instanceof Error && error.message.includes('empty graph')) {

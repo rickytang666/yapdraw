@@ -3,6 +3,7 @@ import type { ExcalidrawElement, GraphResponse } from '@/types/diagram'
 import type { DiagramType } from '@/types/library'
 import { getSystemPrompt } from './prompts'
 import { layoutGraph } from './layout'
+import { fetchIcons } from './icons'
 
 const client = new OpenAI({
   baseURL: process.env.LLM_BASE_URL || 'https://vjioo4r1vyvcozuj.us-east-2.aws.endpoints.huggingface.cloud/v1',
@@ -35,7 +36,7 @@ export async function generateDiagram(
   transcript: string,
   currentGraph?: GraphResponse | null,
   diagramType: DiagramType = 'freeform',
-): Promise<{ elements: ExcalidrawElement[]; graph: GraphResponse }> {
+): Promise<{ elements: ExcalidrawElement[]; graph: GraphResponse; files: import('@/types/diagram').BinaryFileData[] }> {
   const userMessage = currentGraph
     ? `Current diagram:\n${JSON.stringify(currentGraph)}\n\nLatest instruction:\n${transcript}`
     : transcript
@@ -116,5 +117,7 @@ export async function generateDiagram(
     }
   }
 
-  return { elements: layoutGraph(graph), graph }
+  const elements = layoutGraph(graph)
+  const files = await fetchIcons(graph.nodes)
+  return { elements, graph, files }
 }
