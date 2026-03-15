@@ -9,7 +9,6 @@ import ExcalidrawCanvas, { ExcalidrawCanvasHandle } from '@/components/Excalidra
 import VoicePanel from '@/components/VoicePanel'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import EditorTopBar from '@/components/editor/EditorTopBar'
-import VersionHistoryPanel from '@/components/editor/VersionHistoryPanel'
 import { useAutoSave } from '@/hooks/useAutoSave'
 import { useVersionHistory } from '@/hooks/useVersionHistory'
 import { useAIChangeHistory } from '@/hooks/useAIChangeHistory'
@@ -27,7 +26,6 @@ export default function EditorPage({ params }: Props) {
   const canvasRef = useRef<ExcalidrawCanvasHandle>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [lastGraph, setLastGraph] = useState<GraphResponse | null>(null)
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [restoreFlash, setRestoreFlash] = useState(false)
 
   function triggerRestoreAnimation() {
@@ -191,19 +189,19 @@ export default function EditorPage({ params }: Props) {
         onStar={starred => db.diagrams.update(id, { starred })}
         onDuplicate={handleDuplicate}
         onToggleLock={handleToggleLock}
-        onHistoryOpen={() => setIsHistoryOpen(true)}
         canvasRef={canvasRef}
       />
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
-        {/* Voice panel — 35% wide, shows AI change history above transcript */}
+        {/* Voice panel — 35% wide, version timeline above chat */}
         <div className="w-[35%] h-full border-r border-zinc-800 shrink-0">
           <VoicePanel
+            diagramId={id}
             isLoading={isLoading}
             onSilence={handleSilence}
             onMockSubmit={handleSilence}
-            changeHistory={aiHistory.entries}
-            onRestoreChange={handleRestoreChange}
+            canvasRef={canvasRef}
+            onRestoreAnimation={triggerRestoreAnimation}
           />
         </div>
 
@@ -234,14 +232,6 @@ export default function EditorPage({ params }: Props) {
           )}
         </div>
       </div>
-
-      <VersionHistoryPanel
-        diagramId={id}
-        isOpen={isHistoryOpen}
-        onClose={() => setIsHistoryOpen(false)}
-        canvasRef={canvasRef}
-        onRestoreAnimation={triggerRestoreAnimation}
-      />
     </div>
   )
 }

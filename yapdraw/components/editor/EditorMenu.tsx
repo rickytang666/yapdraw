@@ -3,14 +3,13 @@
 import { useState, useRef, useEffect } from 'react'
 import {
   IconDotsVertical,
-  IconPhoto,
   IconFileExport,
   IconFileCode,
   IconCopy,
   IconLock,
   IconLockOpen,
 } from '@tabler/icons-react'
-import { exportAsPNG, exportAsExcalidraw, exportAsJSON } from '@/lib/export'
+import { exportAsExcalidraw, exportAsJSON } from '@/lib/export'
 import type { Diagram } from '@/types/library'
 import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
 
@@ -54,18 +53,6 @@ export default function EditorMenu({
     }
   }, [isOpen])
 
-  async function handleExportPNG() {
-    setIsOpen(false)
-    try {
-      const thumbnail = await canvasRef.current?.exportThumbnail?.()
-      if (thumbnail) {
-        await exportAsPNG(thumbnail, diagram.name)
-      }
-    } catch (err) {
-      console.error('PNG export failed:', err)
-    }
-  }
-
   function handleExportExcalidraw() {
     setIsOpen(false)
     exportAsExcalidraw(diagram)
@@ -103,14 +90,6 @@ export default function EditorMenu({
           ref={menuRef}
           className="absolute right-0 top-full mt-1 w-52 bg-zinc-800 border border-zinc-700 rounded-lg shadow-2xl overflow-hidden py-1 z-50"
         >
-          <button
-            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
-            onClick={handleExportPNG}
-          >
-            <IconPhoto size={14} className="shrink-0" />
-            Export as PNG
-          </button>
-
           <button
             className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
             onClick={handleExportExcalidraw}

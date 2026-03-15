@@ -18,6 +18,10 @@
   }
 }
 
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 html,
 body {
   height: 100%;
