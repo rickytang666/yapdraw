@@ -16,15 +16,15 @@ export async function POST(request: NextRequest) {
     const { elements, graph } = await generateDiagram(body.transcript, body.currentGraph)
     return Response.json({ elements, graph })
   } catch (error) {
-    console.error('generate-diagram error:', error)
-
-    if (error instanceof Error && error.message.includes('Invalid JSON')) {
-      return Response.json({ error: 'Failed to parse diagram from LLM response' }, { status: 500 })
+    // Expected: LLM refused to generate or returned non-diagram content — silently skip
+    if (error instanceof Error && error.message.includes('empty graph')) {
+      return Response.json({ skipped: true })
     }
     if (error instanceof Error && error.message.includes('timeout')) {
       return Response.json({ error: 'LLM request timed out' }, { status: 503 })
     }
 
+    console.error('generate-diagram error:', error)
     return Response.json({ error: 'Failed to generate diagram' }, { status: 500 })
   }
 }

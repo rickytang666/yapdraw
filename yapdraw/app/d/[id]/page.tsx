@@ -7,7 +7,7 @@ import { db } from '@/lib/db'
 import { nanoid } from 'nanoid'
 import ExcalidrawCanvas, { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
 import VoicePanel from '@/components/VoicePanel'
-import LoadingIndicator from '@/components/LoadingIndicator'
+import { type LoadingPhase } from '@/components/LoadingIndicator'
 import EditorTopBar from '@/components/editor/EditorTopBar'
 import { useAutoSave } from '@/hooks/useAutoSave'
 import { useVersionHistory } from '@/hooks/useVersionHistory'
@@ -24,7 +24,8 @@ export default function EditorPage({ params }: Props) {
   const { id } = use(params)
   const router = useRouter()
   const canvasRef = useRef<ExcalidrawCanvasHandle>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const abortRef = useRef<AbortController | null>(null)
+  const [loadingPhase, setLoadingPhase] = useState<LoadingPhase>('idle')
   const [lastGraph, setLastGraph] = useState<GraphResponse | null>(null)
   const [restoreFlash, setRestoreFlash] = useState(false)
 
@@ -47,6 +48,7 @@ export default function EditorPage({ params }: Props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, diagram?.id])
 
+  const isLoading = loadingPhase !== 'idle'
   const { triggerSave, forceSave, saveStatus } = useAutoSave(id, canvasRef)
   const { restoreVersion } = useVersionHistory(id)
   const aiHistory = useAIChangeHistory(id)
@@ -78,7 +80,11 @@ export default function EditorPage({ params }: Props) {
 
   async function handleSilence(text: string) {
     if (!text.trim() || !diagram || diagram.locked) return
-    setIsLoading(true)
+    // Cancel any in-flight request before starting a new one
+    abortRef.current?.abort()
+    abortRef.current = new AbortController()
+
+    setLoadingPhase('generating')
 
     // 1. Snapshot state BEFORE the AI change
     const currentElements = canvasRef.current?.getElements() ?? diagram.elements
@@ -90,16 +96,19 @@ export default function EditorPage({ params }: Props) {
     )
     lastAIVersionIdRef.current = versionId
 
+
     try {
       const res = await fetch('/api/generate-diagram', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           transcript: text,
-          currentGraph: lastGraph,
+          currentGraph: (canvasRef.current?.getElements() ?? []).length > 0 ? lastGraph : null,
         }),
+        signal: abortRef.current.signal,
       })
       const data = await res.json()
+      if (data.skipped) return
       if (!res.ok || !data.elements) {
         console.error('generate-diagram failed:', data.error ?? data)
         // Request failed — remove the orphan snapshot
@@ -110,6 +119,7 @@ export default function EditorPage({ params }: Props) {
 
       const { elements, graph }: { elements: ExcalidrawElement[]; graph: GraphResponse } = data
       setLastGraph(graph)
+      setLoadingPhase('rendering')
       canvasRef.current?.updateDiagram(elements, { replace: true })
 
       // 2. Record the diff — updates DB label and adds card to VoicePanel
@@ -125,11 +135,12 @@ export default function EditorPage({ params }: Props) {
         metadata: { ...diagram.metadata, generatedVia: 'voice' },
       })
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return
       console.error('Failed to generate diagram:', err)
       await db.versions.delete(versionId)
       lastAIVersionIdRef.current = null
     } finally {
-      setIsLoading(false)
+      setLoadingPhase('idle')
     }
   }
 
@@ -184,7 +195,7 @@ export default function EditorPage({ params }: Props) {
       <EditorTopBar
         diagram={diagram!}
         saveStatus={saveStatus}
-        onBack={() => router.push('/')}
+  onBack={() => router.push('/library')}
         onRename={name => db.diagrams.update(id, { name, updatedAt: Date.now() })}
         onStar={starred => db.diagrams.update(id, { starred })}
         onDuplicate={handleDuplicate}
@@ -204,32 +215,34 @@ export default function EditorPage({ params }: Props) {
             onRestoreAnimation={triggerRestoreAnimation}
           />
         </div>
+        <div className="flex-1 min-w-0 min-h-0 p-3 bg-zinc-900">
+          <div className="relative w-full h-full rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800">
+            {/* Restore flash overlay */}
+            <div
+              className={`absolute inset-0 z-20 pointer-events-none bg-white transition-opacity duration-500 ${
+                restoreFlash ? 'opacity-20' : 'opacity-0'
+              }`}
+            />
+            <ExcalidrawCanvas
+              ref={canvasRef}
+              initialElements={diagram!.elements}
+              onChange={elements => triggerSave(elements)}
+            />
+            {loadingPhase !== 'idle' && (
+              <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-zinc-400 animate-pulse pointer-events-none" />
+            )}
 
-        {/* Canvas */}
-        <div className="flex-1 min-w-0 min-h-0 relative">
-          {/* Restore flash overlay */}
-          <div
-            className={`absolute inset-0 z-20 pointer-events-none bg-white transition-opacity duration-500 ${
-              restoreFlash ? 'opacity-20' : 'opacity-0'
-            }`}
-          />
-          <ExcalidrawCanvas
-            ref={canvasRef}
-            initialElements={diagram!.elements}
-            onChange={elements => triggerSave(elements)}
-          />
-          <LoadingIndicator isLoading={isLoading} />
-
-          {/* Locked overlay */}
-          {diagram?.locked && (
-            <div className="absolute inset-0 pointer-events-none flex items-end justify-center pb-6 z-10">
-              <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/20 border border-yellow-500/40 rounded-lg backdrop-blur-sm">
-                <span className="text-yellow-400 text-sm font-medium">
-                  This diagram is locked. Voice input is disabled.
-                </span>
+            {/* Locked overlay */}
+            {diagram?.locked && (
+              <div className="absolute inset-0 pointer-events-none flex items-end justify-center pb-6 z-10">
+                <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/20 border border-yellow-500/40 rounded-lg backdrop-blur-sm">
+                  <span className="text-yellow-400 text-sm font-medium">
+                    This diagram is locked. Voice input is disabled.
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -7,10 +7,8 @@ import TemplatePicker from './TemplatePicker'
 
 const DIAGRAM_TYPES: { value: DiagramType; label: string; description: string }[] = [
   { value: 'freeform', label: 'Freeform', description: 'Open canvas, no constraints' },
-  { value: 'flowchart', label: 'Flowchart', description: 'Process flows and decisions' },
-  { value: 'architecture', label: 'Architecture', description: 'System and component diagrams' },
-  { value: 'sequence', label: 'Sequence', description: 'Interaction and timing diagrams' },
-  { value: 'er', label: 'ER Diagram', description: 'Entity-relationship models' },
+  { value: 'system-architecture', label: 'System Architecture', description: 'System and component diagrams' },
+  { value: 'operations-flowchart', label: 'Operations Flowchart', description: 'Process flows and decisions' },
 ]
 
 interface Props {

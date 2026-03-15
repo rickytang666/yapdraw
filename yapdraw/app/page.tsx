@@ -1,7 +1,2 @@
-'use client'
-
-import LibraryView from '@/components/library/LibraryView'
-
-export default function Home() {
-  return <LibraryView />
-}
+export { metadata } from './landing/page'
+export { default } from './landing/page'

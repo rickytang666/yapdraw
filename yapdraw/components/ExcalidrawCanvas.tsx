@@ -7,7 +7,7 @@ import {
 } from 'react'
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
 import { ExcalidrawElement } from '@/types/diagram'
-import { mergeElements, prepareForConversion } from '@/lib/excalidraw-helpers'
+import { mergeElements, prepareForConversion, enrichArrows } from '@/lib/excalidraw-helpers'
 
 export interface ExcalidrawCanvasHandle {
   updateDiagram: (elements: ExcalidrawElement[], opts?: { replace?: boolean }) => void
@@ -95,21 +95,37 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
       updateDiagram(incoming: ExcalidrawElement[], { replace = false } = {}) {
         if (!apiRef.current || !convertToExcalidrawElements) return
 
-        // prepareForConversion rewrites startBinding/endBinding → start/end so
-        // convertToExcalidrawElements properly sets up boundElements on both shapes.
         const prepared = prepareForConversion(incoming)
-        const converted = convertToExcalidrawElements(
-          prepared as Parameters<typeof convertToExcalidrawElements>[0],
+
+        // Arrows from layoutGraph are already native-format (explicit x/y/points).
+        // Running them through convertToExcalidrawElements produces half-converted
+        // binding state → "Linear element is not normalized" on drag.
+        // Shapes still need conversion for label → boundElements wiring.
+        const isLinear = (el: ExcalidrawElement) => el.type === 'arrow' || el.type === 'line'
+        const shapes = prepared.filter(el => !isLinear(el))
+        const arrows = prepared.filter(el => isLinear(el))
+
+        const convertedShapes = convertToExcalidrawElements(
+          shapes as Parameters<typeof convertToExcalidrawElements>[0],
           { regenerateIds: false }
+        ).map(el =>
+          // convertToExcalidrawElements generates bound text elements with verticalAlign: 'top'
+          // by default. Patch them to center so labels sit in the middle of their box.
+          el.type === 'text' && (el as Record<string, unknown>).containerId
+            ? { ...el, textAlign: 'center', verticalAlign: 'middle' }
+            : el
         )
+        const enrichedArrows = enrichArrows(arrows)
+        const allElements = [...convertedShapes, ...enrichedArrows] as ExcalidrawElement[]
 
         if (replace) {
-          // Dagre layout: use computed positions as-is, don't merge with old scene.
-          apiRef.current.updateScene({ elements: converted })
+          // Excalidraw API expects its own element types; our ExcalidrawElement is a
+          // lightweight/shared type used across the app.
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          apiRef.current.updateScene({ elements: allElements as any })
         } else {
-          // Legacy path: preserve manually-dragged positions for existing elements.
           const existing = [...apiRef.current.getSceneElements()] as ExcalidrawElement[]
-          const merged = mergeElements(existing, converted)
+          const merged = mergeElements(existing, allElements)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           apiRef.current.updateScene({ elements: merged as any })
         }

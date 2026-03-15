@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
@@ -37,10 +37,15 @@ export default function DiagramCard({
   onToggleSelect,
 }: Props) {
   const router = useRouter()
+  const [hasMounted, setHasMounted] = useState(false)
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
   const [isRenaming, setIsRenaming] = useState(false)
   const [renameValue, setRenameValue] = useState(diagram.name)
   const renameInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: diagram.id,
@@ -134,7 +139,7 @@ export default function DiagramCard({
           ) : (
             <p className="text-sm font-medium text-white truncate">{diagram.name}</p>
           )}
-          <p className="text-xs text-zinc-500">{formatDate(diagram.updatedAt)}</p>
+          <p className="text-xs text-zinc-500">{hasMounted ? formatDate(diagram.updatedAt) : ''}</p>
           <p className="text-xs text-zinc-600 capitalize">{diagram.diagramType}</p>
 
           {/* Tag pills */}

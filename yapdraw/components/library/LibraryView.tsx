@@ -25,6 +25,7 @@ import DiagramList from './DiagramList'
 import TrashView from './TrashView'
 import NewDiagramModal from './NewDiagramModal'
 import NewFolderModal from './NewFolderModal'
+import RenameFolderModal from './RenameFolderModal'
 import BulkActionBar from './BulkActionBar'
 import SortDropdown from './SortDropdown'
 import ViewModeToggle from './ViewModeToggle'
@@ -38,6 +39,7 @@ export default function LibraryView() {
   const [showNewModal, setShowNewModal] = useState(false)
   const [folderModalParentId, setFolderModalParentId] = useState<string | undefined>(undefined)
   const [showFolderModal, setShowFolderModal] = useState(false)
+  const [renameFolderId, setRenameFolderId] = useState<string | null>(null)
   const [overFolderId, setOverFolderId] = useState<string | null>(null)
   const searchRef = useRef<HTMLInputElement>(null)
   const importInputRef = useRef<HTMLInputElement>(null)
@@ -129,9 +131,13 @@ export default function LibraryView() {
   async function handleRenameFolder(id: string) {
     const folder = folderHook.folders.find(f => f.id === id)
     if (!folder) return
-    const name = window.prompt('Rename folder:', folder.name)
-    if (!name || !name.trim() || name.trim() === folder.name) return
-    await folderHook.renameFolder(id, name.trim())
+    setRenameFolderId(id)
+  }
+
+  async function handleConfirmRenameFolder(name: string) {
+    if (!renameFolderId) return
+    await folderHook.renameFolder(renameFolderId, name)
+    setRenameFolderId(null)
   }
 
   async function handleDeleteFolder(id: string) {
@@ -233,6 +239,17 @@ export default function LibraryView() {
             }
             onConfirm={handleConfirmFolder}
             onCancel={() => setShowFolderModal(false)}
+          />
+        )}
+
+        {renameFolderId && (
+          <RenameFolderModal
+            folder={{
+              id: renameFolderId,
+              name: folderHook.folders.find(f => f.id === renameFolderId)?.name || 'Folder',
+            }}
+            onConfirm={handleConfirmRenameFolder}
+            onCancel={() => setRenameFolderId(null)}
           />
         )}
 
