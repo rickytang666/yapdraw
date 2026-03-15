@@ -1,10 +1,15 @@
 import { NextRequest } from 'next/server'
 import { generateDiagram } from '@/lib/llm'
 import type { GraphResponse } from '@/types/diagram'
+import type { DiagramType } from '@/types/library'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as { transcript?: string; currentGraph?: GraphResponse }
+    const body = (await request.json()) as {
+      transcript?: string
+      currentGraph?: GraphResponse
+      diagramType?: DiagramType
+    }
 
     if (typeof body.transcript !== 'string' || !body.transcript.trim()) {
       return Response.json(
@@ -13,7 +18,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { elements, graph } = await generateDiagram(body.transcript, body.currentGraph)
+    const { elements, graph } = await generateDiagram(body.transcript, body.currentGraph, body.diagramType)
     return Response.json({ elements, graph })
   } catch (error) {
     // Expected: LLM refused to generate or returned non-diagram content — silently skip

@@ -1,4 +1,8 @@
-export const SYSTEM_PROMPT = `You are a diagram generator. Convert natural language descriptions into a graph structure. Output ONLY valid JSON — no markdown, no explanation, no code fences.
+import type { DiagramType } from '@/types/library'
+
+// ─── Shared base prompt ─────────────────────────────────────────────────────
+
+const BASE_PROMPT = `You are a diagram generator. Convert natural language descriptions into a graph structure. Output ONLY valid JSON — no markdown, no explanation, no code fences.
 
 ## Output Format
 {
@@ -48,7 +52,17 @@ If a "Current diagram" is provided in the user message:
 - To **delete nodes** (e.g. "remove X", "nvm it doesn't use X"), list their ids in "remove.nodes": { "remove": { "nodes": ["node-id"] } } — also omit those nodes from "nodes" and remove their edges
 - To **delete arrows/connections** (e.g. "disconnect A from B", "remove the arrow between X and Y"), list them in "remove.edges": { "remove": { "edges": [{ "from": "a-id", "to": "b-id" }] } } — also omit them from "edges"
 - To **delete everything**, output empty nodes/edges AND list all removed ids in "remove": { "remove": { "nodes": ["id1", ...] } }
-- Only populate "remove" when the user explicitly says to get rid of something
+- Only populate "remove" when the user explicitly says to get rid of something`
+
+// ─── Type-specific prompt sections ──────────────────────────────────────────
+
+const FREEFORM_PROMPT = `
+## Mode: Freeform
+You are in freeform mode. There are no structural constraints.
+- Accept any topology — hierarchies, networks, mind maps, timelines, or anything else
+- Do not impose a preferred direction; infer the best layout from the content
+- Use shapes and colors freely to reflect whatever the user describes
+- Prefer simplicity: avoid adding groups or zones unless the user mentions layers or regions
 
 ## Examples
 
@@ -85,4 +99,48 @@ If a "Current diagram" is provided in the user message:
   { "from": "show-error", "to": "end", "label": "done" }
 ], "groups": [] }
 
+<<<<<<< HEAD
 Now generate the graph for the user's description.`;
+=======
+Now generate the graph for the user's description.`
+
+const SYSTEM_ARCHITECTURE_PROMPT = `
+## Mode: System Architecture
+// TODO: add system-architecture-specific thinking guidance
+// Suggested areas to expand:
+//   - Emphasize LR direction for service graphs
+//   - Encourage group zones (UI / Service / Data layers)
+//   - Prefer teal for storage, purple for gateways, blue for clients
+//   - Model redundancy, load balancers, async queues
+//   - Label edges with protocols (HTTP, gRPC, AMQP, SQL, etc.)
+
+Now generate the graph for the user's description.`
+
+const OPERATIONS_FLOWCHART_PROMPT = `
+## Mode: Operations Flowchart
+// TODO: add operations-flowchart-specific thinking guidance
+// Suggested areas to expand:
+//   - Emphasize TB direction for sequential processes
+//   - Always include ellipse start/end nodes
+//   - Use diamond shapes for every decision gate
+//   - Model error/retry paths with red nodes
+//   - Label Yes/No branches on all decision edges
+//   - Encourage parallel swim-lane groups for multi-team processes
+
+Now generate the graph for the user's description.`
+
+// ─── Selector ───────────────────────────────────────────────────────────────
+
+const TYPE_PROMPTS: Record<DiagramType, string> = {
+  freeform: FREEFORM_PROMPT,
+  'system-architecture': SYSTEM_ARCHITECTURE_PROMPT,
+  'operations-flowchart': OPERATIONS_FLOWCHART_PROMPT,
+}
+
+export function getSystemPrompt(diagramType: DiagramType): string {
+  return BASE_PROMPT + (TYPE_PROMPTS[diagramType] ?? FREEFORM_PROMPT)
+}
+
+/** @deprecated Use getSystemPrompt(diagramType) instead */
+export const SYSTEM_PROMPT = getSystemPrompt('freeform')
+>>>>>>> c5d027b (feat: custom mode prompts)
