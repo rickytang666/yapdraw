@@ -9,6 +9,7 @@ import {
   IconX,
   IconPackageExport,
 } from '@tabler/icons-react'
+import { motion } from 'framer-motion'
 import FolderPicker from './FolderPicker'
 import { exportBulkAsZip } from '@/lib/export'
 import type { Folder, Diagram } from '@/types/library'
@@ -55,42 +56,48 @@ export default function BulkActionBar({
     }
   }
 
+  const btnClass = "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm transition-colors"
+
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-4 py-2.5 bg-zinc-800 border border-zinc-600 rounded-xl shadow-2xl shadow-black/50">
-      {/* Count */}
-      <span className="text-sm text-zinc-300 font-medium pr-2 border-r border-zinc-600">
+    <motion.div
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 20, opacity: 0 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-4 py-2.5 rounded-2xl shadow-2xl"
+      style={{
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border)',
+        backdropFilter: 'blur(12px)',
+      }}
+    >
+      <span className="text-sm font-medium pr-2" style={{ color: 'var(--text-primary)', borderRight: '1px solid var(--border)' }}>
         {selectedCount} selected
       </span>
 
-      {/* Star */}
-      <button
-        onClick={onStar}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors"
-        title="Star selected"
+      <button onClick={onStar} className={btnClass} style={{ color: 'var(--text-secondary)' }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-tertiary)'; e.currentTarget.style.color = 'var(--star)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' }}
       >
         <IconStar size={15} />
         <span className="hidden sm:inline">Star</span>
       </button>
 
-      {/* Unstar */}
-      <button
-        onClick={onUnstar}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors"
-        title="Unstar selected"
+      <button onClick={onUnstar} className={btnClass} style={{ color: 'var(--text-secondary)' }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-tertiary)'; e.currentTarget.style.color = 'var(--text-primary)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' }}
       >
         <IconStarOff size={15} />
         <span className="hidden sm:inline">Unstar</span>
       </button>
 
-      {/* Move to folder */}
       <div ref={moveButtonRef} className="relative">
-        <button
-          onClick={() => setShowFolderPicker(v => !v)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors"
-          title="Move to folder"
+        <button onClick={() => setShowFolderPicker(v => !v)} className={btnClass} style={{ color: 'var(--text-secondary)' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-tertiary)'; e.currentTarget.style.color = 'var(--text-primary)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' }}
         >
           <IconFolderSymlink size={15} />
-          <span className="hidden sm:inline">Move to</span>
+          <span className="hidden sm:inline">Move</span>
         </button>
 
         {showFolderPicker && (
@@ -105,38 +112,37 @@ export default function BulkActionBar({
         )}
       </div>
 
-      {/* Export ZIP */}
       <button
         onClick={handleExportZip}
         disabled={isExporting}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        title="Export selected as ZIP"
+        className={`${btnClass} disabled:opacity-50 disabled:cursor-not-allowed`}
+        style={{ color: 'var(--text-secondary)' }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-tertiary)'; e.currentTarget.style.color = 'var(--text-primary)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' }}
       >
         <IconPackageExport size={15} />
-        <span className="hidden sm:inline">{isExporting ? 'Exporting…' : 'Export ZIP'}</span>
+        <span className="hidden sm:inline">{isExporting ? 'Exporting...' : 'Export'}</span>
       </button>
 
-      {/* Trash */}
-      <button
-        onClick={onTrash}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-red-400 hover:bg-zinc-700 hover:text-red-300 transition-colors"
-        title="Move to trash"
+      <button onClick={onTrash} className={btnClass} style={{ color: 'var(--danger)' }}
+        onMouseEnter={e => (e.currentTarget.style.background = 'var(--danger-subtle)')}
+        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
       >
         <IconTrash size={15} />
         <span className="hidden sm:inline">Trash</span>
       </button>
 
-      {/* Divider */}
-      <div className="w-px h-5 bg-zinc-600" />
+      <div className="w-px h-5 mx-0.5" style={{ background: 'var(--border)' }} />
 
-      {/* Clear selection */}
       <button
         onClick={onClear}
-        className="p-1.5 rounded-md text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors"
-        title="Clear selection"
+        className="p-1.5 rounded-xl transition-colors"
+        style={{ color: 'var(--text-tertiary)' }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-tertiary)'; e.currentTarget.style.color = 'var(--text-primary)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-tertiary)' }}
       >
         <IconX size={15} />
       </button>
-    </div>
+    </motion.div>
   )
 }

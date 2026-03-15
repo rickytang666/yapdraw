@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { IconX, IconTemplate } from '@tabler/icons-react'
+import { motion } from 'framer-motion'
 import type { DiagramType, DiagramTemplate } from '@/types/library'
 import TemplatePicker from './TemplatePicker'
 
 const DIAGRAM_TYPES: { value: DiagramType; label: string; description: string }[] = [
-  { value: 'freeform', label: 'Freeform', description: 'Open canvas, no constraints' },
-  { value: 'system-architecture', label: 'System Architecture', description: 'System and component diagrams' },
-  { value: 'operations-flowchart', label: 'Operations Flowchart', description: 'Process flows and decisions' },
+  { value: 'freeform', label: 'Freeform', description: 'Open canvas' },
+  { value: 'system-architecture', label: 'Architecture', description: 'Systems & components' },
+  { value: 'operations-flowchart', label: 'Flowchart', description: 'Processes & decisions' },
 ]
 
 interface Props {
@@ -58,80 +59,106 @@ export default function NewDiagramModal({ onConfirm, onCancel }: Props) {
           onCancel={() => setShowTemplatePicker(false)}
         />
       )}
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center"
+        style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)' }}
         onClick={handleBackdropClick}
       >
-        <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-md mx-4">
+        <motion.div
+          initial={{ scale: 0.97, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.97, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          className="rounded-2xl shadow-2xl w-full max-w-md mx-4"
+          style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}
+        >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
-            <h2 className="text-white font-semibold text-base">New Diagram</h2>
+          <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid var(--border)' }}>
+            <h2 className="font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>New Diagram</h2>
             <button
               onClick={onCancel}
-              className="text-zinc-400 hover:text-white transition-colors"
+              className="p-1 rounded-lg transition-colors"
+              style={{ color: 'var(--text-tertiary)' }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-tertiary)')}
             >
               <IconX size={18} />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-5">
+          <form onSubmit={handleSubmit} className="px-6 py-6 flex flex-col gap-5">
             {/* Name */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-zinc-400 text-sm">Name</label>
-              <input
-                ref={inputRef}
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="Untitled Diagram"
-                className="bg-zinc-800 border border-zinc-700 focus:border-blue-500 outline-none rounded-md px-3 py-2 text-white text-sm placeholder-zinc-500 transition-colors"
-              />
+            <input
+              ref={inputRef}
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Untitled Diagram"
+              className="text-sm rounded-xl px-4 py-3 outline-none transition-colors w-full"
+              style={{
+                background: 'var(--bg-tertiary)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border)',
+              }}
+              onFocus={e => (e.currentTarget.style.borderColor = 'var(--accent)')}
+              onBlur={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+            />
+
+            {/* Type */}
+            <div className="grid grid-cols-3 gap-2">
+              {DIAGRAM_TYPES.map(type => (
+                <button
+                  key={type.value}
+                  type="button"
+                  onClick={() => setDiagramType(type.value)}
+                  className="flex flex-col items-center gap-1 px-3 py-3 rounded-xl text-center transition-all"
+                  style={{
+                    background: diagramType === type.value ? 'var(--accent-subtle)' : 'var(--bg-tertiary)',
+                    border: diagramType === type.value ? '1px solid var(--accent)' : '1px solid var(--border)',
+                    color: diagramType === type.value ? 'var(--accent)' : 'var(--text-secondary)',
+                  }}
+                >
+                  <span className="text-sm font-medium">{type.label}</span>
+                  <span className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>{type.description}</span>
+                </button>
+              ))}
             </div>
 
-            {/* Diagram Type */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-zinc-400 text-sm">Type</label>
-              <div className="grid grid-cols-1 gap-2">
-                {DIAGRAM_TYPES.map(type => (
-                  <button
-                    key={type.value}
-                    type="button"
-                    onClick={() => setDiagramType(type.value)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-md border text-left transition-colors ${
-                      diagramType === type.value
-                        ? 'border-blue-500 bg-blue-500/10 text-white'
-                        : 'border-zinc-700 bg-zinc-800 text-zinc-300 hover:border-zinc-600'
-                    }`}
-                  >
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">{type.label}</span>
-                      <span className="text-xs text-zinc-500">{type.description}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Template Section */}
+            {/* Template */}
             <div className="flex flex-col gap-2">
               <button
                 type="button"
                 onClick={() => setShowTemplatePicker(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-zinc-800 border border-zinc-700 hover:border-zinc-600 text-zinc-300 hover:text-white rounded-md text-sm transition-colors"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-colors"
+                style={{
+                  background: 'var(--bg-tertiary)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border)',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-secondary)')}
               >
                 <IconTemplate size={15} />
                 Browse Templates
               </button>
               {selectedTemplate && (
-                <div className="flex items-center justify-between px-3 py-2 bg-blue-500/10 border border-blue-500/30 rounded-md">
-                  <span className="text-sm text-blue-300 truncate">
-                    Template: {selectedTemplate.name}
+                <div
+                  className="flex items-center justify-between px-3 py-2 rounded-xl"
+                  style={{ background: 'var(--accent-subtle)', border: '1px solid var(--accent)' }}
+                >
+                  <span className="text-sm truncate" style={{ color: 'var(--accent)' }}>
+                    {selectedTemplate.name}
                   </span>
                   <button
                     type="button"
                     onClick={handleClearTemplate}
-                    className="text-zinc-400 hover:text-white transition-colors ml-2 shrink-0"
-                    aria-label="Clear template"
+                    className="ml-2 shrink-0 transition-colors"
+                    style={{ color: 'var(--text-tertiary)' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
+                    onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-tertiary)')}
                   >
                     <IconX size={13} />
                   </button>
@@ -144,20 +171,26 @@ export default function NewDiagramModal({ onConfirm, onCancel }: Props) {
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors rounded-md"
+                className="px-4 py-2 text-sm rounded-xl transition-colors"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-tertiary)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white rounded-md transition-colors"
+                className="px-5 py-2 text-sm font-medium text-white rounded-xl transition-colors"
+                style={{ background: 'var(--accent)' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent-hover)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'var(--accent)')}
               >
-                Create Diagram
+                Create
               </button>
             </div>
           </form>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </>
   )
 }

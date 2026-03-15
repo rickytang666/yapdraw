@@ -16,17 +16,12 @@ interface Props {
 }
 
 function formatDate(ts: number): string {
-  return new Date(ts).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
-
-const TYPE_COLORS: Record<string, string> = {
-  freeform: 'bg-zinc-700 text-zinc-300',
-  'system-architecture': 'bg-blue-900/50 text-blue-300',
-  'operations-flowchart': 'bg-green-900/50 text-green-300',
+  const diff = Date.now() - ts
+  if (diff < 60000) return 'Just now'
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`
+  if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`
+  return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
 export default function DiagramRow({
@@ -46,15 +41,21 @@ export default function DiagramRow({
   }, [])
 
   const folder = folders.find(f => f.id === diagram.folderId)
-  const visibleTags = diagram.tags.slice(0, 2)
-  const typeColor = TYPE_COLORS[diagram.diagramType] || 'bg-zinc-700 text-zinc-300'
 
   return (
     <div
-      className={`group flex items-center gap-3 px-4 py-2.5 border-b border-zinc-800 cursor-pointer hover:bg-zinc-800/60 transition-colors ${
-        selected ? 'bg-zinc-800' : ''
-      }`}
+      className="group flex items-center gap-3 px-6 py-3 cursor-pointer transition-colors"
+      style={{
+        borderBottom: '1px solid var(--border)',
+        background: selected ? 'var(--accent-subtle)' : 'transparent',
+      }}
       onClick={onOpen}
+      onMouseEnter={e => {
+        if (!selected) e.currentTarget.style.background = 'var(--bg-tertiary)'
+      }}
+      onMouseLeave={e => {
+        if (!selected) e.currentTarget.style.background = 'transparent'
+      }}
     >
       {/* Checkbox */}
       <div
@@ -65,13 +66,17 @@ export default function DiagramRow({
           type="checkbox"
           checked={selected}
           onChange={onSelect}
-          className="w-4 h-4 rounded accent-blue-500 cursor-pointer"
+          className="w-4 h-4 rounded cursor-pointer"
+          style={{ accentColor: 'var(--accent)' }}
           onClick={e => e.stopPropagation()}
         />
       </div>
 
       {/* Thumbnail */}
-      <div className="w-10 h-7 bg-zinc-900 rounded overflow-hidden shrink-0 border border-zinc-700">
+      <div
+        className="w-10 h-7 rounded-lg overflow-hidden shrink-0"
+        style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border)' }}
+      >
         {diagram.thumbnail ? (
           <img
             src={diagram.thumbnail}
@@ -80,77 +85,63 @@ export default function DiagramRow({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-zinc-600 text-[8px]">—</span>
+            <span className="text-[8px]" style={{ color: 'var(--text-tertiary)' }}>--</span>
           </div>
         )}
       </div>
 
-      {/* Name */}
-      <p className="flex-1 text-sm font-medium text-white truncate min-w-0">{diagram.name}</p>
-
-      {/* Type badge */}
-      <span className={`shrink-0 px-2 py-0.5 rounded text-xs capitalize ${typeColor}`}>
-        {diagram.diagramType}
-      </span>
+      {/* Name + star */}
+      <div className="flex-1 flex items-center gap-2 min-w-0">
+        <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+          {diagram.name}
+        </p>
+        {diagram.starred && (
+          <IconStarFilled size={12} style={{ color: 'var(--star)' }} className="shrink-0" />
+        )}
+      </div>
 
       {/* Updated */}
-      <span className="shrink-0 text-xs text-zinc-500 tabular-nums hidden md:inline">
+      <span className="shrink-0 text-xs tabular-nums hidden sm:inline w-24 text-right" style={{ color: 'var(--text-secondary)' }}>
         {hasMounted ? formatDate(diagram.updatedAt) : ''}
       </span>
 
       {/* Folder */}
-      <span className="shrink-0 w-28 text-xs text-zinc-500 truncate text-right hidden md:block">
-        {folder ? folder.name : '—'}
-      </span>
-
-      {/* Tags */}
-      <div className="shrink-0 flex gap-1 hidden lg:flex">
-        {visibleTags.map(tag => (
-          <span
-            key={tag}
-            className="px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300 text-xs"
-          >
-            {tag}
-          </span>
-        ))}
-        {diagram.tags.length > 2 && (
-          <span className="px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-500 text-xs">
-            +{diagram.tags.length - 2}
-          </span>
-        )}
-      </div>
-
-      {/* Date */}
-      <span className="shrink-0 text-xs text-zinc-500 w-28 text-right hidden sm:block">
-  {hasMounted ? formatDate(diagram.updatedAt) : ''}
+      <span className="shrink-0 w-28 text-xs truncate text-right hidden md:block" style={{ color: 'var(--text-tertiary)' }}>
+        {folder ? folder.name : ''}
       </span>
 
       {/* Actions */}
       <div
-        className="shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="shrink-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity w-20 justify-end"
         onClick={e => e.stopPropagation()}
       >
         <button
           onClick={() => onStar(!diagram.starred)}
-          className="p-1 rounded text-zinc-500 hover:text-yellow-400 transition-colors"
-          title={diagram.starred ? 'Unstar' : 'Star'}
+          className="p-1.5 rounded-lg transition-colors"
+          style={{ color: 'var(--text-tertiary)' }}
+          onMouseEnter={e => (e.currentTarget.style.color = 'var(--star)')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-tertiary)')}
         >
           {diagram.starred
-            ? <IconStarFilled size={14} className="text-yellow-400" />
+            ? <IconStarFilled size={14} style={{ color: 'var(--star)' }} />
             : <IconStar size={14} />
           }
         </button>
         <button
           onClick={onDuplicate}
-          className="p-1 rounded text-zinc-500 hover:text-blue-400 transition-colors"
-          title="Duplicate"
+          className="p-1.5 rounded-lg transition-colors"
+          style={{ color: 'var(--text-tertiary)' }}
+          onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-tertiary)')}
         >
           <IconCopy size={14} />
         </button>
         <button
           onClick={onTrash}
-          className="p-1 rounded text-zinc-500 hover:text-red-400 transition-colors"
-          title="Move to trash"
+          className="p-1.5 rounded-lg transition-colors"
+          style={{ color: 'var(--text-tertiary)' }}
+          onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-tertiary)')}
         >
           <IconTrash size={14} />
         </button>

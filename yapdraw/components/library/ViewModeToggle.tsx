@@ -10,26 +10,29 @@ interface Props {
 
 export default function ViewModeToggle({ viewMode, onToggle }: Props) {
   return (
-    <div className="flex items-center rounded-md border border-zinc-700 overflow-hidden">
+    <div
+      className="flex items-center rounded-xl overflow-hidden"
+      style={{ background: 'var(--bg-tertiary)' }}
+    >
       <button
         onClick={() => onToggle('grid')}
-        className={`p-1.5 transition-colors ${
-          viewMode === 'grid'
-            ? 'bg-zinc-700 text-white'
-            : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white'
-        }`}
-        title="Grid view"
+        className="p-1.5 transition-colors rounded-lg m-0.5"
+        style={{
+          background: viewMode === 'grid' ? 'var(--bg-secondary)' : 'transparent',
+          color: viewMode === 'grid' ? 'var(--text-primary)' : 'var(--text-tertiary)',
+          boxShadow: viewMode === 'grid' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
+        }}
       >
         <IconLayoutGrid size={15} />
       </button>
       <button
         onClick={() => onToggle('list')}
-        className={`p-1.5 transition-colors ${
-          viewMode === 'list'
-            ? 'bg-zinc-700 text-white'
-            : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white'
-        }`}
-        title="List view"
+        className="p-1.5 transition-colors rounded-lg m-0.5"
+        style={{
+          background: viewMode === 'list' ? 'var(--bg-secondary)' : 'transparent',
+          color: viewMode === 'list' ? 'var(--text-primary)' : 'var(--text-tertiary)',
+          boxShadow: viewMode === 'list' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
+        }}
       >
         <IconList size={15} />
       </button>

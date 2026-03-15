@@ -1,5 +1,6 @@
 'use client'
 
+import { motion } from 'framer-motion'
 import type { Diagram, Folder } from '@/types/library'
 import DiagramCard from './DiagramCard'
 import EmptyState from './EmptyState'
@@ -15,6 +16,20 @@ interface Props {
   onRename: (id: string, name: string) => void
   onMove: (id: string, folderId: string | null) => void
   emptyVariant?: 'empty-library' | 'empty-folder' | 'no-results'
+}
+
+const container = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.04,
+    },
+  },
+}
+
+const item = {
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0 },
 }
 
 export default function DiagramGrid({
@@ -34,21 +49,27 @@ export default function DiagramGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-6">
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-8"
+    >
       {diagrams.map(diagram => (
-        <DiagramCard
-          key={diagram.id}
-          diagram={diagram}
-          folders={folders}
-          selected={selectedIds.has(diagram.id)}
-          onToggleSelect={() => onToggleSelect(diagram.id)}
-          onStar={starred => onStar(diagram.id, starred)}
-          onTrash={() => onTrash(diagram.id)}
-          onDuplicate={() => onDuplicate(diagram.id)}
-          onRename={name => onRename(diagram.id, name)}
-          onMove={folderId => onMove(diagram.id, folderId)}
-        />
+        <motion.div key={diagram.id} variants={item}>
+          <DiagramCard
+            diagram={diagram}
+            folders={folders}
+            selected={selectedIds.has(diagram.id)}
+            onToggleSelect={() => onToggleSelect(diagram.id)}
+            onStar={starred => onStar(diagram.id, starred)}
+            onTrash={() => onTrash(diagram.id)}
+            onDuplicate={() => onDuplicate(diagram.id)}
+            onRename={name => onRename(diagram.id, name)}
+            onMove={folderId => onMove(diagram.id, folderId)}
+          />
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   )
 }

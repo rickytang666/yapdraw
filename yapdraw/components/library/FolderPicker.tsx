@@ -34,38 +34,50 @@ export default function FolderPicker({ folders, currentFolderId, onSelect, onClo
       <div className="fixed inset-0 z-40" onClick={onClose} />
       <div
         ref={ref}
-        className="absolute z-50 mt-1 w-56 bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl overflow-hidden"
+        className="absolute z-50 mt-1 w-56 rounded-xl shadow-xl overflow-hidden"
+        style={{
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border)',
+        }}
       >
         <div className="py-1 max-h-60 overflow-y-auto">
           <button
-            className={`flex items-center gap-2 w-full px-3 py-2 text-sm transition-colors text-left ${
-              currentFolderId === null
-                ? 'bg-zinc-700 text-white'
-                : 'text-zinc-300 hover:bg-zinc-700 hover:text-white'
-            }`}
+            className="flex items-center gap-2 w-full px-3 py-2 text-sm transition-colors text-left"
+            style={{
+              background: currentFolderId === null ? 'var(--bg-tertiary)' : 'transparent',
+              color: 'var(--text-secondary)',
+            }}
             onClick={() => handleSelect(null)}
+            onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-tertiary)')}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = currentFolderId === null ? 'var(--bg-tertiary)' : 'transparent'
+            }}
           >
-            <IconFolderOpen size={15} className="text-zinc-400 shrink-0" />
-            <span>Root (no folder)</span>
+            <IconFolderOpen size={15} className="shrink-0" style={{ color: 'var(--text-tertiary)' }} />
+            <span>Root</span>
           </button>
 
           {sorted.map(folder => (
             <button
               key={folder.id}
-              className={`flex items-center gap-2 w-full px-3 py-2 text-sm transition-colors text-left ${
-                currentFolderId === folder.id
-                  ? 'bg-zinc-700 text-white'
-                  : 'text-zinc-300 hover:bg-zinc-700 hover:text-white'
-              }`}
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm transition-colors text-left"
+              style={{
+                background: currentFolderId === folder.id ? 'var(--bg-tertiary)' : 'transparent',
+                color: 'var(--text-secondary)',
+              }}
               onClick={() => handleSelect(folder.id)}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-tertiary)')}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = currentFolderId === folder.id ? 'var(--bg-tertiary)' : 'transparent'
+              }}
             >
-              <IconFolder size={15} className="text-zinc-400 shrink-0" />
+              <IconFolder size={15} className="shrink-0" style={{ color: 'var(--text-tertiary)' }} />
               <span className="truncate">{folder.name}</span>
             </button>
           ))}
 
           {folders.length === 0 && (
-            <p className="px-3 py-2 text-xs text-zinc-500">No folders created yet.</p>
+            <p className="px-3 py-2 text-xs" style={{ color: 'var(--text-tertiary)' }}>No folders yet.</p>
           )}
         </div>
       </div>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { IconPlus, IconSearch, IconUpload } from '@tabler/icons-react'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   DndContext,
   type DragEndEvent,
@@ -48,14 +49,12 @@ export default function LibraryView() {
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   )
 
-  // Run migration once on first load
   useEffect(() => {
     migrateFromLocalStorage()
     lib.purgeExpiredTrash()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Keyboard shortcuts
   useKeyboardShortcuts({
     '/': () => {
       searchRef.current?.focus()
@@ -153,11 +152,9 @@ export default function LibraryView() {
     }
   }
 
-  // Import handler
   async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    // Reset the input so the same file can be imported again
     e.target.value = ''
     try {
       const newId = await importExcalidrawFile(file)
@@ -168,7 +165,6 @@ export default function LibraryView() {
     }
   }
 
-  // DnD handlers
   function handleDragOver(event: DragOverEvent) {
     const { over } = event
     if (over && typeof over.id === 'string' && over.id.startsWith('folder:')) {
@@ -223,37 +219,42 @@ export default function LibraryView() {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex h-screen w-screen overflow-hidden bg-zinc-900">
-        {showNewModal && (
-          <NewDiagramModal
-            onConfirm={handleCreateDiagram}
-            onCancel={() => setShowNewModal(false)}
-          />
-        )}
-        {showFolderModal && (
-          <NewFolderModal
-            parentName={
-              folderModalParentId
-                ? folderHook.folders.find(f => f.id === folderModalParentId)?.name
-                : undefined
-            }
-            onConfirm={handleConfirmFolder}
-            onCancel={() => setShowFolderModal(false)}
-          />
-        )}
+      <div className="flex h-screen w-screen overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
+        <AnimatePresence>
+          {showNewModal && (
+            <NewDiagramModal
+              onConfirm={handleCreateDiagram}
+              onCancel={() => setShowNewModal(false)}
+            />
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {showFolderModal && (
+            <NewFolderModal
+              parentName={
+                folderModalParentId
+                  ? folderHook.folders.find(f => f.id === folderModalParentId)?.name
+                  : undefined
+              }
+              onConfirm={handleConfirmFolder}
+              onCancel={() => setShowFolderModal(false)}
+            />
+          )}
+        </AnimatePresence>
 
-        {renameFolderId && (
-          <RenameFolderModal
-            folder={{
-              id: renameFolderId,
-              name: folderHook.folders.find(f => f.id === renameFolderId)?.name || 'Folder',
-            }}
-            onConfirm={handleConfirmRenameFolder}
-            onCancel={() => setRenameFolderId(null)}
-          />
-        )}
+        <AnimatePresence>
+          {renameFolderId && (
+            <RenameFolderModal
+              folder={{
+                id: renameFolderId,
+                name: folderHook.folders.find(f => f.id === renameFolderId)?.name || 'Folder',
+              }}
+              onConfirm={handleConfirmRenameFolder}
+              onCancel={() => setRenameFolderId(null)}
+            />
+          )}
+        </AnimatePresence>
 
-        {/* Hidden import file input */}
         <input
           ref={importInputRef}
           type="file"
@@ -276,23 +277,38 @@ export default function LibraryView() {
 
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           {/* Header */}
-          <header className="flex items-center gap-3 h-14 px-6 border-b border-zinc-800 shrink-0">
-            <h2 className="text-white font-semibold text-base shrink-0">{sectionLabel()}</h2>
+          <header
+            className="flex items-center gap-4 h-16 px-8 shrink-0"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            <h2
+              className="text-lg font-semibold shrink-0"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              {sectionLabel()}
+            </h2>
 
             {/* Search */}
             {!isTrash && (
-              <div className="flex items-center gap-2 ml-4 bg-zinc-800 rounded-md px-3 py-1.5 flex-1 max-w-xs">
-                <IconSearch size={14} className="text-zinc-500 shrink-0" />
+              <div
+                className="flex items-center gap-2.5 ml-4 rounded-full px-4 py-2 flex-1 max-w-xs focus-within:max-w-md transition-all duration-200"
+                style={{ background: 'var(--bg-tertiary)' }}
+              >
+                <IconSearch size={15} style={{ color: 'var(--text-tertiary)' }} className="shrink-0" />
                 <input
                   ref={searchRef}
-                  className="bg-transparent text-sm text-white placeholder-zinc-500 outline-none flex-1"
-                  placeholder="Search diagrams…"
+                  className="bg-transparent text-sm outline-none flex-1"
+                  style={{ color: 'var(--text-primary)' }}
+                  placeholder="Search diagrams..."
                   value={lib.state.searchQuery}
                   onChange={e => lib.setSearch(e.target.value)}
                 />
                 {!lib.state.searchQuery && (
-                  <kbd className="hidden sm:flex items-center gap-0.5 text-zinc-500 text-xs font-sans pointer-events-none">
-                    <span className="text-[11px]">⌘</span>K
+                  <kbd
+                    className="hidden sm:flex items-center gap-0.5 text-xs font-sans pointer-events-none"
+                    style={{ color: 'var(--text-tertiary)' }}
+                  >
+                    <span className="text-[11px]">&#8984;</span>K
                   </kbd>
                 )}
               </div>
@@ -315,91 +331,116 @@ export default function LibraryView() {
               </div>
             )}
 
-            {/* Import button */}
+            {/* Import */}
             {!isTrash && (
               <button
-                className="flex items-center gap-1.5 px-2.5 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-600 text-sm rounded-md transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-xl transition-colors"
+                style={{
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border)',
+                }}
                 onClick={() => importInputRef.current?.click()}
-                title="Import .excalidraw file"
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'var(--bg-tertiary)'
+                  e.currentTarget.style.color = 'var(--text-primary)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.color = 'var(--text-secondary)'
+                }}
               >
                 <IconUpload size={15} />
                 <span className="hidden sm:inline">Import</span>
               </button>
             )}
 
-            {/* New Diagram button */}
+            {/* New Diagram */}
             {!isTrash && (
               <button
-                className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-md transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-white text-sm font-medium rounded-xl transition-colors shadow-sm"
+                style={{ background: 'var(--accent)' }}
                 onClick={() => setShowNewModal(true)}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent-hover)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'var(--accent)')}
               >
                 <IconPlus size={16} />
-                New Diagram
+                New
               </button>
             )}
           </header>
 
           {/* Content */}
-          {isTrash ? (
-            <TrashView
-              diagrams={lib.diagrams}
-              onRestore={lib.restoreDiagram}
-              onDelete={lib.permanentlyDelete}
-              onEmptyTrash={lib.emptyTrash}
-            />
-          ) : lib.diagrams.length === 0 ? (
-            <EmptyState variant={getEmptyVariant()} />
-          ) : lib.state.viewMode === 'list' ? (
-            <div className="flex-1 overflow-hidden flex flex-col">
-              <DiagramList
-                diagrams={lib.diagrams}
-                folders={lib.folders}
-                selectedIds={selectedIds}
-                onToggleSelect={lib.toggleSelect}
-                onOpen={id => router.push(`/d/${id}`)}
-                onStar={lib.starDiagram}
-                onDuplicate={async id => {
-                  const newId = await lib.duplicateDiagram(id)
-                  router.push(`/d/${newId}`)
-                }}
-                onTrash={lib.trashDiagram}
-              />
-            </div>
-          ) : (
-            <div className="flex-1 overflow-y-auto">
-              <DiagramGrid
-                diagrams={lib.diagrams}
-                folders={lib.folders}
-                selectedIds={selectedIds}
-                onToggleSelect={lib.toggleSelect}
-                onStar={lib.starDiagram}
-                onTrash={lib.trashDiagram}
-                onDuplicate={async id => {
-                  const newId = await lib.duplicateDiagram(id)
-                  router.push(`/d/${newId}`)
-                }}
-                onRename={lib.renameDiagram}
-                onMove={lib.moveDiagram}
-                emptyVariant={getEmptyVariant()}
-              />
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={lib.state.activeSection + lib.state.viewMode}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex-1 overflow-hidden flex flex-col"
+            >
+              {isTrash ? (
+                <TrashView
+                  diagrams={lib.diagrams}
+                  onRestore={lib.restoreDiagram}
+                  onDelete={lib.permanentlyDelete}
+                  onEmptyTrash={lib.emptyTrash}
+                />
+              ) : lib.diagrams.length === 0 ? (
+                <EmptyState variant={getEmptyVariant()} />
+              ) : lib.state.viewMode === 'list' ? (
+                <DiagramList
+                  diagrams={lib.diagrams}
+                  folders={lib.folders}
+                  selectedIds={selectedIds}
+                  onToggleSelect={lib.toggleSelect}
+                  onOpen={id => router.push(`/d/${id}`)}
+                  onStar={lib.starDiagram}
+                  onDuplicate={async id => {
+                    const newId = await lib.duplicateDiagram(id)
+                    router.push(`/d/${newId}`)
+                  }}
+                  onTrash={lib.trashDiagram}
+                />
+              ) : (
+                <div className="flex-1 overflow-y-auto">
+                  <DiagramGrid
+                    diagrams={lib.diagrams}
+                    folders={lib.folders}
+                    selectedIds={selectedIds}
+                    onToggleSelect={lib.toggleSelect}
+                    onStar={lib.starDiagram}
+                    onTrash={lib.trashDiagram}
+                    onDuplicate={async id => {
+                      const newId = await lib.duplicateDiagram(id)
+                      router.push(`/d/${newId}`)
+                    }}
+                    onRename={lib.renameDiagram}
+                    onMove={lib.moveDiagram}
+                    emptyVariant={getEmptyVariant()}
+                  />
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Bulk action bar */}
-        {hasBulkSelection && (
-          <BulkActionBar
-            selectedCount={selectedIds.size}
-            folders={lib.folders}
-            diagrams={lib.diagrams}
-            selectedIds={selectedIds}
-            onStar={() => lib.bulkStar(Array.from(selectedIds), true)}
-            onUnstar={() => lib.bulkStar(Array.from(selectedIds), false)}
-            onMove={folderId => lib.bulkMove(Array.from(selectedIds), folderId)}
-            onTrash={() => lib.bulkTrash(Array.from(selectedIds))}
-            onClear={lib.clearSelection}
-          />
-        )}
+        <AnimatePresence>
+          {hasBulkSelection && (
+            <BulkActionBar
+              selectedCount={selectedIds.size}
+              folders={lib.folders}
+              diagrams={lib.diagrams}
+              selectedIds={selectedIds}
+              onStar={() => lib.bulkStar(Array.from(selectedIds), true)}
+              onUnstar={() => lib.bulkStar(Array.from(selectedIds), false)}
+              onMove={folderId => lib.bulkMove(Array.from(selectedIds), folderId)}
+              onTrash={() => lib.bulkTrash(Array.from(selectedIds))}
+              onClear={lib.clearSelection}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </DndContext>
   )

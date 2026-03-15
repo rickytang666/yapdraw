@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { IconFolder, IconX } from '@tabler/icons-react'
+import { IconX } from '@tabler/icons-react'
+import { motion } from 'framer-motion'
 import type { Folder } from '@/types/library'
 
 interface Props {
@@ -41,57 +42,77 @@ export default function RenameFolderModal({ folder, onConfirm, onCancel }: Props
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)' }}
       onClick={handleBackdropClick}
     >
-      <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-sm mx-4">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
-          <div className="flex items-center gap-2">
-            <IconFolder size={18} className="text-zinc-400" />
-            <h2 className="text-white font-semibold text-base">Rename folder</h2>
-          </div>
+      <motion.div
+        initial={{ scale: 0.97, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.97, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+        className="rounded-2xl shadow-2xl w-full max-w-sm mx-4"
+        style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}
+      >
+        <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid var(--border)' }}>
+          <h2 className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>Rename Folder</h2>
           <button
             onClick={onCancel}
-            className="text-zinc-400 hover:text-white transition-colors"
-            aria-label="Close"
+            className="p-1 rounded-lg transition-colors"
+            style={{ color: 'var(--text-tertiary)' }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-tertiary)')}
           >
             <IconX size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="text-zinc-400 text-sm">Folder name</label>
-            <input
-              ref={inputRef}
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Folder name"
-              className="bg-zinc-800 border border-zinc-700 focus:border-blue-500 outline-none rounded-md px-3 py-2 text-white text-sm placeholder-zinc-500 transition-colors"
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="px-6 py-6 flex flex-col gap-5">
+          <input
+            ref={inputRef}
+            type="text"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="Folder name"
+            className="text-sm rounded-xl px-4 py-3 outline-none transition-colors w-full"
+            style={{
+              background: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border)',
+            }}
+            onFocus={e => (e.currentTarget.style.borderColor = 'var(--accent)')}
+            onBlur={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+          />
 
           <div className="flex justify-end gap-2 pt-1">
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors rounded-md"
               disabled={isSaving}
+              className="px-4 py-2 text-sm rounded-xl transition-colors"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-tertiary)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving || !name.trim()}
-              className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-md transition-colors"
+              className="px-5 py-2 text-sm font-medium text-white rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: 'var(--accent)' }}
+              onMouseEnter={e => { if (name.trim()) e.currentTarget.style.background = 'var(--accent-hover)' }}
+              onMouseLeave={e => (e.currentTarget.style.background = 'var(--accent)')}
             >
-              {isSaving ? 'Saving…' : 'Rename'}
+              {isSaving ? 'Saving...' : 'Rename'}
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

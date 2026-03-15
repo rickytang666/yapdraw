@@ -43,39 +43,52 @@ export default function TemplatePicker({ onSelect, onCancel }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-60 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-60 flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)' }}
       onClick={handleBackdropClick}
     >
-      <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-2xl mx-4 flex flex-col max-h-[90vh]">
+      <div
+        className="rounded-2xl shadow-2xl w-full max-w-2xl mx-4 flex flex-col max-h-[85vh]"
+        style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 shrink-0">
-          <h2 className="text-white font-semibold text-base">Choose a Template</h2>
+        <div className="flex items-center justify-between px-6 py-5 shrink-0" style={{ borderBottom: '1px solid var(--border)' }}>
+          <h2 className="font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>Templates</h2>
           <button
             onClick={onCancel}
-            className="text-zinc-400 hover:text-white transition-colors"
+            className="p-1 rounded-lg transition-colors"
+            style={{ color: 'var(--text-tertiary)' }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-tertiary)')}
           >
             <IconX size={18} />
           </button>
         </div>
 
-        {/* Category tabs */}
-        <div className="flex items-center gap-1 px-6 py-3 border-b border-zinc-800 shrink-0 overflow-x-auto">
+        {/* Category tabs — pill style */}
+        <div className="flex items-center gap-1.5 px-6 py-3 shrink-0 overflow-x-auto" style={{ borderBottom: '1px solid var(--border)' }}>
           {CATEGORY_TABS.map(tab => (
             <button
               key={tab.value}
               onClick={() => setActiveCategory(tab.value)}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
-                activeCategory === tab.value
-                  ? 'bg-zinc-700 text-white'
-                  : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
-              }`}
+              className="px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap"
+              style={{
+                background: activeCategory === tab.value ? 'var(--accent-subtle)' : 'transparent',
+                color: activeCategory === tab.value ? 'var(--accent)' : 'var(--text-secondary)',
+              }}
+              onMouseEnter={e => {
+                if (activeCategory !== tab.value) e.currentTarget.style.background = 'var(--bg-tertiary)'
+              }}
+              onMouseLeave={e => {
+                if (activeCategory !== tab.value) e.currentTarget.style.background = 'transparent'
+              }}
             >
               {tab.label}
             </button>
           ))}
         </div>
 
-        {/* Template grid */}
+        {/* Grid */}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {filtered.map(template => (
@@ -88,26 +101,34 @@ export default function TemplatePicker({ onSelect, onCancel }: Props) {
             ))}
           </div>
           {filtered.length === 0 && (
-            <p className="text-center text-zinc-500 py-8 text-sm">No templates in this category.</p>
+            <p className="text-center py-8 text-sm" style={{ color: 'var(--text-tertiary)' }}>
+              No templates in this category.
+            </p>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-800 shrink-0">
-          <p className="text-xs text-zinc-500">
-            {selectedTemplate ? `Selected: ${selectedTemplate.name}` : 'Select a template to continue'}
+        <div className="flex items-center justify-between px-6 py-4 shrink-0" style={{ borderTop: '1px solid var(--border)' }}>
+          <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+            {selectedTemplate ? selectedTemplate.name : 'Select a template'}
           </p>
           <div className="flex items-center gap-2">
             <button
               onClick={onCancel}
-              className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors rounded-md"
+              className="px-4 py-2 text-sm rounded-xl transition-colors"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-tertiary)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
               Cancel
             </button>
             <button
               onClick={handleUseTemplate}
               disabled={!selectedTemplate}
-              className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-md transition-colors"
+              className="px-5 py-2 text-sm font-medium text-white rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: 'var(--accent)' }}
+              onMouseEnter={e => { if (selectedTemplate) e.currentTarget.style.background = 'var(--accent-hover)' }}
+              onMouseLeave={e => (e.currentTarget.style.background = 'var(--accent)')}
             >
               Use Template
             </button>

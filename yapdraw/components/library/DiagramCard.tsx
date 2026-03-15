@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { IconStar, IconStarFilled, IconTrash, IconCopy } from '@tabler/icons-react'
+import { motion } from 'framer-motion'
 import type { Diagram, Folder } from '@/types/library'
 import DiagramCardContextMenu from './DiagramCardContextMenu'
 
@@ -22,7 +23,13 @@ interface Props {
 
 function formatDate(ts: number): string {
   const d = new Date(ts)
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+  const now = Date.now()
+  const diff = now - ts
+  if (diff < 60000) return 'Just now'
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`
+  if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
 export default function DiagramCard({
@@ -90,17 +97,26 @@ export default function DiagramCard({
 
   return (
     <>
-      <div
+      <motion.div
         ref={setNodeRef}
-        style={style}
         {...attributes}
         {...listeners}
         onContextMenu={handleContextMenu}
-        className={`group relative bg-zinc-800 rounded-lg border transition-colors cursor-pointer overflow-hidden flex flex-col ${
-          selected
-            ? 'border-blue-500 ring-1 ring-blue-500'
-            : 'border-zinc-700 hover:border-zinc-500'
-        } ${isDragging ? 'shadow-2xl' : ''}`}
+        whileHover={{ y: -2 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        className={`group relative rounded-2xl cursor-pointer overflow-hidden flex flex-col transition-shadow duration-200 ${
+          isDragging ? 'shadow-xl' : ''
+        }`}
+        style={{
+          ...style,
+          background: 'var(--bg-secondary)',
+          border: selected
+            ? '2px solid var(--accent)'
+            : '1px solid var(--border)',
+          boxShadow: selected
+            ? '0 0 0 3px var(--accent-subtle)'
+            : '0 1px 3px rgba(0,0,0,0.04)',
+        }}
         onClick={e => {
           if (isRenaming) return
           if (e.metaKey || e.ctrlKey || e.shiftKey) {
@@ -112,7 +128,10 @@ export default function DiagramCard({
         }}
       >
         {/* Thumbnail */}
-        <div className="h-36 bg-zinc-900 flex items-center justify-center overflow-hidden shrink-0">
+        <div
+          className="aspect-[16/10] flex items-center justify-center overflow-hidden shrink-0"
+          style={{ background: 'var(--bg-tertiary)' }}
+        >
           {diagram.thumbnail ? (
             <img
               src={diagram.thumbnail}
@@ -120,16 +139,23 @@ export default function DiagramCard({
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-zinc-600 text-xs">No preview</span>
+            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+              No preview
+            </span>
           )}
         </div>
 
         {/* Info */}
-        <div className="p-3 flex flex-col gap-1 flex-1">
+        <div className="p-4 flex flex-col gap-1.5">
           {isRenaming ? (
             <input
               ref={renameInputRef}
-              className="text-sm font-medium text-white bg-zinc-700 border border-zinc-500 rounded px-1.5 py-0.5 outline-none w-full"
+              className="text-sm font-medium rounded-lg px-2 py-1 outline-none w-full"
+              style={{
+                color: 'var(--text-primary)',
+                background: 'var(--bg-tertiary)',
+                border: '1px solid var(--border)',
+              }}
               value={renameValue}
               onChange={e => setRenameValue(e.target.value)}
               onBlur={handleRenameCommit}
@@ -137,24 +163,30 @@ export default function DiagramCard({
               onClick={e => e.stopPropagation()}
             />
           ) : (
-            <p className="text-sm font-medium text-white truncate">{diagram.name}</p>
+            <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
+              {diagram.name}
+            </p>
           )}
-          <p className="text-xs text-zinc-500">{hasMounted ? formatDate(diagram.updatedAt) : ''}</p>
-          <p className="text-xs text-zinc-600 capitalize">{diagram.diagramType}</p>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+            {hasMounted ? formatDate(diagram.updatedAt) : ''}
+          </p>
 
-          {/* Tag pills */}
           {visibleTags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-0.5">
               {visibleTags.map(tag => (
                 <span
                   key={tag}
-                  className="px-1.5 py-0.5 rounded-full bg-zinc-700 text-zinc-400 text-[10px] leading-tight"
+                  className="px-2 py-0.5 rounded-full text-[10px] leading-tight"
+                  style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}
                 >
                   {tag}
                 </span>
               ))}
               {diagram.tags.length > 2 && (
-                <span className="px-1.5 py-0.5 rounded-full bg-zinc-700 text-zinc-500 text-[10px] leading-tight">
+                <span
+                  className="px-2 py-0.5 rounded-full text-[10px] leading-tight"
+                  style={{ background: 'var(--bg-tertiary)', color: 'var(--text-tertiary)' }}
+                >
                   +{diagram.tags.length - 2}
                 </span>
               )}
@@ -162,33 +194,57 @@ export default function DiagramCard({
           )}
         </div>
 
-        {/* Action buttons — visible on hover */}
+        {/* Star — always visible, muted unless starred */}
         <div
-          className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute top-3 right-3"
+          onClick={e => { e.stopPropagation(); onStar(!diagram.starred) }}
+          onPointerDown={e => e.stopPropagation()}
+        >
+          {diagram.starred ? (
+            <IconStarFilled size={16} style={{ color: 'var(--star)' }} />
+          ) : (
+            <IconStar
+              size={16}
+              className="opacity-0 group-hover:opacity-60 transition-opacity"
+              style={{ color: 'var(--text-tertiary)' }}
+            />
+          )}
+        </div>
+
+        {/* Hover actions */}
+        <div
+          className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-1 py-2 opacity-0 group-hover:opacity-100 transition-opacity"
+          style={{ background: 'linear-gradient(transparent, var(--bg-secondary))' }}
           onClick={e => e.stopPropagation()}
           onPointerDown={e => e.stopPropagation()}
         >
           <button
-            className="p-1 rounded bg-zinc-800/80 text-zinc-400 hover:text-yellow-400 transition-colors"
-            onClick={() => onStar(!diagram.starred)}
-            title={diagram.starred ? 'Unstar' : 'Star'}
-          >
-            {diagram.starred
-              ? <IconStarFilled size={14} className="text-yellow-400" />
-              : <IconStar size={14} />
-            }
-          </button>
-          <button
-            className="p-1 rounded bg-zinc-800/80 text-zinc-400 hover:text-blue-400 transition-colors"
+            className="p-1.5 rounded-lg transition-colors"
+            style={{ color: 'var(--text-secondary)' }}
             onClick={onDuplicate}
-            title="Duplicate"
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'var(--bg-tertiary)'
+              e.currentTarget.style.color = 'var(--text-primary)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.color = 'var(--text-secondary)'
+            }}
           >
             <IconCopy size={14} />
           </button>
           <button
-            className="p-1 rounded bg-zinc-800/80 text-zinc-400 hover:text-red-400 transition-colors"
+            className="p-1.5 rounded-lg transition-colors"
+            style={{ color: 'var(--text-secondary)' }}
             onClick={onTrash}
-            title="Move to trash"
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'var(--danger-subtle)'
+              e.currentTarget.style.color = 'var(--danger)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.color = 'var(--text-secondary)'
+            }}
           >
             <IconTrash size={14} />
           </button>
@@ -197,7 +253,7 @@ export default function DiagramCard({
         {/* Selection checkbox */}
         {onToggleSelect && (
           <div
-            className={`absolute top-2 left-2 transition-opacity ${
+            className={`absolute top-3 left-3 transition-opacity ${
               selected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
             }`}
             onClick={e => { e.stopPropagation(); onToggleSelect() }}
@@ -207,12 +263,13 @@ export default function DiagramCard({
               type="checkbox"
               checked={!!selected}
               onChange={onToggleSelect}
-              className="w-4 h-4 rounded accent-blue-500 cursor-pointer"
+              className="w-4 h-4 rounded cursor-pointer"
+              style={{ accentColor: 'var(--accent)' }}
               onClick={e => e.stopPropagation()}
             />
           </div>
         )}
-      </div>
+      </motion.div>
 
       {contextMenu && (
         <DiagramCardContextMenu

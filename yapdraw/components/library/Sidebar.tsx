@@ -1,12 +1,16 @@
 'use client'
 
+import { useState } from 'react'
 import {
   IconLayoutGrid,
   IconStar,
   IconClock,
   IconTrash,
   IconFolderPlus,
+  IconChevronsLeft,
+  IconChevronsRight,
 } from '@tabler/icons-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { SidebarSection } from '@/types/library'
 import type { FolderNode } from '@/hooks/useFolders'
 import FolderTree from './FolderTree'
@@ -23,11 +27,10 @@ interface Props {
   onAddSubfolder: (parentId: string) => void
 }
 
-const FIXED_SECTIONS: { id: SidebarSection; label: string; icon: React.ReactNode }[] = [
-  { id: 'all',     label: 'All Diagrams', icon: <IconLayoutGrid size={16} /> },
-  { id: 'starred', label: 'Starred',      icon: <IconStar size={16} /> },
-  { id: 'recent',  label: 'Recent',       icon: <IconClock size={16} /> },
-  { id: 'trash',   label: 'Trash',        icon: <IconTrash size={16} /> },
+const NAV_SECTIONS: { id: SidebarSection; label: string; icon: React.ComponentType<{ size?: number }> }[] = [
+  { id: 'all',     label: 'All Diagrams', icon: IconLayoutGrid },
+  { id: 'starred', label: 'Starred',      icon: IconStar },
+  { id: 'recent',  label: 'Recent',       icon: IconClock },
 ]
 
 export default function Sidebar({
@@ -41,65 +44,156 @@ export default function Sidebar({
   onDeleteFolder,
   onAddSubfolder,
 }: Props) {
+  const [collapsed, setCollapsed] = useState(false)
+
   return (
-    <aside className="w-52 shrink-0 bg-zinc-900 border-r border-zinc-800 flex flex-col overflow-y-auto">
-      <div className="px-4 py-4">
-        <h1 className="text-lg font-bold text-white tracking-tight">YapDraw</h1>
+    <motion.aside
+      animate={{ width: collapsed ? 56 : 240 }}
+      transition={{ duration: 0.2, ease: 'easeInOut' }}
+      className="shrink-0 flex flex-col overflow-hidden"
+      style={{ background: 'var(--bg-secondary)' }}
+    >
+      {/* Logo + collapse */}
+      <div className="flex items-center justify-between h-14 px-3 shrink-0">
+        <AnimatePresence>
+          {!collapsed && (
+            <motion.h1
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-base font-bold tracking-tight pl-1"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              YapDraw
+            </motion.h1>
+          )}
+        </AnimatePresence>
+        <button
+          onClick={() => setCollapsed(v => !v)}
+          className="p-1.5 rounded-lg transition-colors"
+          style={{ color: 'var(--text-tertiary)' }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-tertiary)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+        >
+          {collapsed ? <IconChevronsRight size={16} /> : <IconChevronsLeft size={16} />}
+        </button>
       </div>
 
-      {/* Fixed sections */}
-      <nav className="flex flex-col gap-0.5 px-2">
-        {FIXED_SECTIONS.map(({ id, label, icon }) => {
+      {/* Main nav */}
+      <nav className="flex flex-col gap-0.5 px-2 mt-1">
+        {NAV_SECTIONS.map(({ id, label, icon: Icon }) => {
           const isActive = activeSection === id
           return (
             <button
               key={id}
               onClick={() => onSection(id)}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors text-left w-full ${
-                isActive
-                  ? 'bg-zinc-700 text-white'
-                  : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
-              }`}
+              className="flex items-center gap-2.5 py-2 rounded-xl text-sm transition-all text-left w-full relative"
+              style={{
+                padding: collapsed ? '8px 0' : '8px 12px',
+                justifyContent: collapsed ? 'center' : 'flex-start',
+                background: isActive ? 'var(--accent-subtle)' : 'transparent',
+                color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
+                fontWeight: isActive ? 600 : 400,
+              }}
+              onMouseEnter={e => {
+                if (!isActive) e.currentTarget.style.background = 'var(--bg-tertiary)'
+              }}
+              onMouseLeave={e => {
+                if (!isActive) e.currentTarget.style.background = 'transparent'
+              }}
             >
-              {icon}
-              <span>{label}</span>
-              {id === 'trash' && trashedCount > 0 && (
-                <span className="ml-auto text-xs text-zinc-500">{trashedCount}</span>
+              {isActive && (
+                <motion.div
+                  layoutId="sidebar-active"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] rounded-r-full"
+                  style={{ height: '60%', background: 'var(--accent)' }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
               )}
+              <Icon size={18} />
+              {!collapsed && <span>{label}</span>}
             </button>
           )
         })}
       </nav>
 
       {/* Folders section */}
-      <div className="mt-4 px-2 flex-1">
-        <div className="flex items-center justify-between px-2 mb-1">
-          <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-            Folders
-          </span>
-          <button
-            onClick={onCreateFolder}
-            className="p-1 rounded text-zinc-500 hover:text-white hover:bg-zinc-700 transition-colors"
-            title="New folder"
-          >
-            <IconFolderPlus size={14} />
-          </button>
-        </div>
+      {!collapsed && (
+        <div className="mt-6 px-2 flex-1 overflow-y-auto">
+          <div className="flex items-center justify-between px-3 mb-2">
+            <span
+              className="text-[11px] font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
+              Folders
+            </span>
+            <button
+              onClick={onCreateFolder}
+              className="p-1 rounded-lg transition-colors"
+              style={{ color: 'var(--text-tertiary)' }}
+              onMouseEnter={e => {
+                e.currentTarget.style.color = 'var(--text-primary)'
+                e.currentTarget.style.background = 'var(--bg-tertiary)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.color = 'var(--text-tertiary)'
+                e.currentTarget.style.background = 'transparent'
+              }}
+            >
+              <IconFolderPlus size={14} />
+            </button>
+          </div>
 
-        {folders.length === 0 ? (
-          <p className="px-2 py-1 text-xs text-zinc-600 italic">No folders yet</p>
-        ) : (
-          <FolderTree
-            folders={folders}
-            activeSection={activeSection}
-            overFolderId={overFolderId}
-            onSection={onSection}
-            onRename={onRenameFolder}
-            onDelete={onDeleteFolder}
-            onAddSubfolder={onAddSubfolder}
-          />
-        )}
+          {folders.length === 0 ? (
+            <p className="px-3 py-1 text-xs italic" style={{ color: 'var(--text-tertiary)' }}>
+              No folders yet
+            </p>
+          ) : (
+            <FolderTree
+              folders={folders}
+              activeSection={activeSection}
+              overFolderId={overFolderId}
+              onSection={onSection}
+              onRename={onRenameFolder}
+              onDelete={onDeleteFolder}
+              onAddSubfolder={onAddSubfolder}
+            />
+          )}
+        </div>
+      )}
+
+      {/* Trash at bottom */}
+      <div className="px-2 pb-3 mt-auto shrink-0" style={{ borderTop: '1px solid var(--border)' }}>
+        <button
+          onClick={() => onSection('trash')}
+          className="flex items-center gap-2.5 py-2 mt-2 rounded-xl text-sm transition-all text-left w-full"
+          style={{
+            padding: collapsed ? '8px 0' : '8px 12px',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            background: activeSection === 'trash' ? 'var(--danger-subtle)' : 'transparent',
+            color: activeSection === 'trash' ? 'var(--danger)' : 'var(--text-secondary)',
+            fontWeight: activeSection === 'trash' ? 600 : 400,
+          }}
+          onMouseEnter={e => {
+            if (activeSection !== 'trash') e.currentTarget.style.background = 'var(--bg-tertiary)'
+          }}
+          onMouseLeave={e => {
+            if (activeSection !== 'trash') e.currentTarget.style.background = 'transparent'
+          }}
+        >
+          <IconTrash size={18} />
+          {!collapsed && (
+            <>
+              <span>Trash</span>
+              {trashedCount > 0 && (
+                <span className="ml-auto text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                  {trashedCount}
+                </span>
+              )}
+            </>
+          )}
+        </button>
       </div>
-    </aside>
+    </motion.aside>
   )
 }

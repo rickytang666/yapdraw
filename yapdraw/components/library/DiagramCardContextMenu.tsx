@@ -31,6 +31,45 @@ interface Props {
   onTrash: () => void
 }
 
+function MenuItem({
+  icon,
+  label,
+  onClick,
+  danger,
+  children,
+}: {
+  icon: React.ReactNode
+  label: string
+  onClick?: () => void
+  danger?: boolean
+  children?: React.ReactNode
+}) {
+  return (
+    <div className="relative">
+      <button
+        className="flex items-center gap-2.5 w-full px-3 py-2 text-sm transition-colors text-left rounded-lg mx-1"
+        style={{
+          color: danger ? 'var(--danger)' : 'var(--text-secondary)',
+          width: 'calc(100% - 8px)',
+        }}
+        onClick={onClick}
+        onMouseEnter={e => {
+          e.currentTarget.style.background = danger ? 'var(--danger-subtle)' : 'var(--bg-tertiary)'
+          e.currentTarget.style.color = danger ? 'var(--danger)' : 'var(--text-primary)'
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.background = 'transparent'
+          e.currentTarget.style.color = danger ? 'var(--danger)' : 'var(--text-secondary)'
+        }}
+      >
+        {icon}
+        <span className="flex-1">{label}</span>
+        {children}
+      </button>
+    </div>
+  )
+}
+
 export default function DiagramCardContextMenu({
   diagram,
   folders,
@@ -54,7 +93,6 @@ export default function DiagramCardContextMenu({
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  // Adjust position so menu stays on screen
   const safeX = Math.min(position.x, window.innerWidth - 220)
   const safeY = Math.min(position.y, window.innerHeight - 360)
 
@@ -80,36 +118,32 @@ export default function DiagramCardContextMenu({
       <div className="fixed inset-0 z-40" onClick={onClose} />
       <div
         ref={menuRef}
-        className="fixed z-50 bg-zinc-800 border border-zinc-700 rounded-lg shadow-2xl overflow-hidden py-1 min-w-[180px]"
-        style={{ top: safeY, left: safeX }}
+        className="fixed z-50 rounded-2xl shadow-xl overflow-hidden py-1.5 min-w-[190px]"
+        style={{
+          top: safeY,
+          left: safeX,
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border)',
+        }}
       >
-        <div className="px-3 py-1.5 text-xs text-zinc-500 font-medium truncate border-b border-zinc-700 mb-1 max-w-[200px]">
-          {diagram.name}
-        </div>
-
-        <button
-          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
+        <MenuItem
+          icon={<IconExternalLink size={14} className="shrink-0" />}
+          label="Open"
           onClick={() => handleItem(onOpen)}
-        >
-          <IconExternalLink size={14} className="shrink-0" />
-          Open
-        </button>
-
-        <button
-          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
+        />
+        <MenuItem
+          icon={<IconPencil size={14} className="shrink-0" />}
+          label="Rename"
           onClick={() => handleItem(onRename)}
-        >
-          <IconPencil size={14} className="shrink-0" />
-          Rename
-        </button>
+        />
 
-        <button
-          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
+        <div className="my-1 mx-3" style={{ borderTop: '1px solid var(--border)' }} />
+
+        <MenuItem
+          icon={<IconCopy size={14} className="shrink-0" />}
+          label="Duplicate"
           onClick={() => handleItem(onDuplicate)}
-        >
-          <IconCopy size={14} className="shrink-0" />
-          Duplicate
-        </button>
+        />
 
         {/* Move to submenu */}
         <div
@@ -117,95 +151,93 @@ export default function DiagramCardContextMenu({
           onMouseEnter={() => setShowMoveSubmenu(true)}
           onMouseLeave={() => setShowMoveSubmenu(false)}
         >
-          <button
-            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
+          <MenuItem
+            icon={<IconFolderSymlink size={14} className="shrink-0" />}
+            label="Move to"
           >
-            <IconFolderSymlink size={14} className="shrink-0" />
-            <span className="flex-1">Move to</span>
-            <IconChevronRight size={12} className="text-zinc-500" />
-          </button>
+            <IconChevronRight size={12} style={{ color: 'var(--text-tertiary)' }} />
+          </MenuItem>
 
           {showMoveSubmenu && (
-            <div className="absolute left-full top-0 ml-1 w-48 bg-zinc-800 border border-zinc-700 rounded-lg shadow-2xl overflow-hidden py-1 z-10">
+            <div
+              className="absolute left-full top-0 ml-1 w-48 rounded-xl shadow-xl overflow-hidden py-1"
+              style={{
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border)',
+              }}
+            >
               <button
-                className={`flex items-center gap-2 w-full px-3 py-2 text-sm transition-colors text-left ${
-                  diagram.folderId === null
-                    ? 'bg-zinc-700 text-white'
-                    : 'text-zinc-300 hover:bg-zinc-700 hover:text-white'
-                }`}
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm transition-colors text-left"
+                style={{
+                  background: diagram.folderId === null ? 'var(--bg-tertiary)' : 'transparent',
+                  color: 'var(--text-secondary)',
+                }}
                 onClick={() => handleItem(() => onMove(null))}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-tertiary)')}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = diagram.folderId === null ? 'var(--bg-tertiary)' : 'transparent'
+                }}
               >
-                <IconFolderOpen size={14} className="shrink-0 text-zinc-400" />
-                Root (no folder)
+                <IconFolderOpen size={14} className="shrink-0" style={{ color: 'var(--text-tertiary)' }} />
+                Root
               </button>
               {sorted.map(folder => (
                 <button
                   key={folder.id}
-                  className={`flex items-center gap-2 w-full px-3 py-2 text-sm transition-colors text-left ${
-                    diagram.folderId === folder.id
-                      ? 'bg-zinc-700 text-white'
-                      : 'text-zinc-300 hover:bg-zinc-700 hover:text-white'
-                  }`}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm transition-colors text-left"
+                  style={{
+                    background: diagram.folderId === folder.id ? 'var(--bg-tertiary)' : 'transparent',
+                    color: 'var(--text-secondary)',
+                  }}
                   onClick={() => handleItem(() => onMove(folder.id))}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-tertiary)')}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = diagram.folderId === folder.id ? 'var(--bg-tertiary)' : 'transparent'
+                  }}
                 >
-                  <IconFolder size={14} className="shrink-0 text-zinc-400" />
+                  <IconFolder size={14} className="shrink-0" style={{ color: 'var(--text-tertiary)' }} />
                   <span className="truncate">{folder.name}</span>
                 </button>
               ))}
               {sorted.length === 0 && (
-                <p className="px-3 py-2 text-xs text-zinc-500">No folders.</p>
+                <p className="px-3 py-2 text-xs" style={{ color: 'var(--text-tertiary)' }}>No folders.</p>
               )}
             </div>
           )}
         </div>
 
-        {/* Export actions */}
-        <div className="my-1 border-t border-zinc-700" />
+        <div className="my-1 mx-3" style={{ borderTop: '1px solid var(--border)' }} />
 
-        <button
-          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
+        <MenuItem
+          icon={<IconFileExport size={14} className="shrink-0" />}
+          label="Export .excalidraw"
           onClick={handleExportExcalidraw}
-        >
-          <IconFileExport size={14} className="shrink-0" />
-          Export as .excalidraw
-        </button>
-
-        <button
-          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
+        />
+        <MenuItem
+          icon={<IconFileCode size={14} className="shrink-0" />}
+          label="Export JSON"
           onClick={handleExportJSON}
-        >
-          <IconFileCode size={14} className="shrink-0" />
-          Export as JSON
-        </button>
+        />
 
-        <div className="my-1 border-t border-zinc-700" />
+        <div className="my-1 mx-3" style={{ borderTop: '1px solid var(--border)' }} />
 
-        <button
-          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
+        <MenuItem
+          icon={diagram.starred
+            ? <IconStarFilled size={14} className="shrink-0" style={{ color: 'var(--star)' }} />
+            : <IconStar size={14} className="shrink-0" />
+          }
+          label={diagram.starred ? 'Unstar' : 'Star'}
           onClick={() => handleItem(onStar)}
-        >
-          {diagram.starred ? (
-            <>
-              <IconStarFilled size={14} className="shrink-0 text-yellow-400" />
-              Unstar
-            </>
-          ) : (
-            <>
-              <IconStar size={14} className="shrink-0" />
-              Star
-            </>
-          )}
-        </button>
+        />
 
-        <div className="my-1 border-t border-zinc-700" />
+        <div className="my-1 mx-3" style={{ borderTop: '1px solid var(--border)' }} />
 
-        <button
-          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-red-400 hover:bg-zinc-700 hover:text-red-300 transition-colors text-left"
+        <MenuItem
+          icon={<IconTrash size={14} className="shrink-0" />}
+          label="Move to Trash"
           onClick={() => handleItem(onTrash)}
-        >
-          <IconTrash size={14} className="shrink-0" />
-          Move to Trash
-        </button>
+          danger
+        />
       </div>
     </>
   )

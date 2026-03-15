@@ -3,23 +3,21 @@
 import { useState } from 'react'
 import { useDroppable } from '@dnd-kit/core'
 import {
-  IconFolder,
-  IconFolderOpen,
   IconChevronRight,
-  IconChevronDown,
 } from '@tabler/icons-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { FolderNode } from '@/hooks/useFolders'
 import type { FolderColor, SidebarSection } from '@/types/library'
 
-const COLOR_CLASS: Record<FolderColor, string> = {
-  slate:  'text-slate-400',
-  red:    'text-red-400',
-  orange: 'text-orange-400',
-  amber:  'text-amber-400',
-  green:  'text-green-400',
-  teal:   'text-teal-400',
-  blue:   'text-blue-400',
-  purple: 'text-purple-400',
+const COLOR_DOT: Record<FolderColor, string> = {
+  slate:  '#94a3b8',
+  red:    '#f87171',
+  orange: '#fb923c',
+  amber:  '#fbbf24',
+  green:  '#4ade80',
+  teal:   '#2dd4bf',
+  blue:   '#60a5fa',
+  purple: '#a78bfa',
 }
 
 interface Props {
@@ -44,7 +42,7 @@ export default function FolderTreeItem({
   const isActive = activeSection === `folder:${folder.id}`
   const isOver = overFolderId === folder.id
   const hasChildren = folder.children.length > 0
-  const indentPx = folder.depth * 12
+  const indentPx = folder.depth * 16
 
   function handleChevronClick(e: React.MouseEvent) {
     e.stopPropagation()
@@ -57,66 +55,84 @@ export default function FolderTreeItem({
         ref={setNodeRef}
         onClick={() => onSection(`folder:${folder.id}`)}
         onContextMenu={e => onContextMenu(e, folder)}
-        className={`group flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm cursor-pointer select-none transition-colors ${
-          isOver
-            ? 'bg-blue-600/30 border border-blue-500/50'
+        className="group flex items-center gap-2 py-1.5 rounded-xl text-sm cursor-pointer select-none transition-colors"
+        style={{
+          paddingLeft: `${12 + indentPx}px`,
+          paddingRight: '8px',
+          background: isOver
+            ? 'var(--accent-subtle)'
             : isActive
-            ? 'bg-zinc-700 text-white'
-            : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
-        }`}
-        style={{ paddingLeft: `${8 + indentPx}px` }}
+            ? 'var(--accent-subtle)'
+            : 'transparent',
+          color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
+          fontWeight: isActive ? 600 : 400,
+          border: isOver ? '1px dashed var(--accent)' : '1px solid transparent',
+        }}
+        onMouseEnter={e => {
+          if (!isActive && !isOver) e.currentTarget.style.background = 'var(--bg-tertiary)'
+        }}
+        onMouseLeave={e => {
+          if (!isActive && !isOver) e.currentTarget.style.background = 'transparent'
+        }}
       >
-        {/* Chevron / spacer */}
+        {/* Chevron */}
         <span className="shrink-0 w-4 flex items-center justify-center">
           {hasChildren ? (
-            <button
+            <motion.button
               onClick={handleChevronClick}
-              className="text-zinc-500 hover:text-zinc-300 transition-colors"
+              animate={{ rotate: expanded ? 90 : 0 }}
+              transition={{ duration: 0.15 }}
+              style={{ color: 'var(--text-tertiary)' }}
             >
-              {expanded ? <IconChevronDown size={12} /> : <IconChevronRight size={12} />}
-            </button>
+              <IconChevronRight size={12} />
+            </motion.button>
           ) : null}
         </span>
 
-        {/* Folder icon */}
-        {isActive || isOver ? (
-          <IconFolderOpen
-            size={15}
-            className={`shrink-0 ${folder.color ? COLOR_CLASS[folder.color] : 'text-blue-400'}`}
-          />
-        ) : (
-          <IconFolder
-            size={15}
-            className={`shrink-0 ${folder.color ? COLOR_CLASS[folder.color] : 'text-zinc-400'}`}
-          />
-        )}
+        {/* Color dot */}
+        <span
+          className="w-2 h-2 rounded-full shrink-0"
+          style={{
+            background: folder.color
+              ? COLOR_DOT[folder.color]
+              : 'var(--text-tertiary)',
+          }}
+        />
 
         {/* Name */}
         <span className="flex-1 truncate leading-tight">{folder.name}</span>
 
-        {/* Diagram count */}
+        {/* Count */}
         {folder.diagramCount > 0 && (
-          <span className="ml-auto text-xs text-zinc-500 tabular-nums shrink-0">
+          <span className="ml-auto text-xs tabular-nums shrink-0" style={{ color: 'var(--text-tertiary)' }}>
             {folder.diagramCount}
           </span>
         )}
       </div>
 
       {/* Children */}
-      {hasChildren && expanded && (
-        <div>
-          {folder.children.map(child => (
-            <FolderTreeItem
-              key={child.id}
-              folder={child}
-              activeSection={activeSection}
-              overFolderId={overFolderId}
-              onSection={onSection}
-              onContextMenu={onContextMenu}
-            />
-          ))}
-        </div>
-      )}
+      <AnimatePresence>
+        {hasChildren && expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="overflow-hidden"
+          >
+            {folder.children.map(child => (
+              <FolderTreeItem
+                key={child.id}
+                folder={child}
+                activeSection={activeSection}
+                overFolderId={overFolderId}
+                onSection={onSection}
+                onContextMenu={onContextMenu}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
