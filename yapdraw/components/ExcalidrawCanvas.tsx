@@ -181,10 +181,10 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
     if (!Excalidraw) {
       return (
         <div
-          className="flex items-center justify-center bg-zinc-100 w-full h-full self-stretch"
+          className="flex items-center justify-center bg-white w-full h-full self-stretch"
           style={wrapperStyle}
         >
-          <span className="text-zinc-500">Loading canvas…</span>
+          <span className="text-[#94A3B8]">Loading canvas…</span>
         </div>
       )
     }
@@ -198,6 +198,7 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
             setHasMountedWithData(true)
           }}
           onChange={handleChange}
+          theme="light"
           UIOptions={{ canvasActions: { export: false, saveAsImage: false } }}
         />
       </div>

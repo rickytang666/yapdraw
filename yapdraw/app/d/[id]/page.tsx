@@ -130,14 +130,14 @@ export default function EditorPage({ params }: Props) {
 
   if (diagram === undefined) {
     return (
-      <div className="flex items-center justify-center h-screen bg-zinc-900 text-zinc-400">
+      <div className="flex items-center justify-center h-screen bg-[#FAFAFA] text-[#64748B]">
         Loading…
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#FAFAFA]">
       <EditorTopBar
         diagram={diagram!}
         saveStatus={saveStatus}
@@ -150,15 +150,15 @@ export default function EditorPage({ params }: Props) {
         canvasRef={canvasRef}
       />
       <div className="flex flex-1 min-h-0 overflow-hidden">
-        <div className="w-[35%] h-full border-r border-zinc-800 shrink-0">
+        <div className="w-[35%] h-full border-r border-[#E5E7EB] shrink-0">
           <VoicePanel
             isLoading={isLoading}
             onSilence={handleSilence}
             onMockSubmit={handleSilence}
           />
         </div>
-        <div className="flex-1 min-w-0 min-h-0 p-3 bg-zinc-900">
-          <div className="relative w-full h-full rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800">
+        <div className="flex-1 min-w-0 min-h-0 p-3 bg-[#F1F5F9]">
+          <div className="relative w-full h-full rounded-2xl overflow-hidden bg-white border border-[#E5E7EB] shadow-sm">
             <ExcalidrawCanvas
               ref={canvasRef}
               initialElements={diagram!.elements}

@@ -10,13 +10,13 @@ interface Props {
 
 export default function ViewModeToggle({ viewMode, onToggle }: Props) {
   return (
-    <div className="flex items-center rounded-md border border-zinc-700 overflow-hidden">
+    <div className="flex items-center rounded-md border border-[#D1D5DB] overflow-hidden">
       <button
         onClick={() => onToggle('grid')}
         className={`p-1.5 transition-colors ${
           viewMode === 'grid'
-            ? 'bg-zinc-700 text-white'
-            : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white'
+            ? 'bg-[#5B57D1]/15 text-[#5B57D1]'
+            : 'bg-white text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]'
         }`}
         title="Grid view"
       >
@@ -26,8 +26,8 @@ export default function ViewModeToggle({ viewMode, onToggle }: Props) {
         onClick={() => onToggle('list')}
         className={`p-1.5 transition-colors ${
           viewMode === 'list'
-            ? 'bg-zinc-700 text-white'
-            : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white'
+            ? 'bg-[#5B57D1]/15 text-[#5B57D1]'
+            : 'bg-white text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]'
         }`}
         title="List view"
       >

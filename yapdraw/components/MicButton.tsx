@@ -12,7 +12,7 @@ export default function MicButton({ isListening, onClick }: MicButtonProps) {
     <button
       onClick={onClick}
       className={`relative flex items-center justify-center w-16 h-16 rounded-full transition-colors ${
-        isListening ? 'bg-red-500 hover:bg-red-600' : 'bg-zinc-700 hover:bg-zinc-600'
+        isListening ? 'bg-red-500 hover:bg-red-600' : 'bg-[#5B57D1] hover:bg-[#4F4BC4]'
       }`}
       aria-label={isListening ? 'Stop recording' : 'Start recording'}
     >

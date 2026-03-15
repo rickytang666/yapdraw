@@ -52,8 +52,8 @@ export default function VersionEntry({ version, isCurrent, onRestore, onLabel, o
     <div
       className={`relative group px-3 py-2.5 rounded-lg transition-colors cursor-default ${
         isCurrent
-          ? 'bg-blue-600/20 border border-blue-500/40'
-          : 'hover:bg-zinc-800 border border-transparent'
+          ? 'bg-[#5B57D1]/10 border border-[#5B57D1]/30'
+          : 'hover:bg-[#F1F5F9] border border-transparent'
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -61,13 +61,13 @@ export default function VersionEntry({ version, isCurrent, onRestore, onLabel, o
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-0.5 min-w-0">
           {/* Timestamp */}
-          <span className="text-xs text-zinc-400">{relativeTime(version.savedAt)}</span>
+          <span className="text-xs text-[#64748B]">{relativeTime(version.savedAt)}</span>
 
           {/* Version number + element count */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-500">v{version.version}</span>
-            <span className="text-xs text-zinc-600">·</span>
-            <span className="text-xs text-zinc-500">
+            <span className="text-xs text-[#94A3B8]">v{version.version}</span>
+            <span className="text-xs text-[#D1D5DB]">·</span>
+            <span className="text-xs text-[#94A3B8]">
               {version.elements.length} element{version.elements.length !== 1 ? 's' : ''}
             </span>
           </div>
@@ -81,12 +81,12 @@ export default function VersionEntry({ version, isCurrent, onRestore, onLabel, o
               onBlur={handleLabelCommit}
               onKeyDown={handleLabelKeyDown}
               placeholder="Add a label…"
-              className="mt-1 text-xs bg-zinc-700 border border-zinc-600 focus:border-blue-500 outline-none rounded px-2 py-0.5 text-white placeholder-zinc-500 w-full"
+              className="mt-1 text-xs bg-[#FAFAFA] border border-[#D1D5DB] focus:border-[#5B57D1] outline-none rounded px-2 py-0.5 text-[#0F172A] placeholder-[#94A3B8] w-full"
               onClick={e => e.stopPropagation()}
             />
           ) : version.label ? (
             <button
-              className="mt-1 text-xs text-blue-400 hover:text-blue-300 text-left transition-colors truncate"
+              className="mt-1 text-xs text-[#5B57D1] hover:text-[#4F4BC4] text-left transition-colors truncate"
               onClick={() => setIsEditingLabel(true)}
             >
               {version.label}
@@ -94,7 +94,7 @@ export default function VersionEntry({ version, isCurrent, onRestore, onLabel, o
           ) : (
             isHovered && (
               <button
-                className="mt-1 flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                className="mt-1 flex items-center gap-1 text-xs text-[#94A3B8] hover:text-[#64748B] transition-colors"
                 onClick={() => setIsEditingLabel(true)}
               >
                 <IconTag size={10} />
@@ -107,14 +107,14 @@ export default function VersionEntry({ version, isCurrent, onRestore, onLabel, o
         {/* Actions */}
         <div className="flex items-center gap-1 shrink-0">
           {isCurrent ? (
-            <span className="text-xs text-blue-400 font-medium px-1.5 py-0.5 bg-blue-500/20 rounded">
+            <span className="text-xs text-[#5B57D1] font-medium px-1.5 py-0.5 bg-[#5B57D1]/10 rounded">
               Current
             </span>
           ) : (
             isHovered && (
               <button
                 onClick={onRestore}
-                className="flex items-center gap-1 text-xs text-zinc-300 hover:text-white px-1.5 py-0.5 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors"
+                className="flex items-center gap-1 text-xs text-[#475569] hover:text-[#0F172A] px-1.5 py-0.5 bg-[#E5E7EB] hover:bg-[#D1D5DB] rounded transition-colors"
                 title="Restore this version"
               >
                 <IconRotateClockwise size={11} />
@@ -125,7 +125,7 @@ export default function VersionEntry({ version, isCurrent, onRestore, onLabel, o
           {isHovered && !isCurrent && (
             <button
               onClick={onDelete}
-              className="p-0.5 text-zinc-500 hover:text-red-400 transition-colors rounded"
+              className="p-0.5 text-[#94A3B8] hover:text-[#EF4444] transition-colors rounded"
               title="Delete this version"
             >
               <IconTrash size={12} />

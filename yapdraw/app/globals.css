@@ -1,21 +1,141 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   YapDraw Theme: Excalidraw Pro Edition
+   Inspired by Excalidraw's aesthetic with professional refinements
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core */
+  --background: #FAFAFA;
+  --foreground: #0F172A;
+
+  /* Surfaces */
+  --surface: #F1F5F9;
+  --surface-hover: #E2E8F0;
+
+  /* Brand - Excalidraw violet, refined */
+  --primary: #5B57D1;
+  --primary-hover: #4F4BC4;
+  --primary-foreground: #FFFFFF;
+
+  /* Neutral */
+  --secondary: #3D4551;
+  --secondary-hover: #2D333B;
+  --secondary-foreground: #FFFFFF;
+
+  /* Accent - Action red */
+  --accent: #E85555;
+  --accent-hover: #DC4444;
+  --accent-foreground: #FFFFFF;
+
+  /* Text */
+  --text: #0F172A;
+  --text-muted: #475569;
+  --text-subtle: #64748B;
+
+  /* Borders & Dividers */
+  --border: #D1D5DB;
+  --border-subtle: #E5E7EB;
+  --ring: #5B57D1;
+
+  /* Semantic */
+  --success: #16A34A;
+  --success-light: #DCFCE7;
+  --warning: #D97706;
+  --warning-light: #FEF3C7;
+  --error: #DC2626;
+  --error-light: #FEE2E2;
+
+  /* Voice/Recording */
+  --recording: #EF4444;
+  --recording-pulse: #FCA5A5;
+
+  /* Canvas */
+  --canvas-bg: #FFFFFF;
+  --canvas-grid: #E5E7EB;
+}
+
+/* Dark Mode - only when explicitly set via class */
+.dark {
+  /* Core */
+  --background: #0D0D0D;
+  --foreground: #F9FAFB;
+
+  /* Surfaces */
+  --surface: #1A1A1A;
+  --surface-hover: #262626;
+
+  /* Brand */
+  --primary: #7C78FF;
+  --primary-hover: #8B87FF;
+  --primary-foreground: #0D0D0D;
+
+  /* Neutral */
+  --secondary: #6B7280;
+  --secondary-hover: #9CA3AF;
+  --secondary-foreground: #0D0D0D;
+
+  /* Accent */
+  --accent: #F87171;
+  --accent-hover: #FCA5A5;
+  --accent-foreground: #0D0D0D;
+
+  /* Text */
+  --text: #F9FAFB;
+  --text-muted: #9CA3AF;
+  --text-subtle: #6B7280;
+
+  /* Borders */
+  --border: #2D2D2D;
+  --border-subtle: #3D3D3D;
+  --ring: #7C78FF;
+
+  /* Semantic */
+  --success: #4ADE80;
+  --success-light: #166534;
+  --warning: #FBBF24;
+  --warning-light: #854D0E;
+  --error: #F87171;
+  --error-light: #991B1B;
+
+  /* Voice/Recording */
+  --recording: #F87171;
+  --recording-pulse: #EF4444;
+
+  /* Canvas */
+  --canvas-bg: #121212;
+  --canvas-grid: #2D2D2D;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-manrope);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-recording: var(--recording);
+  --color-recording-pulse: var(--recording-pulse);
+  --color-canvas-bg: var(--canvas-bg);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains);
 }
 
 html,
@@ -24,5 +144,36 @@ body {
   overflow: hidden;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-manrope), Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+}
+
+/* Focus rings */
+*:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-subtle);
 }

@@ -21,7 +21,7 @@ export default function SkeletonOverlay() {
   return (
     <div className="absolute inset-0 pointer-events-none z-10">
       {/* Subtle frosted backdrop */}
-      <div className="absolute inset-0 bg-zinc-900/30 backdrop-blur-[1px]" />
+      <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px]" />
 
       {/* Ghost arrows */}
       <svg className="absolute inset-0 w-full h-full animate-pulse" style={{ animationDuration: '1.8s' }}>
@@ -29,7 +29,7 @@ export default function SkeletonOverlay() {
           <line
             key={i}
             x1={a.x1} y1={a.y1} x2={a.x2} y2={a.y2}
-            stroke="#3f3f46"
+            stroke="#D1D5DB"
             strokeWidth="2"
             strokeDasharray="6 4"
           />
@@ -40,7 +40,7 @@ export default function SkeletonOverlay() {
       {GHOST_NODES.map((n, i) => (
         <div
           key={i}
-          className="absolute rounded-xl bg-zinc-700/50 animate-pulse"
+          className="absolute rounded-xl bg-[#E5E7EB]/70 animate-pulse"
           style={{
             left: n.x, top: n.y,
             width: n.w, height: n.h,
@@ -48,7 +48,7 @@ export default function SkeletonOverlay() {
           }}
         >
           {/* Ghost label line */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3/5 h-2 rounded bg-zinc-600/60" />
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3/5 h-2 rounded bg-[#D1D5DB]/80" />
         </div>
       ))}
     </div>

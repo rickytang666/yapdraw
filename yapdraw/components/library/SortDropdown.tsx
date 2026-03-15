@@ -55,19 +55,19 @@ export default function SortDropdown({ sortField, sortDirection, onSort }: Props
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-zinc-800 border border-zinc-700 hover:border-zinc-500 text-zinc-300 hover:text-white text-sm transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white border border-[#D1D5DB] hover:border-[#94A3B8] text-[#475569] hover:text-[#0F172A] text-sm transition-colors"
       >
         <span>{FIELD_LABELS[sortField]}</span>
         {sortDirection === 'asc' ? (
-          <IconArrowUp size={12} className="text-zinc-400" />
+          <IconArrowUp size={12} className="text-[#94A3B8]" />
         ) : (
-          <IconArrowDown size={12} className="text-zinc-400" />
+          <IconArrowDown size={12} className="text-[#94A3B8]" />
         )}
-        <IconChevronDown size={12} className="text-zinc-500" />
+        <IconChevronDown size={12} className="text-[#94A3B8]" />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 z-50 w-44 bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl overflow-hidden py-1">
+        <div className="absolute right-0 top-full mt-1 z-50 w-44 bg-white border border-[#E5E7EB] rounded-lg shadow-xl overflow-hidden py-1">
           {SORT_OPTIONS.map(({ field, label }) => {
             const isActive = field === sortField
             return (
@@ -76,15 +76,15 @@ export default function SortDropdown({ sortField, sortDirection, onSort }: Props
                 onClick={() => handleSelect(field)}
                 className={`flex items-center justify-between w-full px-3 py-2 text-sm transition-colors text-left ${
                   isActive
-                    ? 'bg-zinc-700 text-white'
-                    : 'text-zinc-300 hover:bg-zinc-700 hover:text-white'
+                    ? 'bg-[#F1F5F9] text-[#0F172A]'
+                    : 'text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A]'
                 }`}
               >
                 <span>{label}</span>
                 {isActive && (
                   sortDirection === 'asc'
-                    ? <IconArrowUp size={13} className="text-blue-400" />
-                    : <IconArrowDown size={13} className="text-blue-400" />
+                    ? <IconArrowUp size={13} className="text-[#5B57D1]" />
+                    : <IconArrowDown size={13} className="text-[#5B57D1]" />
                 )}
               </button>
             )

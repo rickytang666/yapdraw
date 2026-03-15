@@ -99,7 +99,8 @@ export function layoutGraph(graph: GraphResponse): ExcalidrawElement[] {
     const maxX = Math.max(...memberBoxes.map(b => b.x + b.w)) + GROUP_PADDING
     const maxY = Math.max(...memberBoxes.map(b => b.y + b.h)) + GROUP_PADDING
 
-    const gc = GROUP_COLORS[group.color ?? 'grey'] ?? GROUP_COLORS['grey']
+    const safeGroupColor = (group.color && group.color in GROUP_COLORS ? group.color : 'grey') as NodeColor
+    const gc = GROUP_COLORS[safeGroupColor]
     elements.push({
       type: 'rectangle',
       id: `group-${group.id}`,
@@ -121,7 +122,8 @@ export function layoutGraph(graph: GraphResponse): ExcalidrawElement[] {
     const box = boxes.get(node.id)
     if (!box) continue
 
-    const c = COLORS[node.color ?? 'grey'] ?? COLORS['grey']
+    const safeNodeColor = (node.color && node.color in COLORS ? node.color : 'grey') as NodeColor
+    const c = COLORS[safeNodeColor]
     const el: ExcalidrawElement = {
       type: box.shape,
       id: node.id,

@@ -96,10 +96,10 @@ export default function DiagramCard({
         {...attributes}
         {...listeners}
         onContextMenu={handleContextMenu}
-        className={`group relative bg-zinc-800 rounded-lg border transition-colors cursor-pointer overflow-hidden flex flex-col ${
+        className={`group relative bg-white rounded-lg border transition-colors cursor-pointer overflow-hidden flex flex-col ${
           selected
-            ? 'border-blue-500 ring-1 ring-blue-500'
-            : 'border-zinc-700 hover:border-zinc-500'
+            ? 'border-[#5B57D1] ring-1 ring-[#5B57D1]'
+            : 'border-[#E5E7EB] hover:border-[#94A3B8]'
         } ${isDragging ? 'shadow-2xl' : ''}`}
         onClick={e => {
           if (isRenaming) return
@@ -112,7 +112,7 @@ export default function DiagramCard({
         }}
       >
         {/* Thumbnail */}
-        <div className="h-36 bg-zinc-900 flex items-center justify-center overflow-hidden shrink-0">
+        <div className="h-36 bg-[#FAFAFA] flex items-center justify-center overflow-hidden shrink-0">
           {diagram.thumbnail ? (
             <img
               src={diagram.thumbnail}
@@ -120,7 +120,7 @@ export default function DiagramCard({
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-zinc-600 text-xs">No preview</span>
+            <span className="text-[#94A3B8] text-xs">No preview</span>
           )}
         </div>
 
@@ -129,7 +129,7 @@ export default function DiagramCard({
           {isRenaming ? (
             <input
               ref={renameInputRef}
-              className="text-sm font-medium text-white bg-zinc-700 border border-zinc-500 rounded px-1.5 py-0.5 outline-none w-full"
+              className="text-sm font-medium text-[#0F172A] bg-[#F1F5F9] border border-[#D1D5DB] rounded px-1.5 py-0.5 outline-none w-full"
               value={renameValue}
               onChange={e => setRenameValue(e.target.value)}
               onBlur={handleRenameCommit}
@@ -137,10 +137,10 @@ export default function DiagramCard({
               onClick={e => e.stopPropagation()}
             />
           ) : (
-            <p className="text-sm font-medium text-white truncate">{diagram.name}</p>
+            <p className="text-sm font-medium text-[#0F172A] truncate">{diagram.name}</p>
           )}
-          <p className="text-xs text-zinc-500">{hasMounted ? formatDate(diagram.updatedAt) : ''}</p>
-          <p className="text-xs text-zinc-600 capitalize">{diagram.diagramType}</p>
+          <p className="text-xs text-[#64748B]">{hasMounted ? formatDate(diagram.updatedAt) : ''}</p>
+          <p className="text-xs text-[#94A3B8] capitalize">{diagram.diagramType}</p>
 
           {/* Tag pills */}
           {visibleTags.length > 0 && (
@@ -148,13 +148,13 @@ export default function DiagramCard({
               {visibleTags.map(tag => (
                 <span
                   key={tag}
-                  className="px-1.5 py-0.5 rounded-full bg-zinc-700 text-zinc-400 text-[10px] leading-tight"
+                  className="px-1.5 py-0.5 rounded-full bg-[#F1F5F9] text-[#475569] text-[10px] leading-tight"
                 >
                   {tag}
                 </span>
               ))}
               {diagram.tags.length > 2 && (
-                <span className="px-1.5 py-0.5 rounded-full bg-zinc-700 text-zinc-500 text-[10px] leading-tight">
+                <span className="px-1.5 py-0.5 rounded-full bg-[#F1F5F9] text-[#94A3B8] text-[10px] leading-tight">
                   +{diagram.tags.length - 2}
                 </span>
               )}
@@ -169,24 +169,24 @@ export default function DiagramCard({
           onPointerDown={e => e.stopPropagation()}
         >
           <button
-            className="p-1 rounded bg-zinc-800/80 text-zinc-400 hover:text-yellow-400 transition-colors"
+            className="p-1 rounded bg-white/90 shadow-sm text-[#64748B] hover:text-[#F59E0B] transition-colors"
             onClick={() => onStar(!diagram.starred)}
             title={diagram.starred ? 'Unstar' : 'Star'}
           >
             {diagram.starred
-              ? <IconStarFilled size={14} className="text-yellow-400" />
+              ? <IconStarFilled size={14} className="text-[#F59E0B]" />
               : <IconStar size={14} />
             }
           </button>
           <button
-            className="p-1 rounded bg-zinc-800/80 text-zinc-400 hover:text-blue-400 transition-colors"
+            className="p-1 rounded bg-white/90 shadow-sm text-[#64748B] hover:text-[#5B57D1] transition-colors"
             onClick={onDuplicate}
             title="Duplicate"
           >
             <IconCopy size={14} />
           </button>
           <button
-            className="p-1 rounded bg-zinc-800/80 text-zinc-400 hover:text-red-400 transition-colors"
+            className="p-1 rounded bg-white/90 shadow-sm text-[#64748B] hover:text-[#DC2626] transition-colors"
             onClick={onTrash}
             title="Move to trash"
           >
@@ -207,7 +207,7 @@ export default function DiagramCard({
               type="checkbox"
               checked={!!selected}
               onChange={onToggleSelect}
-              className="w-4 h-4 rounded accent-blue-500 cursor-pointer"
+              className="w-4 h-4 rounded accent-[#5B57D1] cursor-pointer"
               onClick={e => e.stopPropagation()}
             />
           </div>

@@ -1,10 +1,24 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Inter, JetBrains_Mono, Architects_Daughter } from "next/font/google";
 import "./globals.css";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const architectsDaughter = Architects_Daughter({
+  variable: "--font-hand",
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -20,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${manrope.variable} antialiased h-full`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${architectsDaughter.variable} antialiased h-full`}
       >
         {children}
       </body>

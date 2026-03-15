@@ -61,16 +61,16 @@ export default function NewDiagramModal({ onConfirm, onCancel }: Props) {
         />
       )}
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
         onClick={handleBackdropClick}
       >
-        <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-md mx-4">
+        <div className="bg-white border border-[#E5E7EB] rounded-xl shadow-2xl w-full max-w-md mx-4">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
-            <h2 className="text-white font-semibold text-base">New Diagram</h2>
+          <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
+            <h2 className="text-[#0F172A] font-semibold text-base">New Diagram</h2>
             <button
               onClick={onCancel}
-              className="text-zinc-400 hover:text-white transition-colors"
+              className="text-[#64748B] hover:text-[#0F172A] transition-colors"
             >
               <IconX size={18} />
             </button>
@@ -79,20 +79,20 @@ export default function NewDiagramModal({ onConfirm, onCancel }: Props) {
           <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-5">
             {/* Name */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-zinc-400 text-sm">Name</label>
+              <label className="text-[#475569] text-sm">Name</label>
               <input
                 ref={inputRef}
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Untitled Diagram"
-                className="bg-zinc-800 border border-zinc-700 focus:border-blue-500 outline-none rounded-md px-3 py-2 text-white text-sm placeholder-zinc-500 transition-colors"
+                className="bg-[#FAFAFA] border border-[#D1D5DB] focus:border-[#5B57D1] outline-none rounded-md px-3 py-2 text-[#0F172A] text-sm placeholder-[#94A3B8] transition-colors"
               />
             </div>
 
             {/* Diagram Type */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-zinc-400 text-sm">Type</label>
+              <label className="text-[#475569] text-sm">Type</label>
               <div className="grid grid-cols-1 gap-2">
                 {DIAGRAM_TYPES.map(type => (
                   <button
@@ -101,13 +101,13 @@ export default function NewDiagramModal({ onConfirm, onCancel }: Props) {
                     onClick={() => setDiagramType(type.value)}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-md border text-left transition-colors ${
                       diagramType === type.value
-                        ? 'border-blue-500 bg-blue-500/10 text-white'
-                        : 'border-zinc-700 bg-zinc-800 text-zinc-300 hover:border-zinc-600'
+                        ? 'border-[#5B57D1] bg-[#5B57D1]/10 text-[#0F172A]'
+                        : 'border-[#E5E7EB] bg-[#FAFAFA] text-[#475569] hover:border-[#94A3B8]'
                     }`}
                   >
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">{type.label}</span>
-                      <span className="text-xs text-zinc-500">{type.description}</span>
+                      <span className="text-xs text-[#94A3B8]">{type.description}</span>
                     </div>
                   </button>
                 ))}
@@ -119,20 +119,20 @@ export default function NewDiagramModal({ onConfirm, onCancel }: Props) {
               <button
                 type="button"
                 onClick={() => setShowTemplatePicker(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-zinc-800 border border-zinc-700 hover:border-zinc-600 text-zinc-300 hover:text-white rounded-md text-sm transition-colors"
+                className="flex items-center gap-2 px-3 py-2 bg-[#FAFAFA] border border-[#D1D5DB] hover:border-[#94A3B8] text-[#475569] hover:text-[#0F172A] rounded-md text-sm transition-colors"
               >
                 <IconTemplate size={15} />
                 Browse Templates
               </button>
               {selectedTemplate && (
-                <div className="flex items-center justify-between px-3 py-2 bg-blue-500/10 border border-blue-500/30 rounded-md">
-                  <span className="text-sm text-blue-300 truncate">
+                <div className="flex items-center justify-between px-3 py-2 bg-[#5B57D1]/10 border border-[#5B57D1]/30 rounded-md">
+                  <span className="text-sm text-[#5B57D1] truncate">
                     Template: {selectedTemplate.name}
                   </span>
                   <button
                     type="button"
                     onClick={handleClearTemplate}
-                    className="text-zinc-400 hover:text-white transition-colors ml-2 shrink-0"
+                    className="text-[#64748B] hover:text-[#0F172A] transition-colors ml-2 shrink-0"
                     aria-label="Clear template"
                   >
                     <IconX size={13} />
@@ -146,13 +146,13 @@ export default function NewDiagramModal({ onConfirm, onCancel }: Props) {
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors rounded-md"
+                className="px-4 py-2 text-sm text-[#64748B] hover:text-[#0F172A] transition-colors rounded-md"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white rounded-md transition-colors"
+                className="px-4 py-2 text-sm font-medium bg-[#5B57D1] hover:bg-[#4F4BC4] text-white rounded-md transition-colors"
               >
                 Create Diagram
               </button>

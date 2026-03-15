@@ -59,10 +59,10 @@ export default function FolderTreeItem({
         onContextMenu={e => onContextMenu(e, folder)}
         className={`group flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm cursor-pointer select-none transition-colors ${
           isOver
-            ? 'bg-blue-600/30 border border-blue-500/50'
+            ? 'bg-[#5B57D1]/30 border border-[#5B57D1]/50'
             : isActive
-            ? 'bg-zinc-700 text-white'
-            : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
+            ? 'bg-[#5B57D1]/15 text-[#5B57D1]'
+            : 'text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A]'
         }`}
         style={{ paddingLeft: `${8 + indentPx}px` }}
       >
@@ -71,7 +71,7 @@ export default function FolderTreeItem({
           {hasChildren ? (
             <button
               onClick={handleChevronClick}
-              className="text-zinc-500 hover:text-zinc-300 transition-colors"
+              className="text-[#94A3B8] hover:text-[#64748B] transition-colors"
             >
               {expanded ? <IconChevronDown size={12} /> : <IconChevronRight size={12} />}
             </button>
@@ -82,12 +82,12 @@ export default function FolderTreeItem({
         {isActive || isOver ? (
           <IconFolderOpen
             size={15}
-            className={`shrink-0 ${folder.color ? COLOR_CLASS[folder.color] : 'text-blue-400'}`}
+            className={`shrink-0 ${folder.color ? COLOR_CLASS[folder.color] : 'text-[#5B57D1]'}`}
           />
         ) : (
           <IconFolder
             size={15}
-            className={`shrink-0 ${folder.color ? COLOR_CLASS[folder.color] : 'text-zinc-400'}`}
+            className={`shrink-0 ${folder.color ? COLOR_CLASS[folder.color] : 'text-[#64748B]'}`}
           />
         )}
 
@@ -96,7 +96,7 @@ export default function FolderTreeItem({
 
         {/* Diagram count */}
         {folder.diagramCount > 0 && (
-          <span className="ml-auto text-xs text-zinc-500 tabular-nums shrink-0">
+          <span className="ml-auto text-xs text-[#94A3B8] tabular-nums shrink-0">
             {folder.diagramCount}
           </span>
         )}
