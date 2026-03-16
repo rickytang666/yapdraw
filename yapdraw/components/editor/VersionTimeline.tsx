@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { IconArrowBackUp, IconClock, IconChevronRight, IconX } from '@tabler/icons-react'
 import { useVersionHistory } from '@/hooks/useVersionHistory'
 import { decodeAIMeta } from '@/lib/versionMeta'
@@ -49,7 +49,17 @@ export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimati
     return () => clearInterval(id)
   }, [])
 
-  function handleSelect(v: DiagramVersion) {
+  const handleCancelView = useCallback(() => {
+    if (liveSnapshotRef.current) {
+      canvasRef.current?.updateDiagram(liveSnapshotRef.current, { replace: true })
+    }
+    resumeSave()
+    setSelectedId(null)
+    setIsViewing(false)
+    liveSnapshotRef.current = null
+  }, [canvasRef, resumeSave])
+
+  const handleSelect = useCallback((v: DiagramVersion) => {
     if (selectedId === v.id) {
       handleCancelView()
       return
@@ -62,19 +72,9 @@ export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimati
     setSelectedId(v.id)
     setIsViewing(true)
     canvasRef.current?.updateDiagram(v.elements as ExcalidrawElement[], { replace: true })
-  }
+  }, [selectedId, isViewing, canvasRef, pauseSave, handleCancelView])
 
-  function handleCancelView() {
-    if (liveSnapshotRef.current) {
-      canvasRef.current?.updateDiagram(liveSnapshotRef.current, { replace: true })
-    }
-    resumeSave()
-    setSelectedId(null)
-    setIsViewing(false)
-    liveSnapshotRef.current = null
-  }
-
-  async function handleRevert(versionId: string) {
+  const handleRevert = async (versionId: string) => {
     const target = versions.find(v => v.id === versionId)
     if (!target) return
     if (!isViewing) {
@@ -96,7 +96,25 @@ export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimati
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [isViewing])
+  }, [isViewing, handleCancelView])
+
+  // Cmd+Z — restore previous version, but only when not typing in an input
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (!(e.metaKey || e.ctrlKey) || e.key !== 'z') return
+      const tag = (document.activeElement as HTMLElement)?.tagName?.toLowerCase()
+      const isEditable = tag === 'input' || tag === 'textarea' || (document.activeElement as HTMLElement)?.isContentEditable
+      if (isEditable) return
+      e.preventDefault()
+      if (isViewing && selectedId) {
+        handleCancelView()
+      } else if (versions.length > 1) {
+        handleSelect(versions[1])
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isViewing, selectedId, versions, handleCancelView, handleSelect])
 
   const selectedVersion = selectedId ? versions.find(v => v.id === selectedId) : null
   const selectedDisplayNum = selectedVersion
