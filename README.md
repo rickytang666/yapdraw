@@ -16,6 +16,10 @@ For engineers, students, educators, researchers, business analysts, or anyone wh
 
 ## [Demo Video](https://youtu.be/JoLELmPKW6w?si=vIdsas2C-dv69O4P)
 
+<a href="https://youtu.be/JoLELmPKW6w?si=vIdsas2C-dv69O4P">
+<img src="assets/landing.png" alt="landing page" width="500" height="500">
+</a>
+
 ## Features
 
 - **Just talk** — no special syntax, no templates. Describe it the way you'd explain it to a colleague and it figures out the rest
