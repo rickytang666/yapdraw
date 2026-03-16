@@ -16,9 +16,11 @@ For engineers, students, educators, researchers, business analysts, or anyone wh
 
 ## [Demo Video](https://youtu.be/JoLELmPKW6w?si=vIdsas2C-dv69O4P)
 
+<div align="center">
 <a href="https://youtu.be/JoLELmPKW6w?si=vIdsas2C-dv69O4P">
-<img src="assets/landing.png" alt="landing page" width="500" height="500">
+<img src="assets/landing.png" alt="landing page">
 </a>
+</div>
 
 ## Features
 
