@@ -98,11 +98,10 @@ dist/
 .swc/
 excalidraw-mcp/
 *.txt
+*.md
+!README.md
 
 # Claude Code workflow (optional per-developer)
 tasks/
 CLAUDE.md
 .claude/
-server.ts
-TEST-CASES.md
-devpost.md
