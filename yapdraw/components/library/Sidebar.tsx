@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import {
   IconLayoutGrid,
   IconStar,
@@ -45,7 +46,10 @@ export default function Sidebar({
   return (
     <aside className="w-60 shrink-0 bg-white border-r border-[#E5E7EB] flex flex-col overflow-y-auto">
       {/* Logo + Name */}
-      <div className="px-4 py-4 flex items-center gap-2.5 border-b border-[#F1F5F9]">
+      <Link
+        href="/"
+        className="px-4 py-4 flex items-center gap-2.5 border-b border-[#F1F5F9] hover:bg-[#FAFAFA] transition-colors"
+      >
         <Image
           src="/yapdraw_logo.png.webp"
           alt="YapDraw"
@@ -54,7 +58,7 @@ export default function Sidebar({
           className="rounded"
         />
         <h1 className="text-sm font-semibold text-[#0F172A] tracking-tight">YapDraw</h1>
-      </div>
+      </Link>
 
       {/* Fixed sections */}
       <nav className="flex flex-col py-2">
