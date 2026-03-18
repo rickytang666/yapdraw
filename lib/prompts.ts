@@ -7,8 +7,8 @@ const BASE_PROMPT = `You are a diagram generator. Convert natural language descr
 ## Output Format
 {
   "direction": "LR" | "TB",
-  "nodes": [ { "id": "...", "label": "...", "shape": "...", "color": "...", "group": "...", "icon": "..." }, ... ],
-  "edges": [ { "from": "...", "to": "...", "label": "..." }, ... ],
+  "nodes": [ { "id": "...", "label": "...", "shape": "...", "color": "...", "group": "...", "icon": "...", "strokeStyle": "...", "font": "..." }, ... ],
+  "edges": [ { "from": "...", "to": "...", "label": "...", "strokeStyle": "...", "endArrowhead": "..." }, ... ],
   "groups": [ { "id": "...", "label": "...", "color": "...", "nodes": ["...", ...], "icon": "..." }, ... ]
 }
 
@@ -21,11 +21,15 @@ const BASE_PROMPT = `You are a diagram generator. Convert natural language descr
 - "shape": "rectangle" (default), "diamond" (decisions/branches), "ellipse" (start/end)
 - "color": blue (clients/frontend), green (services/success), purple (gateways/middleware), orange (external/CDN), red (errors), teal (databases/storage), yellow (decisions), grey (generic)
 - "group": (optional) id of the group zone this node belongs to
-- "icon": (optional) simple-icons slug for the technology — e.g. "nginx", "docker", "postgresql", "redis", "apachekafka", "react", "kubernetes", "googlecloud", "microsoftazure", "vercel", "github", "stripe". Only include if the node represents a specific well-known technology with a simple-icons entry. Omit for generic or abstract concepts.
+- "icon": (optional) simple-icons slug for the technology — e.g. "nginx", "docker", "postgresql", "redis", "apachekafka", "react", "kubernetes", "googlecloud", "vercel", "github", "stripe". Only include if the node represents a specific well-known technology with a simple-icons entry. Omit for generic or abstract concepts.
+- "strokeStyle": (optional) "solid" (default), "dashed" (external/optional/async components), "dotted" (planned/future/inactive). Omit for most nodes; use sparingly.
+- "font": (optional) "handwritten" (default — excalidraw's native sketchy style), "normal" (clean sans-serif, for formal/serious nodes), "code" (monospace, for code/cli/config nodes). Omit to use default.
 
 ## edges
 - "from" and "to" must be existing node ids
 - "label": include when it adds clarity — protocol ("HTTP", "SQL"), data type ("events", "stream"), or decision branch ("Yes", "No"). Skip if the relationship is already obvious from the node names.
+- "strokeStyle": (optional) "solid" (default), "dashed" (async/event-driven/optional connections), "dotted" (weak/future/potential connections)
+- "endArrowhead": (optional) "arrow" (default directional flow), "bar" (blocking/boundary), "diamond" (composition), "dot" (aggregation/reference), null (undirected connection)
 - No self-loops
 
 ## groups

@@ -1,54 +1,69 @@
 // Raw Excalidraw element (native format after layout)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ExcalidrawElement = Record<string, any> & { id: string }
+export type ExcalidrawElement = Record<string, any> & { id: string };
 
 export interface LLMResponse {
-  elements: ExcalidrawElement[]
+  elements: ExcalidrawElement[];
 }
 
 // ── Graph format (what the LLM now outputs) ───────────────────────────────
 
-export type NodeShape = 'rectangle' | 'diamond' | 'ellipse'
-export type NodeColor = 'blue' | 'green' | 'purple' | 'orange' | 'red' | 'teal' | 'yellow' | 'grey'
-export type LayoutDirection = 'LR' | 'TB'
+export type NodeShape = "rectangle" | "diamond" | "ellipse";
+export type NodeColor =
+  | "blue"
+  | "green"
+  | "purple"
+  | "orange"
+  | "red"
+  | "teal"
+  | "yellow"
+  | "grey";
+export type StrokeStyle = "solid" | "dashed" | "dotted";
+export type FontStyle = "normal" | "handwritten" | "code";
+export type EdgeArrowhead = "arrow" | "bar" | "diamond" | "dot" | null;
+export type LayoutDirection = "LR" | "TB";
 
 export interface GraphNode {
-  id: string
-  label: string
-  shape?: NodeShape
-  color?: NodeColor
-  group?: string  // matches a GraphGroup id
-  icon?: string   // simple-icons slug e.g. "nginx", "docker", "postgresql"
-}
-
-export interface BinaryFileData {
-  id: string
-  mimeType: 'image/svg+xml'
-  dataURL: string
-  created: number
+  id: string;
+  label: string;
+  shape?: NodeShape;
+  color?: NodeColor;
+  group?: string; // matches a GraphGroup id
+  icon?: string; // simple-icons slug e.g. "nginx", "docker", "postgresql"
+  strokeStyle?: StrokeStyle;
+  font?: FontStyle;
 }
 
 export interface GraphEdge {
-  from: string
-  to: string
-  label?: string
+  from: string;
+  to: string;
+  label?: string;
+  strokeStyle?: StrokeStyle;
+  endArrowhead?: EdgeArrowhead;
+}
+
+export interface BinaryFileData {
+  id: string;
+  mimeType: "image/svg+xml";
+  dataURL: string;
+  created: number;
 }
 
 export interface GraphGroup {
-  id: string
-  label: string
-  color?: NodeColor
-  nodes: string[] // node ids that belong to this group
-  icon?: string   // simple-icons slug for the group badge
+  id: string;
+  label: string;
+  color?: NodeColor;
+  nodes: string[]; // node ids that belong to this group
+  icon?: string; // simple-icons slug for the group badge
 }
 
 export interface GraphResponse {
-  direction?: LayoutDirection // 'LR' for architectures, 'TB' for flowcharts
-  nodes: GraphNode[]
-  edges: GraphEdge[]
-  groups?: GraphGroup[]
+  direction?: LayoutDirection; // 'LR' for architectures, 'TB' for flowcharts
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  groups?: GraphGroup[];
   remove?: {
-    nodes?: string[]                             // node ids to explicitly delete
-    edges?: Array<{ from: string; to: string }>  // edges to explicitly delete
-  }
+    nodes?: string[]; // node ids to explicitly delete
+    edges?: Array<{ from: string; to: string }>; // edges to explicitly delete
+  };
 }
