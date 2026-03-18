@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://yapdraw.vercel.app">
-<img src="public/logo_round.png" alt="" width="200" height="200">
+<img src="public/logo_round.png" alt="" width="150" height="150">
 </a>
 
 # YapDraw
@@ -76,3 +76,7 @@ LLM_BASE_URL=...
 LLM_MODEL=your_model_name
 LLM_API_KEY=...
 ```
+
+---
+
+![views badge](https://visitor-badge.laobi.icu/badge?page_id=rickytang666.yapdraw&left_text=👀)
