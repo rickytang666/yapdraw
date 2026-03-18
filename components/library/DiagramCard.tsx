@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState, useSyncExternalStore } from 'react'
 import { useRouter } from 'next/navigation'
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
@@ -37,15 +37,11 @@ export default function DiagramCard({
   onToggleSelect,
 }: Props) {
   const router = useRouter()
-  const [hasMounted, setHasMounted] = useState(false)
+  const hasMounted = useSyncExternalStore(() => () => {}, () => true, () => false)
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
   const [isRenaming, setIsRenaming] = useState(false)
   const [renameValue, setRenameValue] = useState(diagram.name)
   const renameInputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    setHasMounted(true)
-  }, [])
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: diagram.id,

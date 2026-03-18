@@ -220,7 +220,7 @@ export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimati
               </div>
               {versionLabel(selectedVersion) && (
                 <p className="text-[11px] text-[#64748B] line-clamp-2 italic">
-                  "{versionLabel(selectedVersion)}"
+                  {'"'}{versionLabel(selectedVersion)}{'"'}
                 </p>
               )}
             </div>

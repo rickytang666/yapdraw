@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useCallback, useMemo, useLayoutEffect } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/lib/db'
 import { nanoid } from 'nanoid'
@@ -30,9 +30,10 @@ export function useLibrary() {
   })
 
   // Load persisted prefs after mount to avoid SSR/client hydration mismatch
-  useEffect(() => {
+  useLayoutEffect(() => {
     const saved = loadPrefs()
     if (saved.activeSection || saved.viewMode || saved.sortField || saved.sortDirection) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState(s => ({
         ...s,
         activeSection: (saved.activeSection as SidebarSection) || s.activeSection,
@@ -41,7 +42,7 @@ export function useLibrary() {
         sortDirection: (saved.sortDirection as SortDirection) || s.sortDirection,
       }))
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [])
 
   // ─── Live Queries ─────────────────────────────────────────
@@ -109,7 +110,7 @@ export function useLibrary() {
     })
 
     return filtered
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [allDiagrams, trashedDiagrams, state.activeSection, state.searchQuery, state.sortField, state.sortDirection])
 
   // ─── Navigation ───────────────────────────────────────────
@@ -139,7 +140,7 @@ export function useLibrary() {
   const toggleSelect = useCallback((id: string) => {
     setState(s => {
       const next = new Set(s.selectedIds)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) next.delete(id); else next.add(id)
       return { ...s, selectedIds: next }
     })
   }, [])

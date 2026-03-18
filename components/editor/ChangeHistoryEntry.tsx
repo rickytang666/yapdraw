@@ -27,7 +27,7 @@ export default function ChangeHistoryEntry({ prompt, summary, savedAt, onRestore
       title="Click to restore this state"
     >
       {/* prompt */}
-      <p className="text-xs text-zinc-300 leading-snug line-clamp-2">"{prompt}"</p>
+      <p className="text-xs text-zinc-300 leading-snug line-clamp-2">{'"'}{prompt}{'"'}</p>
 
       {/* summary + timestamp */}
       <div className="flex items-center justify-between gap-2">

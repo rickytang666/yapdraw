@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 
 export interface ShortcutMap {
   [combo: string]: () => void
@@ -18,7 +18,9 @@ export interface ShortcutMap {
 export function useKeyboardShortcuts(shortcuts: ShortcutMap): void {
   // Keep a ref to always hold the latest shortcuts map without re-registering the listener
   const shortcutsRef = useRef<ShortcutMap>(shortcuts)
-  shortcutsRef.current = shortcuts
+  useLayoutEffect(() => {
+    shortcutsRef.current = shortcuts
+  })
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {

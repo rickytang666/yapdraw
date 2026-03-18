@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useLayoutEffect } from 'react'
 import { ExcalidrawElement } from '@/types/diagram'
 
 const STORAGE_KEY = 'yapdraw_elements'
@@ -28,9 +28,10 @@ export function useDiagramState() {
   const [elements, setElements] = useState<ExcalidrawElement[]>([])
   const [restored, setRestored] = useState(false)
 
-  // Load saved session on mount (client-only)
-  useEffect(() => {
+  // Load saved session on mount (client-only, localStorage unavailable on server)
+  useLayoutEffect(() => {
     const saved = loadFromStorage()
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setElements(saved)
     setRestored(true)
   }, [])

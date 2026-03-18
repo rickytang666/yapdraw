@@ -28,6 +28,19 @@ export default function VersionHistoryPanel({
   const [viewingVersionId, setViewingVersionId] = useState<string | null>(null)
   const liveSnapshotRef = useRef<ExcalidrawElement[] | null>(null)
 
+  function handleClose() {
+    if (viewingVersionId) handleCancelView()
+    onClose()
+  }
+
+  function handleCancelView() {
+    if (liveSnapshotRef.current) {
+      canvasRef.current?.updateDiagram(liveSnapshotRef.current, { replace: true })
+    }
+    setViewingVersionId(null)
+    liveSnapshotRef.current = null
+  }
+
   // Close on click-outside
   useEffect(() => {
     if (!isOpen) return
@@ -53,11 +66,6 @@ export default function VersionHistoryPanel({
     return () => window.removeEventListener('keydown', onKey)
   }, [isOpen, viewingVersionId, onClose])
 
-  function handleClose() {
-    if (viewingVersionId) handleCancelView()
-    onClose()
-  }
-
   function handleView(versionId: string, elements: ExcalidrawElement[]) {
     if (viewingVersionId === versionId) {
       handleCancelView()
@@ -68,14 +76,6 @@ export default function VersionHistoryPanel({
     }
     setViewingVersionId(versionId)
     canvasRef.current?.updateDiagram(elements, { replace: true })
-  }
-
-  function handleCancelView() {
-    if (liveSnapshotRef.current) {
-      canvasRef.current?.updateDiagram(liveSnapshotRef.current, { replace: true })
-    }
-    setViewingVersionId(null)
-    liveSnapshotRef.current = null
   }
 
   async function handleRestore(versionId: string) {

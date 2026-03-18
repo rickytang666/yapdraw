@@ -63,7 +63,6 @@ export function useVersionHistory(diagramId: string) {
     const now = Date.now()
     const msPerDay = 24 * 60 * 60 * 1000
     const msPerWeek = 7 * msPerDay
-    const msPerMonth = 30 * msPerDay
 
     const toDelete: string[] = []
 

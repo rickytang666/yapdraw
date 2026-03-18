@@ -224,7 +224,10 @@ export default function EditorPage({ params }: Props) {
           />
         </div>
         <div className="flex-1 min-w-0 min-h-0 p-3 bg-[#FAFAFA]">
-          <div className="relative w-full h-full rounded-2xl overflow-hidden bg-white border border-[#E5E7EB]">
+          <div
+            className="relative w-full h-full rounded-2xl overflow-hidden bg-white border border-[#E5E7EB]"
+            style={{ maxWidth: 4096, maxHeight: 4096 }}
+          >
             {/* Restore flash overlay */}
             <div
               className={`absolute inset-0 z-20 pointer-events-none bg-white transition-opacity duration-500 ${

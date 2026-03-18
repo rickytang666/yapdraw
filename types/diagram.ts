@@ -1,4 +1,5 @@
 // Raw Excalidraw element (native format after layout)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ExcalidrawElement = Record<string, any> & { id: string }
 
 export interface LLMResponse {

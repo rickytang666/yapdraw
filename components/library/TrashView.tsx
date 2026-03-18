@@ -1,6 +1,6 @@
  'use client'
 
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 import { IconTrash, IconArrowBackUp } from '@tabler/icons-react'
 import type { Diagram } from '@/types/library'
 
@@ -18,11 +18,7 @@ function formatDate(ts: number): string {
 }
 
 export default function TrashView({ diagrams, onRestore, onDelete, onEmptyTrash }: Props) {
-  const [hasMounted, setHasMounted] = useState(false)
-
-  useEffect(() => {
-    setHasMounted(true)
-  }, [])
+  const hasMounted = useSyncExternalStore(() => () => {}, () => true, () => false)
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">

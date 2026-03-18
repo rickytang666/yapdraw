@@ -1,10 +1,11 @@
 'use client'
 
+import '@excalidraw/excalidraw/index.css'
 import {
   useEffect, useRef, forwardRef, useImperativeHandle,
   useState, useCallback, type ComponentProps,
 } from 'react'
-import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types/types'
+import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
 import { ExcalidrawElement, BinaryFileData } from '@/types/diagram'
 import { mergeElements, prepareForConversion, enrichArrows } from '@/lib/excalidraw-helpers'
 

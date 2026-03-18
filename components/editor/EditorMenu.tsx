@@ -22,7 +22,6 @@ interface Props {
 
 export default function EditorMenu({
   diagram,
-  canvasRef,
   onDuplicate,
   onToggleLock,
 }: Props) {

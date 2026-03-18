@@ -1,6 +1,6 @@
 'use client'
 
-import { IconTemplate, IconChartDots, IconLayoutDashboard, IconDatabase, IconX } from '@tabler/icons-react'
+import { IconTemplate, IconChartDots, IconLayoutDashboard, IconDatabase } from '@tabler/icons-react'
 import type { DiagramTemplate } from '@/types/library'
 
 interface Props {
