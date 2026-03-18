@@ -17,7 +17,8 @@ export interface GraphNode {
   label: string
   shape?: NodeShape
   color?: NodeColor
-  group?: string // matches a GraphGroup id
+  group?: string  // matches a GraphGroup id
+  icon?: string   // simple-icons slug e.g. "nginx", "docker", "postgresql"
 }
 
 export interface BinaryFileData {
@@ -38,6 +39,7 @@ export interface GraphGroup {
   label: string
   color?: NodeColor
   nodes: string[] // node ids that belong to this group
+  icon?: string   // simple-icons slug for the group badge
 }
 
 export interface GraphResponse {

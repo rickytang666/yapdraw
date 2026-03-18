@@ -68,7 +68,7 @@ export async function generateDiagram(
       console.warn("Falling back to current graph");
       const { elements: fbElements, iconRequests: fbRequests } =
         layoutGraph(currentGraph);
-      const fbFiles = await fetchIcons(fbRequests);
+      const fbFiles = fetchIcons(fbRequests);
       return { elements: fbElements, graph: currentGraph, files: fbFiles };
     }
     throw new Error("LLM returned empty graph");
@@ -138,6 +138,6 @@ export async function generateDiagram(
   }
 
   const { elements, iconRequests } = layoutGraph(graph);
-  const files = await fetchIcons(iconRequests);
+  const files = fetchIcons(iconRequests);
   return { elements, graph, files };
 }

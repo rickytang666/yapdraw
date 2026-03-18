@@ -1,6 +1,6 @@
 import dagre from 'dagre'
 import type { GraphResponse, NodeColor, NodeShape, ExcalidrawElement } from '@/types/diagram'
-import { iconFileId, inferSlugFromLabel, type IconRequest } from './icons'
+import { iconFileId, type IconRequest } from './icons'
 
 // ── Sizing ────────────────────────────────────────────────────────────────
 
@@ -119,10 +119,9 @@ export function layoutGraph(graph: GraphResponse): { elements: ExcalidrawElement
       label: { text: group.label, fontSize: 14, verticalAlign: 'top', textAlign: 'left' },
     })
 
-    // Group icon — bottom-left corner, inferred from label
-    const resolvedGroupIcon = inferSlugFromLabel(group.label)
-    if (resolvedGroupIcon) {
-      const slug = resolvedGroupIcon
+    // Group icon — bottom-left corner, from group.icon slug if provided
+    if (group.icon) {
+      const slug = group.icon
       const colorHex = gc.stroke
       iconRequests.push({ slug, colorHex })
       elements.push({
@@ -170,10 +169,9 @@ export function layoutGraph(graph: GraphResponse): { elements: ExcalidrawElement
     if (box.shape === 'rectangle') el.roundness = { type: 3 }
     elements.push(el)
 
-    // Icon badge — top-left corner, inferred from label
-    const resolvedIcon = inferSlugFromLabel(node.label)
-    if (resolvedIcon) {
-      const slug = resolvedIcon
+    // Icon badge — top-left corner, from node.icon slug if provided
+    if (node.icon) {
+      const slug = node.icon
       const colorHex = c.stroke
       iconRequests.push({ slug, colorHex })
       elements.push({
