@@ -14,7 +14,9 @@ _Why draw it with your mouse when you can just yap it out?_
 
 ## Overview
 
-YapDraw is Wispr Flow for Excalidraw. Describe anything out loud — a system architecture, a business process, a research workflow, a project plan — and it draws it as a clean, editable Excalidraw diagram. No code, no syntax, no drag-and-drop.
+YapDraw is [Wispr Flow](https://wisprflow.ai) for [Excalidraw](https://excalidraw.com).
+
+Describe anything out loud — a system architecture, a business process, a research workflow, a project plan — and it draws it as a clean, editable Excalidraw diagram. No code, no syntax, no drag-and-drop.
 
 For engineers, students, educators, researchers, business analysts, or anyone who has ever stared at a blank whiteboard.
 
@@ -52,18 +54,15 @@ For engineers, students, educators, researchers, business analysts, or anyone wh
 
 ## Tech Stack
 
-| Layer               | Tech       |
-| ------------------- | ---------- |
-| Framework           | Next.js    |
-| Canvas              | Excalidraw |
-| Layout engine       | Dagre      |
-| Voice transcription | Deepgram   |
-| Storage             | Supabase   |
+- Framework: Next.js
+- Canvas: Excalidraw
+- Layout engine: Dagre
+- Speech-to-text: Deepgram
+- Storage: Supabase, Dexie
 
 ## Setup
 
 ```bash
-cd yapdraw
 npm install
 cp .env.example .env
 npm run dev
@@ -71,7 +70,7 @@ npm run dev
 
 Required env vars:
 
-```
+```bash
 DEEPGRAM_API_KEY=...
 LLM_BASE_URL=...
 LLM_MODEL=your_model_name
