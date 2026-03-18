@@ -1,6 +1,10 @@
 <div align="center">
 
-<img src="assets/banner.png" alt="YapDraw Logo" width="200" height="200">
+<a href="https://yapdraw.vercel.app">
+<img src="public/logo_round.png" alt="" width="200" height="200">
+</a>
+
+# YapDraw
 
 _Why draw it with your mouse when you can just yap it out?_
 
@@ -18,7 +22,7 @@ For engineers, students, educators, researchers, business analysts, or anyone wh
 
 <div align="center">
 <a href="https://youtu.be/JoLELmPKW6w?si=vIdsas2C-dv69O4P">
-<img src="assets/landing.png" alt="landing page">
+<img src="public/landing.png" alt="landing page">
 </a>
 </div>
 

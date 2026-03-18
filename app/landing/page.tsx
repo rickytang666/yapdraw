@@ -20,7 +20,7 @@ export default function LandingPage() {
       <nav className="flex items-center px-8 py-6 max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
           <Image
-            src="/yapdraw_logo.png.webp"
+            src="/yapdraw_logo.png"
             alt="YapDraw logo"
             width={32}
             height={32}
