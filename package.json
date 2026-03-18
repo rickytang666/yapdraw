@@ -15,6 +15,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@excalidraw/excalidraw": "^0.18.0",
     "@tabler/icons-react": "^3.40.0",
+    "@vercel/analytics": "^2.0.1",
     "dagre": "^0.8.5",
     "dexie": "^4.3.0",
     "dexie-react-hooks": "^4.2.0",
