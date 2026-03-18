@@ -5,85 +5,12 @@ import { getSystemPrompt } from "./prompts";
 import { layoutGraph } from "./layout";
 import { fetchIcons } from "./icons";
 
-const USE_WATSONX = process.env.USE_WATSONX === "true";
-
 const client = new OpenAI({
-  baseURL:
-    process.env.LLM_BASE_URL ||
-    "https://vjioo4r1vyvcozuj.us-east-2.aws.endpoints.huggingface.cloud/v1",
+  baseURL: process.env.LLM_BASE_URL,
   apiKey: process.env.LLM_API_KEY || "EMPTY",
 });
 
-const MODEL = process.env.LLM_MODEL || "openai/gpt-oss-120b";
-
-// ── watsonx.ai ────────────────────────────────────────────────────────────────
-
-const WATSONX_URL =
-  process.env.WATSONX_URL || "https://us-south.ml.cloud.ibm.com";
-const WATSONX_MODEL = process.env.WATSONX_MODEL || "ibm/granite-3-8b-instruct";
-const WATSONX_VERSION = "2023-05-29";
-
-let iamTokenCache: { token: string; expiresAt: number } | null = null;
-
-async function getIAMToken(): Promise<string> {
-  if (iamTokenCache && Date.now() < iamTokenCache.expiresAt) {
-    return iamTokenCache.token;
-  }
-  const res = await fetch("https://iam.cloud.ibm.com/identity/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey=${process.env.WATSONX_API_KEY}`,
-  });
-  if (!res.ok) throw new Error(`IBM IAM token fetch failed: ${res.status}`);
-  const data = (await res.json()) as {
-    access_token: string;
-    expires_in: number;
-  };
-  iamTokenCache = {
-    token: data.access_token,
-    expiresAt: Date.now() + (data.expires_in - 60) * 1000, // refresh 1 min early
-  };
-  return iamTokenCache.token;
-}
-
-async function watsonxChat(
-  systemPrompt: string,
-  userMessage: string,
-): Promise<string> {
-  const token = await getIAMToken();
-  const res = await fetch(
-    `${WATSONX_URL}/ml/v1/text/chat?version=${WATSONX_VERSION}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        model_id: WATSONX_MODEL,
-        project_id: process.env.WATSONX_PROJECT_ID,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userMessage },
-        ],
-        parameters: {
-          temperature: 0.2,
-          max_new_tokens: 8000,
-        },
-      }),
-    },
-  );
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`watsonx chat failed ${res.status}: ${body}`);
-  }
-  const data = (await res.json()) as {
-    choices: Array<{ message: { content: string } }>;
-  };
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) throw new Error("watsonx returned empty content");
-  return content;
-}
+const MODEL = process.env.LLM_MODEL || "google/gemini-3.1-flash-lite-preview";
 
 function extractJSON(content: string): string {
   // Strip code fences first
@@ -118,21 +45,16 @@ export async function generateDiagram(
     ? `Current diagram:\n${JSON.stringify(currentGraph)}\n\nLatest instruction:\n${transcript}`
     : transcript;
 
-  let content: string;
-  if (USE_WATSONX) {
-    content = await watsonxChat(getSystemPrompt(diagramType), userMessage);
-  } else {
-    const response = await client.chat.completions.create({
-      model: MODEL,
-      messages: [
-        { role: "system", content: getSystemPrompt(diagramType) },
-        { role: "user", content: userMessage },
-      ],
-      temperature: 0.2,
-      max_tokens: 8000,
-    });
-    content = response.choices[0]?.message?.content ?? "";
-  }
+  const response = await client.chat.completions.create({
+    model: MODEL,
+    messages: [
+      { role: "system", content: getSystemPrompt(diagramType) },
+      { role: "user", content: userMessage },
+    ],
+    temperature: 0.2,
+    max_tokens: 8000,
+  });
+  let content = response.choices[0]?.message?.content ?? "";
   if (!content) throw new Error("LLM returned empty content");
 
   const jsonStr = extractJSON(content);
@@ -153,12 +75,17 @@ export async function generateDiagram(
   }
 
   // Only wipe the canvas if the user explicitly said so — never trust the LLM alone
-  const explicitWipe = /\b(delete|clear|wipe|erase|remove)\s+(every|all)(\s*thing)?\b/i.test(transcript)
+  const explicitWipe =
+    /\b(delete|clear|wipe|erase|remove)\s+(every|all)(\s*thing)?\b/i.test(
+      transcript,
+    );
 
   if (!Array.isArray(graph.nodes) || graph.nodes.length === 0) {
     if (currentGraph && currentGraph.nodes.length > 0 && !explicitWipe) {
       // LLM returned empty but user didn't ask to wipe — keep existing graph
-      console.warn("LLM returned empty nodes; keeping current graph (no explicit wipe instruction)")
+      console.warn(
+        "LLM returned empty nodes; keeping current graph (no explicit wipe instruction)",
+      );
       graph = currentGraph;
     } else if (!explicitWipe) {
       console.error("LLM returned empty graph. Parsed:", JSON.stringify(graph));
