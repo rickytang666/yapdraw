@@ -57,6 +57,9 @@ Desktop.ini
 .project
 .classpath
 .settings/
+.cursor/
+.claude/
+plans/
 
 # Package managers — commit only one lockfile, ignore the rest
 # (uncomment the ones you're NOT using)
@@ -100,8 +103,3 @@ excalidraw-mcp/
 *.txt
 *.md
 !README.md
-
-# Claude Code workflow (optional per-developer)
-tasks/
-CLAUDE.md
-.claude/
