@@ -26,6 +26,14 @@ export default function EditorPage({ params }: Props) {
   const canvasRef = useRef<ExcalidrawCanvasHandle>(null)
   const abortRef = useRef<AbortController | null>(null)
   const [loadingPhase, setLoadingPhase] = useState<LoadingPhase>('idle')
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  function showError(msg: string) {
+    if (errorTimerRef.current) clearTimeout(errorTimerRef.current)
+    setErrorMessage(msg)
+    errorTimerRef.current = setTimeout(() => setErrorMessage(null), 4000)
+  }
   const [lastGraph, setLastGraph] = useState<GraphResponse | null>(null)
   const lastGraphInitRef = useRef(false)
   const [restoreFlash, setRestoreFlash] = useState(false)
@@ -110,7 +118,7 @@ export default function EditorPage({ params }: Props) {
           transcript: text,
           currentGraph: (canvasRef.current?.getElements() ?? []).length > 0 ? lastGraph : null,
         }),
-        signal: abortRef.current.signal,
+        signal: AbortSignal.any([abortRef.current.signal, AbortSignal.timeout(30000)]),
       })
       const data = await res.json()
       if (data.skipped) return
@@ -142,9 +150,14 @@ export default function EditorPage({ params }: Props) {
       })
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return
-      console.error('Failed to generate diagram:', err)
       await db.versions.delete(versionId)
       lastAIVersionIdRef.current = null
+      if (err instanceof Error && err.name === 'TimeoutError') {
+        showError('took too long — try again')
+      } else {
+        console.error('Failed to generate diagram:', err)
+        showError('something went wrong — try again')
+      }
     } finally {
       setLoadingPhase('idle')
     }
@@ -242,6 +255,15 @@ export default function EditorPage({ params }: Props) {
             />
             {loadingPhase !== 'idle' && (
               <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-zinc-400 animate-pulse pointer-events-none" />
+            )}
+
+            {/* Error toast */}
+            {errorMessage && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+                <div className="px-4 py-2 bg-red-500/90 text-white text-sm rounded-lg shadow-lg">
+                  {errorMessage}
+                </div>
+              </div>
             )}
 
             {/* Locked overlay */}
