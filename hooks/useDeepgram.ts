@@ -37,7 +37,7 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
         finalTranscriptRef.current = "";
         setFinalTranscript("");
       }
-    }, 800);
+    }, 600);
   }, []);
 
   const start = useCallback(async () => {
