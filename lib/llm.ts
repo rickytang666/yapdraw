@@ -5,12 +5,32 @@ import { getSystemPrompt } from "./prompts";
 import { layoutGraph } from "./layout";
 import { fetchIcons } from "./icons";
 
-const client = new OpenAI({
-  baseURL: process.env.LLM_BASE_URL,
-  apiKey: process.env.LLM_API_KEY || "EMPTY",
-});
+export type UserProvider = 'openrouter' | 'google'
 
-const MODEL = process.env.LLM_MODEL || "google/gemini-3.1-flash-lite-preview";
+export interface ProviderConfig {
+  provider: UserProvider
+  apiKey: string  // empty = fall back to groq
+}
+
+const USER_PROVIDERS: Record<UserProvider, { baseURL: string; model: string }> = {
+  openrouter: { baseURL: 'https://openrouter.ai/api/v1',                            model: 'google/gemini-3.1-flash-lite-preview' },
+  google:     { baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/', model: 'gemini-3.1-flash-lite-preview'         },
+}
+
+// groq is the free-tier fallback — key comes from server env only
+const groqClient = new OpenAI({
+  baseURL: 'https://api.groq.com/openai/v1',
+  apiKey: process.env.GROQ_API_KEY || 'EMPTY',
+})
+const GROQ_MODEL = 'llama-3.3-70b-versatile'
+
+function resolveClient(config?: ProviderConfig | null): { client: OpenAI; model: string } {
+  if (config?.apiKey) {
+    const p = USER_PROVIDERS[config.provider]
+    return { client: new OpenAI({ baseURL: p.baseURL, apiKey: config.apiKey }), model: p.model }
+  }
+  return { client: groqClient, model: GROQ_MODEL }
+}
 
 function extractJSON(content: string): string {
   // Strip code fences first
@@ -37,6 +57,7 @@ export async function generateDiagram(
   currentGraph?: GraphResponse | null,
   diagramType: DiagramType = "freeform",
   manualEditDebrief?: { text: string; deletedNodeIds: string[]; deletedEdgeKeys: Array<{ from: string; to: string }> } | null,
+  providerConfig?: ProviderConfig | null,
 ): Promise<{
   elements: ExcalidrawElement[];
   graph: GraphResponse;
@@ -46,8 +67,10 @@ export async function generateDiagram(
     ? `Current diagram:\n${JSON.stringify(currentGraph)}\n\n${manualEditDebrief ? manualEditDebrief.text + '\n\n' : ''}Latest instruction:\n${transcript}`
     : transcript;
 
+  const { client, model } = resolveClient(providerConfig)
+
   const response = await client.chat.completions.create({
-    model: MODEL,
+    model,
     messages: [
       { role: "system", content: getSystemPrompt(diagramType) },
       { role: "user", content: userMessage },

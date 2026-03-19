@@ -1,6 +1,6 @@
 'use client'
 
-import { IconArrowLeft, IconStar, IconStarFilled, IconLock, IconBookmark } from '@tabler/icons-react'
+import { IconArrowLeft, IconStar, IconStarFilled, IconLock, IconBookmark, IconSettings } from '@tabler/icons-react'
 import type { Diagram } from '@/types/library'
 import type { SaveStatus } from '@/hooks/useAutoSave'
 import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
@@ -17,6 +17,7 @@ interface Props {
   onDuplicate?: () => void
   onToggleLock?: () => void
   onSaveVersion?: () => void
+  onOpenSettings?: () => void
   canvasRef?: React.RefObject<ExcalidrawCanvasHandle | null>
 }
 
@@ -29,6 +30,7 @@ export default function EditorTopBar({
   onDuplicate,
   onToggleLock,
   onSaveVersion,
+  onOpenSettings,
   canvasRef,
 }: Props) {
   return (
@@ -76,6 +78,16 @@ export default function EditorTopBar({
         >
           <IconBookmark size={14} />
           <span className="hidden sm:inline">Checkpoint</span>
+        </button>
+      )}
+
+      {onOpenSettings && (
+        <button
+          onClick={onOpenSettings}
+          className="flex items-center gap-1.5 text-xs text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] px-2 py-1 rounded transition-colors"
+          aria-label="Open settings"
+        >
+          <IconSettings size={14} />
         </button>
       )}
 

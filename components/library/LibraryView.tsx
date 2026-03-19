@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { IconPlus, IconSearch, IconUpload } from '@tabler/icons-react'
+import { IconPlus, IconSearch, IconUpload, IconSettings } from '@tabler/icons-react'
 import {
   DndContext,
   type DragEndEvent,
@@ -20,6 +20,8 @@ import { db } from '@/lib/db'
 import { nanoid } from 'nanoid'
 import type { Diagram, DiagramType, DiagramTemplate, FolderColor } from '@/types/library'
 import Sidebar from './Sidebar'
+import SettingsPanel from '@/components/editor/SettingsPanel'
+import { useUserSettings } from '@/hooks/useUserSettings'
 import DiagramGrid from './DiagramGrid'
 import DiagramList from './DiagramList'
 import TrashView from './TrashView'
@@ -37,6 +39,8 @@ export default function LibraryView() {
   const folderHook = useFolders()
 
   const [showNewModal, setShowNewModal] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const { settings, setSettings } = useUserSettings()
   const [folderModalParentId, setFolderModalParentId] = useState<string | undefined>(undefined)
   const [showFolderModal, setShowFolderModal] = useState(false)
   const [renameFolderId, setRenameFolderId] = useState<string | null>(null)
@@ -224,6 +228,13 @@ export default function LibraryView() {
       onDragEnd={handleDragEnd}
     >
       <div className="flex h-screen w-screen overflow-hidden bg-[#FAFAFA]">
+        {settingsOpen && (
+          <SettingsPanel
+            settings={settings}
+            onSave={setSettings}
+            onClose={() => setSettingsOpen(false)}
+          />
+        )}
         {showNewModal && (
           <NewDiagramModal
             onConfirm={handleCreateDiagram}
@@ -326,6 +337,15 @@ export default function LibraryView() {
                 <span className="hidden sm:inline">Import</span>
               </button>
             )}
+
+            {/* Settings button */}
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="flex items-center p-1.5 text-[#94A3B8] hover:text-[#475569] hover:bg-[#F1F5F9] rounded-md transition-colors"
+              aria-label="Open settings"
+            >
+              <IconSettings size={16} />
+            </button>
 
             {/* New Diagram button */}
             {!isTrash && (

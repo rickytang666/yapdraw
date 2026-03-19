@@ -22,6 +22,8 @@ import type {
 } from "@/types/diagram";
 import type { Diagram } from "@/types/library";
 import { buildDebrief } from "@/lib/debrief";
+import { useUserSettings } from "@/hooks/useUserSettings";
+import SettingsPanel from "@/components/editor/SettingsPanel";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -44,6 +46,8 @@ export default function EditorPage({ params }: Props) {
   const [lastGraph, setLastGraph] = useState<GraphResponse | null>(null);
   const lastGraphInitRef = useRef(false);
   const [restoreFlash, setRestoreFlash] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { settings, setSettings } = useUserSettings();
 
   function triggerRestoreAnimation() {
     setRestoreFlash(true);
@@ -169,6 +173,7 @@ export default function EditorPage({ params }: Props) {
           transcript: text,
           currentGraph: hasCanvas ? lastGraph : null,
           manualEditDebrief: debrief,
+          providerConfig: { provider: settings.provider, apiKey: settings.apiKey },
         }),
         signal: AbortSignal.any([
           abortRef.current.signal,
@@ -292,8 +297,17 @@ export default function EditorPage({ params }: Props) {
         onDuplicate={handleDuplicate}
         onToggleLock={handleToggleLock}
         onSaveVersion={saveVersion}
+        onOpenSettings={() => setSettingsOpen(true)}
         canvasRef={canvasRef}
       />
+
+      {settingsOpen && (
+        <SettingsPanel
+          settings={settings}
+          onSave={setSettings}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* Voice panel — 35% wide, version timeline above chat */}
