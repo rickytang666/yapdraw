@@ -3,12 +3,18 @@ import type { GraphResponse, ExcalidrawElement } from '@/types/diagram'
 const SHAPE_TYPES = new Set(['rectangle', 'diamond', 'ellipse'])
 
 
+export interface DebriefResult {
+  text: string
+  deletedNodeIds: string[]
+  deletedEdgeKeys: Array<{ from: string; to: string }>
+}
+
 // computes a plain-text summary of user manual edits since the last ai generation.
 // called lazily right before sending to the llm — never runs on every onChange.
 export function buildDebrief(
   elements: ExcalidrawElement[],
   lastGraph: GraphResponse,
-): string | null {
+): DebriefResult | null {
   const canvasNodeIds = new Set<string>()
   const canvasEdgeKeys = new Set<string>() // "from→to"
   const nodeLabelMap = new Map<string, string>() // nodeId → current canvas label
@@ -76,5 +82,9 @@ export function buildDebrief(
 
   if (lines.length === 0) return null
 
-  return `Since last generation, the user manually:\n${lines.map(l => `- ${l}`).join('\n')}`
+  return {
+    text: `Since last generation, the user manually:\n${lines.map(l => `- ${l}`).join('\n')}`,
+    deletedNodeIds: deletedNodes.map(n => n.id),
+    deletedEdgeKeys: deletedEdges.map(e => ({ from: e.from, to: e.to })),
+  }
 }

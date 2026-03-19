@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
       transcript?: string
       currentGraph?: GraphResponse
       diagramType?: DiagramType
-      manualEditDebrief?: string
+      manualEditDebrief?: { text: string; deletedNodeIds: string[]; deletedEdgeKeys: Array<{ from: string; to: string }> }
     }
 
     try {

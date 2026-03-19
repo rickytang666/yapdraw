@@ -36,14 +36,14 @@ export async function generateDiagram(
   transcript: string,
   currentGraph?: GraphResponse | null,
   diagramType: DiagramType = "freeform",
-  manualEditDebrief?: string | null,
+  manualEditDebrief?: { text: string; deletedNodeIds: string[]; deletedEdgeKeys: Array<{ from: string; to: string }> } | null,
 ): Promise<{
   elements: ExcalidrawElement[];
   graph: GraphResponse;
   files: import("@/types/diagram").BinaryFileData[];
 }> {
   const userMessage = currentGraph
-    ? `Current diagram:\n${JSON.stringify(currentGraph)}\n\n${manualEditDebrief ? manualEditDebrief + '\n\n' : ''}Latest instruction:\n${transcript}`
+    ? `Current diagram:\n${JSON.stringify(currentGraph)}\n\n${manualEditDebrief ? manualEditDebrief.text + '\n\n' : ''}Latest instruction:\n${transcript}`
     : transcript;
 
   const response = await client.chat.completions.create({
@@ -101,10 +101,14 @@ export async function generateDiagram(
   // Nodes listed in graph.remove are intentional deletions — never restore those.
   // If zero IDs match, the LLM intentionally redesigned — don't merge.
   if (currentGraph && !explicitWipe) {
-    const explicitlyRemovedNodes = new Set(graph.remove?.nodes ?? []);
-    const explicitlyRemovedEdgeKeys = new Set(
-      (graph.remove?.edges ?? []).map((e) => `${e.from}|${e.to}`),
-    );
+    const explicitlyRemovedNodes = new Set([
+      ...(graph.remove?.nodes ?? []),
+      ...(manualEditDebrief?.deletedNodeIds ?? []),
+    ]);
+    const explicitlyRemovedEdgeKeys = new Set([
+      ...(graph.remove?.edges ?? []).map((e) => `${e.from}|${e.to}`),
+      ...(manualEditDebrief?.deletedEdgeKeys ?? []).map((e) => `${e.from}|${e.to}`),
+    ]);
     const llmNodeIds = new Set(graph.nodes.map((n) => n.id));
     const overlap = currentGraph.nodes.filter(
       (n) => llmNodeIds.has(n.id) || explicitlyRemovedNodes.has(n.id),

@@ -160,6 +160,7 @@ export default function EditorPage({ params }: Props) {
       const currentElements = canvasRef.current?.getElements() ?? []
       const hasCanvas = currentElements.length > 0
       const debrief = hasCanvas && lastGraph ? buildDebrief(currentElements, lastGraph) : null
+      console.log("[debrief]", debrief?.text ?? "(none)")
 
       const res = await fetch("/api/generate-diagram", {
         method: "POST",
