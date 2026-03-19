@@ -14,7 +14,7 @@ const FONT_FAMILY: Record<FontStyle, number> = {
   normal: 6, // Nunito
   code: 8, // Comic Shanns
 };
-import { iconFileId, type IconRequest } from "./icons";
+import { iconFileId, isValidIcon, type IconRequest } from "./icons";
 
 // ── Sizing ────────────────────────────────────────────────────────────────
 
@@ -160,7 +160,7 @@ export function layoutGraph(graph: GraphResponse): {
     });
 
     // Group icon — bottom-left corner, from group.icon slug if provided
-    if (group.icon) {
+    if (group.icon && isValidIcon(group.icon)) {
       const slug = group.icon;
       const colorHex = gc.stroke;
       iconRequests.push({ slug, colorHex });
@@ -221,7 +221,7 @@ export function layoutGraph(graph: GraphResponse): {
     elements.push(el);
 
     // Icon badge — top-left corner, from node.icon slug if provided
-    if (node.icon) {
+    if (node.icon && isValidIcon(node.icon)) {
       const slug = node.icon;
       const colorHex = c.stroke;
       iconRequests.push({ slug, colorHex });

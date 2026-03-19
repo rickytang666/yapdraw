@@ -34,6 +34,10 @@ function resolveSlug(slug: string): string {
   return ALIASES[s] ?? s;
 }
 
+export function isValidIcon(slug: string): boolean {
+  return slugMap.has(resolveSlug(slug))
+}
+
 export interface IconRequest {
   slug: string;
   colorHex: string; // hex with # prefix, used to tint the icon
