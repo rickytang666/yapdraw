@@ -58,6 +58,7 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
         return;
       }
       streamRef.current = stream;
+      setIsListening(true); // mic confirmed — show red immediately while ws connects
 
       const params = new URLSearchParams({
         model: "nova-2",
@@ -78,7 +79,6 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
           ws.close();
           return;
         }
-        setIsListening(true);
         const mediaRecorder = new MediaRecorder(stream);
         mediaRecorderRef.current = mediaRecorder;
         mediaRecorder.ondataavailable = (e) => {
