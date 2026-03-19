@@ -117,6 +117,23 @@ export function useAutoSave(
     await save(elements)
   }, [save])
 
+  const saveVersion = useCallback(async () => {
+    const elements = canvasRef.current?.getElements() ?? []
+    const diagram = await db.diagrams.get(diagramId)
+    if (!diagram) return
+    const now = Date.now()
+    await db.versions.add({
+      id: nanoid(),
+      diagramId,
+      version: diagram.version,
+      elements,
+      transcript: diagram.transcript,
+      savedAt: now,
+      label: 'checkpoint',
+    })
+    lastVersionTimeRef.current = now
+  }, [diagramId, canvasRef])
+
   useEffect(() => {
     function handleBeforeUnload() {
       if (saveTimerRef.current) {
@@ -152,5 +169,5 @@ export function useAutoSave(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return { triggerSave, forceSave, saveStatus, pauseSave, resumeSave }
+  return { triggerSave, forceSave, saveVersion, saveStatus, pauseSave, resumeSave }
 }

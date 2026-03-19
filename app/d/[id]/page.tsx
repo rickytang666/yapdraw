@@ -75,7 +75,7 @@ export default function EditorPage({ params }: Props) {
   }, [id, diagram?.id]);
 
   const isLoading = loadingPhase !== "idle";
-  const { triggerSave, forceSave, saveStatus, pauseSave, resumeSave } =
+  const { triggerSave, forceSave, saveVersion, saveStatus, pauseSave, resumeSave } =
     useAutoSave(id, canvasRef);
   const { restoreVersion } = useVersionHistory(id);
   const aiHistory = useAIChangeHistory(id);
@@ -287,6 +287,7 @@ export default function EditorPage({ params }: Props) {
         onStar={(starred) => db.diagrams.update(id, { starred })}
         onDuplicate={handleDuplicate}
         onToggleLock={handleToggleLock}
+        onSaveVersion={saveVersion}
         canvasRef={canvasRef}
       />
 

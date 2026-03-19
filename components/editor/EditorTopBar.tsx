@@ -16,6 +16,7 @@ interface Props {
   onStar?: (starred: boolean) => void
   onDuplicate?: () => void
   onToggleLock?: () => void
+  onSaveVersion?: () => void
   canvasRef?: React.RefObject<ExcalidrawCanvasHandle | null>
 }
 
@@ -27,6 +28,7 @@ export default function EditorTopBar({
   onStar,
   onDuplicate,
   onToggleLock,
+  onSaveVersion,
   canvasRef,
 }: Props) {
   return (
@@ -72,6 +74,7 @@ export default function EditorTopBar({
           canvasRef={canvasRef}
           onDuplicate={onDuplicate}
           onToggleLock={onToggleLock}
+          onSaveVersion={onSaveVersion}
         />
       )}
     </header>

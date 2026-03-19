@@ -8,6 +8,7 @@ import {
   IconCopy,
   IconLock,
   IconLockOpen,
+  IconBookmark,
 } from '@tabler/icons-react'
 import { exportAsExcalidraw, exportAsJSON } from '@/lib/export'
 import type { Diagram } from '@/types/library'
@@ -18,12 +19,14 @@ interface Props {
   canvasRef: React.RefObject<ExcalidrawCanvasHandle | null>
   onDuplicate: () => void
   onToggleLock: () => void
+  onSaveVersion?: () => void
 }
 
 export default function EditorMenu({
   diagram,
   onDuplicate,
   onToggleLock,
+  onSaveVersion,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -60,6 +63,11 @@ export default function EditorMenu({
   function handleExportJSON() {
     setIsOpen(false)
     exportAsJSON(diagram)
+  }
+
+  function handleSaveVersion() {
+    setIsOpen(false)
+    onSaveVersion?.()
   }
 
   function handleDuplicate() {
@@ -105,7 +113,17 @@ export default function EditorMenu({
             Export as JSON
           </button>
 
-          <div className="my-1 border-t border-zinc-700" />
+          <div className="my-1 border-t border-[#E5E7EB]" />
+
+          {onSaveVersion && (
+            <button
+              className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"
+              onClick={handleSaveVersion}
+            >
+              <IconBookmark size={14} className="shrink-0" />
+              Save version
+            </button>
+          )}
 
           <button
             className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"
