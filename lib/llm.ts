@@ -76,7 +76,7 @@ export async function generateDiagram(
       { role: "user", content: userMessage },
     ],
     temperature: 0.2,
-    max_tokens: 8000,
+    max_tokens: 3000,
   });
   const content = response.choices[0]?.message?.content ?? "";
   if (!content) throw new Error("LLM returned empty content");
