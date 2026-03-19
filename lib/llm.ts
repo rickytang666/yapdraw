@@ -78,7 +78,7 @@ export async function generateDiagram(
     temperature: 0.2,
     max_tokens: 8000,
   });
-  let content = response.choices[0]?.message?.content ?? "";
+  const content = response.choices[0]?.message?.content ?? "";
   if (!content) throw new Error("LLM returned empty content");
 
   const jsonStr = extractJSON(content);
