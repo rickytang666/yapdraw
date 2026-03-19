@@ -14,6 +14,8 @@ export interface ExcalidrawCanvasHandle {
   getElements: () => ExcalidrawElement[]
   getFiles: () => Record<string, BinaryFileData>
   exportThumbnail?: () => Promise<string>
+  exportPng: (name: string) => Promise<void>
+  exportSvg: (name: string) => Promise<void>
 }
 
 const BROWSER_CANVAS_LIMIT = 16384
@@ -44,6 +46,9 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
     >(null)
     const [exportToBlob, setExportToBlob] = useState<
       typeof import('@excalidraw/excalidraw').exportToBlob | null
+    >(null)
+    const [exportToSvg, setExportToSvg] = useState<
+      typeof import('@excalidraw/excalidraw').exportToSvg | null
     >(null)
 
     const initialDataRef = useRef<{ elements: ExcalidrawElement[]; files?: Record<string, BinaryFileData> } | undefined>(undefined)
@@ -90,6 +95,7 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
         setExcalidraw(() => mod.Excalidraw)
         setConvertToExcalidrawElements(() => mod.convertToExcalidrawElements)
         setExportToBlob(() => mod.exportToBlob)
+        setExportToSvg(() => mod.exportToSvg)
       })
     }, []) // intentionally only run once on mount
 
@@ -178,6 +184,42 @@ const ExcalidrawCanvas = forwardRef<ExcalidrawCanvasHandle, Props>(
         if (!apiRef.current) return {}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return apiRef.current.getFiles() as any as Record<string, BinaryFileData>
+      },
+
+      async exportPng(name: string) {
+        if (!apiRef.current || !exportToBlob) return
+        const elements = apiRef.current.getSceneElements()
+        if (elements.length === 0) return
+        const blob = await exportToBlob({
+          elements: elements as Parameters<typeof exportToBlob>[0]['elements'],
+          appState: { exportBackground: true, exportWithDarkMode: false } as Parameters<typeof exportToBlob>[0]['appState'],
+          files: apiRef.current.getFiles(),
+        })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${name}.png`
+        a.click()
+        URL.revokeObjectURL(url)
+      },
+
+      async exportSvg(name: string) {
+        if (!apiRef.current || !exportToSvg) return
+        const elements = apiRef.current.getSceneElements()
+        if (elements.length === 0) return
+        const svg = await exportToSvg({
+          elements: elements as Parameters<typeof exportToSvg>[0]['elements'],
+          appState: { exportBackground: true, exportWithDarkMode: false } as Parameters<typeof exportToSvg>[0]['appState'],
+          files: apiRef.current.getFiles(),
+        })
+        const serialized = new XMLSerializer().serializeToString(svg)
+        const blob = new Blob([serialized], { type: 'image/svg+xml' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${name}.svg`
+        a.click()
+        URL.revokeObjectURL(url)
       },
 
       async exportThumbnail() {

@@ -8,6 +8,8 @@ import {
   IconCopy,
   IconLock,
   IconLockOpen,
+  IconPhoto,
+  IconVectorBezier,
 } from '@tabler/icons-react'
 import { exportAsExcalidraw, exportAsJSON } from '@/lib/export'
 import type { Diagram } from '@/types/library'
@@ -22,6 +24,7 @@ interface Props {
 
 export default function EditorMenu({
   diagram,
+  canvasRef,
   onDuplicate,
   onToggleLock,
 }: Props) {
@@ -60,6 +63,16 @@ export default function EditorMenu({
   function handleExportJSON() {
     setIsOpen(false)
     exportAsJSON(diagram)
+  }
+
+  function handleExportPng() {
+    setIsOpen(false)
+    canvasRef.current?.exportPng(diagram.name)
+  }
+
+  function handleExportSvg() {
+    setIsOpen(false)
+    canvasRef.current?.exportSvg(diagram.name)
   }
 
   function handleDuplicate() {
@@ -103,6 +116,22 @@ export default function EditorMenu({
           >
             <IconFileCode size={14} className="shrink-0" />
             Export as JSON
+          </button>
+
+          <button
+            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"
+            onClick={handleExportPng}
+          >
+            <IconPhoto size={14} className="shrink-0" />
+            Export as PNG
+          </button>
+
+          <button
+            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"
+            onClick={handleExportSvg}
+          >
+            <IconVectorBezier size={14} className="shrink-0" />
+            Export as SVG
           </button>
 
           <div className="my-1 border-t border-zinc-700" />

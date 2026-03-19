@@ -80,8 +80,14 @@ export default function EditorPage({ params }: Props) {
   }, [id, diagram?.id]);
 
   const isLoading = loadingPhase !== "idle";
-  const { triggerSave, forceSave, saveVersion, saveStatus, pauseSave, resumeSave } =
-    useAutoSave(id, canvasRef);
+  const {
+    triggerSave,
+    forceSave,
+    saveVersion,
+    saveStatus,
+    pauseSave,
+    resumeSave,
+  } = useAutoSave(id, canvasRef);
   const { restoreVersion } = useVersionHistory(id);
   const aiHistory = useAIChangeHistory(id);
 
@@ -113,25 +119,29 @@ export default function EditorPage({ params }: Props) {
   // ─── Voice / AI generation ────────────────────────────────────────────────
 
   async function handleMicStart() {
-    if (!diagram) return
-    const startElements = canvasRef.current?.getElements() ?? diagram.elements
+    if (!diagram) return;
+    const startElements = canvasRef.current?.getElements() ?? diagram.elements;
     const versionId = await aiHistory.snapshotBeforeChange(
       startElements as ExcalidrawElement[],
-      '',
+      "",
       diagram.transcript,
       diagram.version,
-    )
-    micSessionRef.current = { versionId, startElements: startElements as ExcalidrawElement[], hasChanges: false }
-    lastAIVersionIdRef.current = versionId
+    );
+    micSessionRef.current = {
+      versionId,
+      startElements: startElements as ExcalidrawElement[],
+      hasChanges: false,
+    };
+    lastAIVersionIdRef.current = versionId;
   }
 
   async function handleMicStop() {
-    const session = micSessionRef.current
-    micSessionRef.current = null
+    const session = micSessionRef.current;
+    micSessionRef.current = null;
     // delete orphan snapshot if mic was opened but no generation succeeded
     if (session && !session.hasChanges) {
-      await db.versions.delete(session.versionId)
-      lastAIVersionIdRef.current = null
+      await db.versions.delete(session.versionId);
+      lastAIVersionIdRef.current = null;
     }
   }
 
@@ -145,26 +155,29 @@ export default function EditorPage({ params }: Props) {
 
     // reuse the mic session snapshot if available (one version per session),
     // otherwise fall back to a fresh snapshot (e.g. text input / mock submit)
-    const session = micSessionRef.current
+    const session = micSessionRef.current;
     const currentElements = session
       ? session.startElements
-      : (canvasRef.current?.getElements() ?? diagram.elements) as ExcalidrawElement[]
-    let versionId = session?.versionId ?? null
+      : ((canvasRef.current?.getElements() ??
+          diagram.elements) as ExcalidrawElement[]);
+    let versionId = session?.versionId ?? null;
     if (!versionId) {
       versionId = await aiHistory.snapshotBeforeChange(
         currentElements as ExcalidrawElement[],
         text,
         diagram.transcript,
         diagram.version,
-      )
-      lastAIVersionIdRef.current = versionId
+      );
+      lastAIVersionIdRef.current = versionId;
     }
 
     try {
-      const currentElements = canvasRef.current?.getElements() ?? []
-      const hasCanvas = currentElements.length > 0
-      const debrief = hasCanvas && lastGraph ? buildDebrief(currentElements, lastGraph) : null
-      console.log("[debrief]", debrief?.text ?? "(none)")
+      const currentElements = canvasRef.current?.getElements() ?? [];
+      const hasCanvas = currentElements.length > 0;
+      const debrief =
+        hasCanvas && lastGraph
+          ? buildDebrief(currentElements, lastGraph)
+          : null;
 
       const res = await fetch("/api/generate-diagram", {
         method: "POST",
@@ -173,7 +186,10 @@ export default function EditorPage({ params }: Props) {
           transcript: text,
           currentGraph: hasCanvas ? lastGraph : null,
           manualEditDebrief: debrief,
-          providerConfig: { provider: settings.provider, apiKey: settings.apiKey },
+          providerConfig: {
+            provider: settings.provider,
+            apiKey: settings.apiKey,
+          },
         }),
         signal: AbortSignal.any([
           abortRef.current.signal,
@@ -186,8 +202,8 @@ export default function EditorPage({ params }: Props) {
         console.error("generate-diagram failed:", data.error ?? data);
         // only delete orphan if it's not a shared session snapshot
         if (!session) {
-          await db.versions.delete(versionId!)
-          lastAIVersionIdRef.current = null
+          await db.versions.delete(versionId!);
+          lastAIVersionIdRef.current = null;
         }
         return;
       }
@@ -206,7 +222,7 @@ export default function EditorPage({ params }: Props) {
       canvasRef.current?.updateDiagram(elements, { replace: true, files });
 
       // 2. Record the diff — updates DB label and adds card to VoicePanel
-      if (session) session.hasChanges = true
+      if (session) session.hasChanges = true;
       await aiHistory.recordChange(
         versionId!,
         text,
@@ -222,8 +238,8 @@ export default function EditorPage({ params }: Props) {
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") return;
       if (!session) {
-        await db.versions.delete(versionId!)
-        lastAIVersionIdRef.current = null
+        await db.versions.delete(versionId!);
+        lastAIVersionIdRef.current = null;
       }
       if (err instanceof Error && err.name === "TimeoutError") {
         showError("took too long — try again");
