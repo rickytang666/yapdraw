@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from "react";
 import {
   IconDotsVertical,
   IconFileExport,
@@ -9,17 +9,20 @@ import {
   IconLock,
   IconLockOpen,
   IconPhoto,
-  IconVectorBezier,
-} from '@tabler/icons-react'
-import { exportAsExcalidraw, exportAsJSON } from '@/lib/export'
-import type { Diagram } from '@/types/library'
-import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
+  IconFileTypeSvg,
+  IconBraces,
+  IconCheck,
+} from "@tabler/icons-react";
+import { exportAsExcalidraw, exportAsJSON } from "@/lib/export";
+import { graphToMermaid } from "@/lib/mermaid";
+import type { Diagram } from "@/types/library";
+import type { ExcalidrawCanvasHandle } from "@/components/ExcalidrawCanvas";
 
 interface Props {
-  diagram: Diagram
-  canvasRef: React.RefObject<ExcalidrawCanvasHandle | null>
-  onDuplicate: () => void
-  onToggleLock: () => void
+  diagram: Diagram;
+  canvasRef: React.RefObject<ExcalidrawCanvasHandle | null>;
+  onDuplicate: () => void;
+  onToggleLock: () => void;
 }
 
 export default function EditorMenu({
@@ -28,12 +31,13 @@ export default function EditorMenu({
   onDuplicate,
   onToggleLock,
 }: Props) {
-  const [isOpen, setIsOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-  const buttonRef = useRef<HTMLButtonElement>(null)
+  const [isOpen, setIsOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen) return;
     function handleClickOutside(e: MouseEvent) {
       if (
         menuRef.current &&
@@ -41,55 +45,62 @@ export default function EditorMenu({
         buttonRef.current &&
         !buttonRef.current.contains(e.target as Node)
       ) {
-        setIsOpen(false)
+        setIsOpen(false);
       }
     }
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setIsOpen(false)
+      if (e.key === "Escape") setIsOpen(false);
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    window.addEventListener('keydown', handleKey)
+    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("keydown", handleKey);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      window.removeEventListener('keydown', handleKey)
-    }
-  }, [isOpen])
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [isOpen]);
 
   function handleExportExcalidraw() {
-    setIsOpen(false)
-    exportAsExcalidraw(diagram)
+    setIsOpen(false);
+    exportAsExcalidraw(diagram);
   }
 
   function handleExportJSON() {
-    setIsOpen(false)
-    exportAsJSON(diagram)
+    setIsOpen(false);
+    exportAsJSON(diagram);
   }
 
   function handleExportPng() {
-    setIsOpen(false)
-    canvasRef.current?.exportPng(diagram.name)
+    setIsOpen(false);
+    canvasRef.current?.exportPng(diagram.name);
   }
 
   function handleExportSvg() {
-    setIsOpen(false)
-    canvasRef.current?.exportSvg(diagram.name)
+    setIsOpen(false);
+    canvasRef.current?.exportSvg(diagram.name);
+  }
+
+  function handleCopyMermaid() {
+    if (!diagram.graph) return;
+    navigator.clipboard.writeText(graphToMermaid(diagram.graph));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   function handleDuplicate() {
-    setIsOpen(false)
-    onDuplicate()
+    setIsOpen(false);
+    onDuplicate();
   }
 
   function handleToggleLock() {
-    setIsOpen(false)
-    onToggleLock()
+    setIsOpen(false);
+    onToggleLock();
   }
 
   return (
     <div className="relative">
       <button
         ref={buttonRef}
-        onClick={() => setIsOpen(v => !v)}
+        onClick={() => setIsOpen((v) => !v)}
         className="p-1.5 text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded transition-colors"
         aria-label="More options"
         aria-expanded={isOpen}
@@ -130,8 +141,21 @@ export default function EditorMenu({
             className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"
             onClick={handleExportSvg}
           >
-            <IconVectorBezier size={14} className="shrink-0" />
+            <IconFileTypeSvg size={14} className="shrink-0" />
             Export as SVG
+          </button>
+
+          <button
+            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed"
+            onClick={handleCopyMermaid}
+            disabled={!diagram.graph}
+          >
+            {copied ? (
+              <IconCheck size={14} className="shrink-0 text-[#22C55E]" />
+            ) : (
+              <IconBraces size={14} className="shrink-0" />
+            )}
+            {copied ? "Copied!" : "Copy as Mermaid"}
           </button>
 
           <div className="my-1 border-t border-zinc-700" />
@@ -165,5 +189,5 @@ export default function EditorMenu({
         </div>
       )}
     </div>
-  )
+  );
 }
