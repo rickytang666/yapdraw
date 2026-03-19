@@ -1,6 +1,6 @@
 'use client'
 
-import { IconArrowLeft, IconStar, IconStarFilled, IconLock } from '@tabler/icons-react'
+import { IconArrowLeft, IconStar, IconStarFilled, IconLock, IconBookmark } from '@tabler/icons-react'
 import type { Diagram } from '@/types/library'
 import type { SaveStatus } from '@/hooks/useAutoSave'
 import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
@@ -68,13 +68,23 @@ export default function EditorTopBar({
 
       <SaveStatusIndicator status={saveStatus} />
 
+      {onSaveVersion && (
+        <button
+          onClick={onSaveVersion}
+          className="flex items-center gap-1.5 text-xs text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] px-2 py-1 rounded transition-colors"
+          aria-label="Save version checkpoint"
+        >
+          <IconBookmark size={14} />
+          <span className="hidden sm:inline">Checkpoint</span>
+        </button>
+      )}
+
       {canvasRef && onDuplicate && onToggleLock && (
         <EditorMenu
           diagram={diagram}
           canvasRef={canvasRef}
           onDuplicate={onDuplicate}
           onToggleLock={onToggleLock}
-          onSaveVersion={onSaveVersion}
         />
       )}
     </header>

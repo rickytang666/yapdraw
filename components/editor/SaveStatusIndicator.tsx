@@ -10,9 +10,9 @@ export default function SaveStatusIndicator({ status }: Props) {
   if (status === 'idle') return null
 
   const config = {
-    saving: { text: 'Saving…', className: 'text-[#94A3B8]' },
-    saved:  { text: 'Saved',   className: 'text-[#10B981]' },
-    error:  { text: 'Save failed', className: 'text-[#EF4444]' },
+    saving: { text: 'Syncing…',  className: 'text-[#94A3B8]' },
+    saved:  { text: 'Synced',    className: 'text-[#10B981]' },
+    error:  { text: 'Sync failed', className: 'text-[#EF4444]' },
   } as const
 
   const { text, className } = config[status]
