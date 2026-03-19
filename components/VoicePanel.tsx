@@ -14,6 +14,8 @@ interface VoicePanelProps {
   isLoading: boolean
   onSilence: (transcript: string) => void
   onMockSubmit?: (text: string) => void
+  onMicStart?: () => void
+  onMicStop?: () => void
   canvasRef: React.RefObject<ExcalidrawCanvasHandle | null>
   onRestoreAnimation: () => void
   pauseSave: (liveElements: ExcalidrawElement[]) => void
@@ -25,6 +27,8 @@ export default function VoicePanel({
   isLoading,
   onSilence,
   onMockSubmit,
+  onMicStart,
+  onMicStop,
   canvasRef,
   onRestoreAnimation,
   pauseSave,
@@ -44,8 +48,10 @@ export default function VoicePanel({
   const handleToggle = () => {
     if (isListening) {
       stop()
+      onMicStop?.()
     } else {
       reset()
+      onMicStart?.()
       start()
     }
   }

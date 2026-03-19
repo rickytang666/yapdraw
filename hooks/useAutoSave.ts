@@ -7,8 +7,8 @@ import type { ExcalidrawElement } from '@/types/diagram'
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
 const SAVE_DEBOUNCE_MS = 2000
-const VERSION_SNAPSHOT_INTERVAL = 5 * 60 * 1000  // 5 minutes
-const VERSION_SNAPSHOT_EVERY_N = 10               // or every 10 saves
+const VERSION_SNAPSHOT_INTERVAL = 15 * 60 * 1000  // 15 minutes — safety net only
+const VERSION_SNAPSHOT_EVERY_N = 50               // or every 50 saves
 
 export function useAutoSave(
   diagramId: string,
