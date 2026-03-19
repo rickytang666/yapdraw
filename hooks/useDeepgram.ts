@@ -129,8 +129,9 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
         if (session === activeSessionRef.current) teardown();
       };
       ws.onclose = (e) => {
-        if (e.code !== 1000) {
-          console.error(`deepgram ws closed: code=${e.code} reason="${e.reason}"`)
+        // 1005 = no status received — expected when teardown() closes the ws
+        if (e.code !== 1000 && e.code !== 1005 && session === activeSessionRef.current) {
+          console.error(`deepgram ws closed unexpectedly: code=${e.code} reason="${e.reason}"`)
         }
         if (session === activeSessionRef.current) setIsListening(false);
       };
