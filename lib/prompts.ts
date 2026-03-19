@@ -59,7 +59,8 @@ If a "Current diagram" is provided in the user message:
 - To **delete nodes** (e.g. "remove X", "nvm it doesn't use X", "actually use Y instead of X"), list their ids in "remove.nodes": { "remove": { "nodes": ["node-id"] } } — also omit those nodes from "nodes" and remove their edges
 - To **delete arrows/connections** (e.g. "disconnect A from B", "remove the arrow between X and Y"), list them in "remove.edges": { "remove": { "edges": [{ "from": "a-id", "to": "b-id" }] } } — also omit them from "edges"
 - To **delete everything**, output empty nodes/edges AND list all removed ids in "remove": { "remove": { "nodes": ["id1", ...] } }
-- Only populate "remove" when the user explicitly says to get rid of something`;
+- Only populate "remove" when the user explicitly says to get rid of something
+- If a "Since last generation, the user manually:" section is provided, treat it as ground truth — honour deletions (do not restore deleted nodes/edges), honour renames (use the new label), and incorporate any manually added shapes into the graph`;
 
 // ─── Type-specific prompt sections ──────────────────────────────────────────
 

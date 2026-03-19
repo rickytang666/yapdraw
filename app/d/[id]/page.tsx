@@ -21,6 +21,7 @@ import type {
   BinaryFileData,
 } from "@/types/diagram";
 import type { Diagram } from "@/types/library";
+import { buildDebrief } from "@/lib/debrief";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -156,15 +157,17 @@ export default function EditorPage({ params }: Props) {
     }
 
     try {
+      const currentElements = canvasRef.current?.getElements() ?? []
+      const hasCanvas = currentElements.length > 0
+      const debrief = hasCanvas && lastGraph ? buildDebrief(currentElements, lastGraph) : null
+
       const res = await fetch("/api/generate-diagram", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           transcript: text,
-          currentGraph:
-            (canvasRef.current?.getElements() ?? []).length > 0
-              ? lastGraph
-              : null,
+          currentGraph: hasCanvas ? lastGraph : null,
+          manualEditDebrief: debrief,
         }),
         signal: AbortSignal.any([
           abortRef.current.signal,

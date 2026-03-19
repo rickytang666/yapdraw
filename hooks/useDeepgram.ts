@@ -124,11 +124,14 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
         }
       };
 
-      ws.onerror = (e) => {
-        console.error("Deepgram WS error", e);
+      ws.onerror = () => {
+        // browser hides ws error details — actual reason is in onclose code/reason
         if (session === activeSessionRef.current) teardown();
       };
-      ws.onclose = () => {
+      ws.onclose = (e) => {
+        if (e.code !== 1000) {
+          console.error(`deepgram ws closed: code=${e.code} reason="${e.reason}"`)
+        }
         if (session === activeSessionRef.current) setIsListening(false);
       };
     } catch (err) {

@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
       transcript?: string
       currentGraph?: GraphResponse
       diagramType?: DiagramType
+      manualEditDebrief?: string
     }
 
     try {
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { elements, graph, files } = await generateDiagram(body.transcript, body.currentGraph, body.diagramType)
+    const { elements, graph, files } = await generateDiagram(body.transcript, body.currentGraph, body.diagramType, body.manualEditDebrief)
     return Response.json({ elements, graph, files })
   } catch (error) {
     // Expected: LLM refused to generate or returned non-diagram content — silently skip

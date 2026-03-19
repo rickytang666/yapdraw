@@ -36,13 +36,14 @@ export async function generateDiagram(
   transcript: string,
   currentGraph?: GraphResponse | null,
   diagramType: DiagramType = "freeform",
+  manualEditDebrief?: string | null,
 ): Promise<{
   elements: ExcalidrawElement[];
   graph: GraphResponse;
   files: import("@/types/diagram").BinaryFileData[];
 }> {
   const userMessage = currentGraph
-    ? `Current diagram:\n${JSON.stringify(currentGraph)}\n\nLatest instruction:\n${transcript}`
+    ? `Current diagram:\n${JSON.stringify(currentGraph)}\n\n${manualEditDebrief ? manualEditDebrief + '\n\n' : ''}Latest instruction:\n${transcript}`
     : transcript;
 
   const response = await client.chat.completions.create({

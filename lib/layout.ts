@@ -157,6 +157,7 @@ export function layoutGraph(graph: GraphResponse): {
         verticalAlign: "top",
         textAlign: "left",
       },
+      customData: { yapdraw: { type: "group", id: group.id } },
     });
 
     // Group icon — bottom-left corner, from group.icon slug if provided
@@ -181,6 +182,7 @@ export function layoutGraph(graph: GraphResponse): {
         frameId: null,
         link: null,
         locked: false,
+        customData: { yapdraw: { type: "icon" } },
       });
     }
   }
@@ -216,6 +218,7 @@ export function layoutGraph(graph: GraphResponse): {
         verticalAlign: "middle",
         fontFamily: FONT_FAMILY[node.font ?? "handwritten"],
       },
+      customData: { yapdraw: { type: "node", id: node.id } },
     };
     if (box.shape === "rectangle") el.roundness = { type: 3 };
     elements.push(el);
@@ -242,6 +245,7 @@ export function layoutGraph(graph: GraphResponse): {
         frameId: null,
         link: null,
         locked: false,
+        customData: { yapdraw: { type: "icon" } },
       });
     }
   }
@@ -310,6 +314,7 @@ export function layoutGraph(graph: GraphResponse): {
         edge.endArrowhead !== undefined ? edge.endArrowhead : "arrow",
       startArrowhead: null,
       // No startBinding/endBinding — unbound arrows never throw normalization errors
+      customData: { yapdraw: { type: "edge", from: edge.from, to: edge.to } },
     };
 
     if (edge.label) {
