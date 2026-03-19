@@ -6,9 +6,68 @@ const SPEED_PRESETS = { fast: 400, normal: 800, slow: 1200 } as const;
 export type SpeechSpeed = keyof typeof SPEED_PRESETS;
 export { SPEED_PRESETS };
 
+// terms that are out-of-vocabulary enough for keyword boost to help
+const SYSARCH_KEYWORDS = [
+  "kubernetes",
+  "nginx",
+  "postgresql",
+  "elasticsearch",
+  "rabbitmq",
+  "dynamodb",
+  "cloudfront",
+  "fargate",
+  "terraform",
+  "ansible",
+  "prometheus",
+  "grafana",
+  "datadog",
+  "sendgrid",
+  "supabase",
+  "netlify",
+  "cloudflare",
+  "traefik",
+  "istio",
+  "envoy",
+  "zookeeper",
+  "clickhouse",
+  "snowflake",
+  "bigquery",
+  "airflow",
+  "llm",
+  "drizzle",
+];
+
+// phonetic near-misses
+const SYSARCH_REGEX_REPLACEMENTS: [RegExp, string][] = [
+  [/\b(lang|line|lam|lambda|land|lon)\s*(chain|Shane|chains)\b/gi, "LangChain"],
+  [/\b(lang|line|lam|lambda|land|lon)\s*graph\b/gi, "LangGraph"],
+  [/\bfast\s*(api|app\s*I|happy|app)\b/gi, "FastAPI"],
+  [/\bspring\s*boot\b/gi, "SpringBoot"],
+  [/\bnext\s*\.?\s*js\b/gi, "NextJS"],
+  [/\bgraph\s*ql\b/gi, "GraphQL"],
+  [/\bg\s*rpc\b/gi, "gRPC"],
+  [/\bmongo\s*db\b/gi, "MongoDB"],
+  [/\bdynamo\s*db\b/gi, "DynamoDB"],
+  [/\bfire\s*base\b/gi, "Firebase"],
+  [/\bver\s*cel\b/gi, "Vercel"],
+  [/\btraffic\b/gi, "Traefik"], // traefik is almost always heard as traffic
+  [/\bpost\s*gres\s*(sql)?\b/gi, "PostgreSQL"],
+  [/\bpostgresql\s+sql\b/gi, "PostgreSQL"], // dedupe doubled suffix
+  [/\bL\.?R\.?M\b/g, "LLM"],
+];
+
+function applyReplacements(text: string): string {
+  let result = text;
+  for (const [pattern, to] of SYSARCH_REGEX_REPLACEMENTS) {
+    result = result.replace(pattern, to);
+  }
+  return result;
+}
+
 export function useDeepgram(
   onSilence: (transcript: string) => void,
   speed: SpeechSpeed = "normal",
+  boostTechTerms = false,
 ) {
   const [isListening, setIsListening] = useState(false);
   const [interimTranscript, setInterimTranscript] = useState("");
@@ -77,6 +136,9 @@ export function useDeepgram(
         utterance_end_ms: "1000",
         endpointing: "300",
       });
+      if (boostTechTerms) {
+        SYSARCH_KEYWORDS.forEach((kw) => params.append("keywords", `${kw}:5`));
+      }
 
       const ws = new WebSocket(`wss://api.deepgram.com/v1/listen?${params}`, [
         "token",
@@ -121,10 +183,13 @@ export function useDeepgram(
         if (!transcript) return;
 
         if (data.is_final) {
+          const fixed = boostTechTerms
+            ? applyReplacements(transcript)
+            : transcript;
           finalTranscriptRef.current = (
             finalTranscriptRef.current +
             " " +
-            transcript
+            fixed
           ).trim();
           setFinalTranscript(finalTranscriptRef.current);
           setInterimTranscript("");

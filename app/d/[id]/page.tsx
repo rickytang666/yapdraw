@@ -314,6 +314,7 @@ export default function EditorPage({ params }: Props) {
         <div className="w-[35%] h-full border-r border-[#E5E7EB] shrink-0">
           <VoicePanel
             diagramId={id}
+            diagramType={diagram.diagramType}
             isLoading={isLoading}
             onSilence={handleSilence}
             onMockSubmit={handleSilence}

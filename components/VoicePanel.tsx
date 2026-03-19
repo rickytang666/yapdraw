@@ -8,9 +8,11 @@ import { useDeepgram, type SpeechSpeed } from "@/hooks/useDeepgram";
 import Image from "next/image";
 import type { ExcalidrawCanvasHandle } from "@/components/ExcalidrawCanvas";
 import type { ExcalidrawElement } from "@/types/diagram";
+import type { DiagramType } from "@/types/library";
 
 interface VoicePanelProps {
   diagramId: string;
+  diagramType: DiagramType;
   isLoading: boolean;
   onSilence: (transcript: string) => void;
   onMockSubmit?: (text: string) => void;
@@ -24,6 +26,7 @@ interface VoicePanelProps {
 
 export default function VoicePanel({
   diagramId,
+  diagramType,
   isLoading,
   onSilence,
   onMockSubmit,
@@ -59,7 +62,7 @@ export default function VoicePanel({
     start,
     stop,
     reset,
-  } = useDeepgram(handleSilence, speed);
+  } = useDeepgram(handleSilence, speed, diagramType === "system-architecture");
 
   const handleToggle = () => {
     if (isListening) {
