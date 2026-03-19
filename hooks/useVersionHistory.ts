@@ -54,72 +54,46 @@ export function useVersionHistory(diagramId: string) {
     await db.versions.delete(versionId)
   }, [])
 
-  const pruneVersions = useCallback(async () => {
-    const allVersions = await db.versions
-      .where('diagramId')
-      .equals(diagramId)
-      .sortBy('savedAt')
-
-    const now = Date.now()
-    const msPerDay = 24 * 60 * 60 * 1000
-    const msPerWeek = 7 * msPerDay
-
-    const toDelete: string[] = []
-
-    // Group versions by time bucket
-    const last24h: DiagramVersion[] = []
-    const last7d: DiagramVersion[] = []
-    const last4w: DiagramVersion[] = []
-    const older: DiagramVersion[] = []
-
-    for (const v of allVersions) {
-      const age = now - v.savedAt
-      if (age < msPerDay) {
-        last24h.push(v)
-      } else if (age < 7 * msPerDay) {
-        last7d.push(v)
-      } else if (age < 4 * msPerWeek) {
-        last4w.push(v)
-      } else {
-        older.push(v)
-      }
-    }
-
-    // Keep all <24h — no pruning needed for that group
-
-    // For last7d: keep 1 per day
-    const keepFromLast7d = keepOnePerBucket(last7d, v => {
-      const d = new Date(v.savedAt)
-      return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
-    })
-    for (const v of last7d) {
-      if (!keepFromLast7d.has(v.id) && !v.label) toDelete.push(v.id)
-    }
-
-    // For last4w: keep 1 per week
-    const keepFromLast4w = keepOnePerBucket(last4w, v => {
-      const weekNum = Math.floor(v.savedAt / msPerWeek)
-      return String(weekNum)
-    })
-    for (const v of last4w) {
-      if (!keepFromLast4w.has(v.id) && !v.label) toDelete.push(v.id)
-    }
-
-    // For older: keep 1 per month
-    const keepFromOlder = keepOnePerBucket(older, v => {
-      const d = new Date(v.savedAt)
-      return `${d.getFullYear()}-${d.getMonth()}`
-    })
-    for (const v of older) {
-      if (!keepFromOlder.has(v.id) && !v.label) toDelete.push(v.id)
-    }
-
-    if (toDelete.length > 0) {
-      await db.versions.bulkDelete(toDelete)
-    }
-  }, [diagramId])
+  const pruneVersions = useCallback(() => pruneVersionsForDiagram(diagramId), [diagramId])
 
   return { versions, restoreVersion, labelVersion, deleteVersion, pruneVersions }
+}
+
+export async function pruneVersionsForDiagram(diagramId: string) {
+  const allVersions = await db.versions
+    .where('diagramId')
+    .equals(diagramId)
+    .sortBy('savedAt')
+
+  const now = Date.now()
+  const msPerDay = 24 * 60 * 60 * 1000
+  const msPerWeek = 7 * msPerDay
+  const toDelete: string[] = []
+
+  const last7d: DiagramVersion[] = []
+  const last4w: DiagramVersion[] = []
+  const older: DiagramVersion[] = []
+
+  for (const v of allVersions) {
+    const age = now - v.savedAt
+    if (age < msPerDay) continue // keep all <24h
+    else if (age < 7 * msPerDay) last7d.push(v)
+    else if (age < 4 * msPerWeek) last4w.push(v)
+    else older.push(v)
+  }
+
+  const mark = (bucket: DiagramVersion[], getKey: (v: DiagramVersion) => string) => {
+    const keep = keepOnePerBucket(bucket, getKey)
+    for (const v of bucket) {
+      if (!keep.has(v.id) && !v.label) toDelete.push(v.id)
+    }
+  }
+
+  mark(last7d, v => { const d = new Date(v.savedAt); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}` })
+  mark(last4w, v => String(Math.floor(v.savedAt / msPerWeek)))
+  mark(older,  v => { const d = new Date(v.savedAt); return `${d.getFullYear()}-${d.getMonth()}` })
+
+  if (toDelete.length > 0) await db.versions.bulkDelete(toDelete)
 }
 
 function keepOnePerBucket(

@@ -1,6 +1,7 @@
 import { useRef, useCallback, useEffect, useState, type RefObject } from 'react'
 import { db } from '@/lib/db'
 import { nanoid } from 'nanoid'
+import { pruneVersionsForDiagram } from '@/hooks/useVersionHistory'
 import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
 import type { ExcalidrawElement } from '@/types/diagram'
 
@@ -79,6 +80,8 @@ export function useAutoSave(
           label: null,
         })
         lastVersionTimeRef.current = now
+        // prune old snapshots whenever we add a new auto-checkpoint
+        pruneVersionsForDiagram(diagramId).catch(() => {})
       }
 
       setSaveStatus('saved')
