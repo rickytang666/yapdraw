@@ -27,6 +27,7 @@ const ALIASES: Record<string, string> = {
   expressjs: "express",
   rails: "rubyonrails",
   gcp: "googlecloud",
+  gcs: "googlecloudstorage",
 };
 
 function resolveSlug(slug: string): string {
