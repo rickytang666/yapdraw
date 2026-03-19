@@ -2,7 +2,14 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 
-export function useDeepgram(onSilence: (transcript: string) => void) {
+const SPEED_PRESETS = { fast: 400, normal: 800, slow: 1200 } as const;
+export type SpeechSpeed = keyof typeof SPEED_PRESETS;
+export { SPEED_PRESETS };
+
+export function useDeepgram(
+  onSilence: (transcript: string) => void,
+  speed: SpeechSpeed = "normal",
+) {
   const [isListening, setIsListening] = useState(false);
   const [interimTranscript, setInterimTranscript] = useState("");
   const [finalTranscript, setFinalTranscript] = useState("");
@@ -28,6 +35,9 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
     setInterimTranscript("");
   }, []);
 
+  const speedRef = useRef(speed);
+  speedRef.current = speed;
+
   const resetSilenceTimer = useCallback((session: number) => {
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     silenceTimerRef.current = setTimeout(() => {
@@ -37,7 +47,7 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
         finalTranscriptRef.current = "";
         setFinalTranscript("");
       }
-    }, 600);
+    }, SPEED_PRESETS[speedRef.current]);
   }, []);
 
   const start = useCallback(async () => {
@@ -130,8 +140,14 @@ export function useDeepgram(onSilence: (transcript: string) => void) {
       };
       ws.onclose = (e) => {
         // 1005 = no status received — expected when teardown() closes the ws
-        if (e.code !== 1000 && e.code !== 1005 && session === activeSessionRef.current) {
-          console.error(`deepgram ws closed unexpectedly: code=${e.code} reason="${e.reason}"`)
+        if (
+          e.code !== 1000 &&
+          e.code !== 1005 &&
+          session === activeSessionRef.current
+        ) {
+          console.error(
+            `deepgram ws closed unexpectedly: code=${e.code} reason="${e.reason}"`,
+          );
         }
         if (session === activeSessionRef.current) setIsListening(false);
       };
