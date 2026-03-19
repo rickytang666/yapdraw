@@ -5,7 +5,7 @@ import { pruneVersionsForDiagram } from '@/hooks/useVersionHistory'
 import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
 import type { ExcalidrawElement } from '@/types/diagram'
 
-export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
+export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'quota'
 
 const SAVE_DEBOUNCE_MS = 2000
 const VERSION_SNAPSHOT_INTERVAL = 15 * 60 * 1000  // 15 minutes — safety net only
@@ -86,8 +86,12 @@ export function useAutoSave(
 
       setSaveStatus('saved')
     } catch (err) {
-      console.error('Auto-save failed:', err)
-      setSaveStatus('error')
+      if (err instanceof DOMException && err.name === 'QuotaExceededError') {
+        setSaveStatus('quota')
+      } else {
+        console.error('Auto-save failed:', err)
+        setSaveStatus('error')
+      }
     }
   }, [diagramId, canvasRef])
 
