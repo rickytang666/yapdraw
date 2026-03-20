@@ -101,7 +101,7 @@ export default function EditorMenu({
       <button
         ref={buttonRef}
         onClick={() => setIsOpen((v) => !v)}
-        className="p-1.5 text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded transition-colors"
+        className="p-1.5 text-subtle hover:text-foreground hover:bg-surface rounded transition-colors"
         aria-label="More options"
         aria-expanded={isOpen}
       >
@@ -111,10 +111,10 @@ export default function EditorMenu({
       {isOpen && (
         <div
           ref={menuRef}
-          className="absolute right-0 top-full mt-1 w-52 bg-white border border-[#E5E7EB] rounded-lg shadow-xl overflow-hidden py-1 z-50"
+          className="absolute right-0 top-full mt-1 w-52 bg-white border border-border-subtle rounded-lg shadow-xl overflow-hidden py-1 z-50"
         >
           <button
-            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"
+            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-muted hover:bg-surface hover:text-foreground transition-colors text-left"
             onClick={handleExportExcalidraw}
           >
             <IconFileExport size={14} className="shrink-0" />
@@ -122,7 +122,7 @@ export default function EditorMenu({
           </button>
 
           <button
-            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"
+            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-muted hover:bg-surface hover:text-foreground transition-colors text-left"
             onClick={handleExportJSON}
           >
             <IconFileCode size={14} className="shrink-0" />
@@ -130,7 +130,7 @@ export default function EditorMenu({
           </button>
 
           <button
-            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"
+            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-muted hover:bg-surface hover:text-foreground transition-colors text-left"
             onClick={handleExportPng}
           >
             <IconPhoto size={14} className="shrink-0" />
@@ -138,7 +138,7 @@ export default function EditorMenu({
           </button>
 
           <button
-            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"
+            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-muted hover:bg-surface hover:text-foreground transition-colors text-left"
             onClick={handleExportSvg}
           >
             <IconFileTypeSvg size={14} className="shrink-0" />
@@ -146,37 +146,37 @@ export default function EditorMenu({
           </button>
 
           <button
-            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-muted hover:bg-surface hover:text-foreground transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed"
             onClick={handleCopyMermaid}
             disabled={!diagram.graph}
           >
             {copied ? (
-              <IconCheck size={14} className="shrink-0 text-[#22C55E]" />
+              <IconCheck size={14} className="shrink-0 text-success" />
             ) : (
               <IconBraces size={14} className="shrink-0" />
             )}
             {copied ? "Copied!" : "Copy as Mermaid"}
           </button>
 
-          <div className="my-1 border-t border-zinc-700" />
+          <div className="my-1 border-t border-border-subtle" />
 
           <button
-            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"
+            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-muted hover:bg-surface hover:text-foreground transition-colors text-left"
             onClick={handleDuplicate}
           >
             <IconCopy size={14} className="shrink-0" />
             Duplicate
           </button>
 
-          <div className="my-1 border-t border-[#E5E7EB]" />
+          <div className="my-1 border-t border-border-subtle" />
 
           <button
-            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors text-left"
+            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-muted hover:bg-surface hover:text-foreground transition-colors text-left"
             onClick={handleToggleLock}
           >
             {diagram.locked ? (
               <>
-                <IconLockOpen size={14} className="shrink-0 text-[#D97706]" />
+                <IconLockOpen size={14} className="shrink-0 text-warning" />
                 <span>Unlock Diagram</span>
               </>
             ) : (

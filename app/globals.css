@@ -33,6 +33,7 @@
   --text: #0F172A;
   --text-muted: #475569;
   --text-subtle: #64748B;
+  --text-placeholder: #94A3B8;
 
   /* Borders & Dividers */
   --border: #D1D5DB;
@@ -85,6 +86,7 @@
   --text: #F9FAFB;
   --text-muted: #9CA3AF;
   --text-subtle: #6B7280;
+  --text-placeholder: #64748B;
 
   /* Borders */
   --border: #2D2D2D;
@@ -123,8 +125,9 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-foreground: var(--accent-foreground);
   --color-text: var(--text);
-  --color-text-muted: var(--text-muted);
-  --color-text-subtle: var(--text-subtle);
+  --color-muted: var(--text-muted);
+  --color-subtle: var(--text-subtle);
+  --color-placeholder: var(--text-placeholder);
   --color-border: var(--border);
   --color-border-subtle: var(--border-subtle);
   --color-ring: var(--ring);

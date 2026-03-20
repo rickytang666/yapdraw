@@ -294,14 +294,14 @@ export default function EditorPage({ params }: Props) {
 
   if (diagram === undefined) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#FAFAFA] text-[#64748B]">
+      <div className="flex items-center justify-center h-screen bg-background text-subtle">
         Loading…
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#FAFAFA]">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-background">
       <EditorTopBar
         diagram={diagram!}
         saveStatus={saveStatus}
@@ -327,7 +327,7 @@ export default function EditorPage({ params }: Props) {
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* Voice panel — 35% wide, version timeline above chat */}
-        <div className="w-[35%] h-full border-r border-[#E5E7EB] shrink-0">
+        <div className="w-[35%] h-full border-r border-border-subtle shrink-0">
           <VoicePanel
             diagramId={id}
             diagramType={diagram.diagramType}
@@ -342,9 +342,9 @@ export default function EditorPage({ params }: Props) {
             resumeSave={resumeSave}
           />
         </div>
-        <div className="flex-1 min-w-0 min-h-0 p-3 bg-[#FAFAFA]">
+        <div className="flex-1 min-w-0 min-h-0 p-3 bg-background">
           <div
-            className="relative w-full h-full rounded-2xl overflow-hidden bg-white border border-[#E5E7EB]"
+            className="relative w-full h-full rounded-2xl overflow-hidden bg-white border border-border-subtle"
             style={{ maxWidth: 4096, maxHeight: 4096 }}
           >
             {/* Restore flash overlay */}

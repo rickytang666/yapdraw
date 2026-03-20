@@ -34,23 +34,23 @@ export default function EditorTopBar({
   canvasRef,
 }: Props) {
   return (
-    <header className="flex items-center gap-3 h-12 px-4 bg-white border-b border-[#E5E7EB] shrink-0">
+    <header className="flex items-center gap-3 h-12 px-4 bg-white border-b border-border-subtle shrink-0">
       <button
         onClick={onBack}
-        className="flex items-center gap-1 text-[#64748B] hover:text-[#0F172A] transition-colors"
+        className="flex items-center gap-1 text-subtle hover:text-foreground transition-colors"
         aria-label="Back to library"
       >
         <IconArrowLeft size={18} />
         <span className="text-sm hidden sm:inline">Library</span>
       </button>
 
-      <div className="w-px h-5 bg-[#E5E7EB]" />
+      <div className="w-px h-5 bg-border-subtle" />
 
       <InlineName value={diagram.name} onCommit={name => onRename?.(name)} />
 
       <button
         onClick={() => onStar?.(!diagram.starred)}
-        className="text-[#94A3B8] hover:text-[#F59E0B] transition-colors ml-1"
+        className="text-placeholder hover:text-[#F59E0B] transition-colors ml-1"
         aria-label={diagram.starred ? 'Unstar diagram' : 'Star diagram'}
       >
         {diagram.starred
@@ -73,7 +73,7 @@ export default function EditorTopBar({
       {onSaveVersion && (
         <button
           onClick={onSaveVersion}
-          className="flex items-center gap-1.5 text-xs text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] px-2 py-1 rounded transition-colors"
+          className="flex items-center gap-1.5 text-xs text-subtle hover:text-foreground hover:bg-surface px-2 py-1 rounded transition-colors"
           aria-label="Save version checkpoint"
         >
           <IconBookmark size={14} />
@@ -84,7 +84,7 @@ export default function EditorTopBar({
       {onOpenSettings && (
         <button
           onClick={onOpenSettings}
-          className="flex items-center gap-1.5 text-xs text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] px-2 py-1 rounded transition-colors"
+          className="flex items-center gap-1.5 text-xs text-subtle hover:text-foreground hover:bg-surface px-2 py-1 rounded transition-colors"
           aria-label="Open settings"
         >
           <IconSettings size={14} />

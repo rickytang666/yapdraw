@@ -62,13 +62,13 @@ export default function NewDiagramModal({ onConfirm, onCancel }: Props) {
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
         onClick={handleBackdropClick}
       >
-        <div className="bg-white border border-[#E5E7EB] rounded-xl shadow-2xl w-full max-w-md mx-4">
+        <div className="bg-white border border-border-subtle rounded-xl shadow-2xl w-full max-w-md mx-4">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
-            <h2 className="text-[#0F172A] font-semibold text-base">New Diagram</h2>
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
+            <h2 className="text-foreground font-semibold text-base">New Diagram</h2>
             <button
               onClick={onCancel}
-              className="text-[#64748B] hover:text-[#0F172A] transition-colors"
+              className="text-subtle hover:text-foreground transition-colors"
             >
               <IconX size={18} />
             </button>
@@ -77,20 +77,20 @@ export default function NewDiagramModal({ onConfirm, onCancel }: Props) {
           <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-5">
             {/* Name */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-[#475569] text-sm">Name</label>
+              <label className="text-muted text-sm">Name</label>
               <input
                 ref={inputRef}
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Untitled Diagram"
-                className="bg-[#FAFAFA] border border-[#D1D5DB] focus:border-[#5B57D1] outline-none rounded-md px-3 py-2 text-[#0F172A] text-sm placeholder-[#94A3B8] transition-colors"
+                className="bg-background border border-border focus:border-primary outline-none rounded-md px-3 py-2 text-foreground text-sm placeholder-placeholder transition-colors"
               />
             </div>
 
             {/* Diagram Type */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-[#475569] text-sm">Type</label>
+              <label className="text-muted text-sm">Type</label>
               <div className="grid grid-cols-1 gap-2">
                 {DIAGRAM_TYPES.map(type => (
                   <button
@@ -99,13 +99,13 @@ export default function NewDiagramModal({ onConfirm, onCancel }: Props) {
                     onClick={() => setDiagramType(type.value)}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-md border text-left transition-colors ${
                       diagramType === type.value
-                        ? 'border-[#5B57D1] bg-[#5B57D1]/10 text-[#0F172A]'
-                        : 'border-[#E5E7EB] bg-[#FAFAFA] text-[#475569] hover:border-[#94A3B8]'
+                        ? 'border-primary bg-primary/10 text-foreground'
+                        : 'border-border-subtle bg-background text-muted hover:border-placeholder'
                     }`}
                   >
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">{type.label}</span>
-                      <span className="text-xs text-[#94A3B8]">{type.description}</span>
+                      <span className="text-xs text-placeholder">{type.description}</span>
                     </div>
                   </button>
                 ))}
@@ -117,20 +117,20 @@ export default function NewDiagramModal({ onConfirm, onCancel }: Props) {
               <button
                 type="button"
                 onClick={() => setShowTemplatePicker(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-[#FAFAFA] border border-[#D1D5DB] hover:border-[#94A3B8] text-[#475569] hover:text-[#0F172A] rounded-md text-sm transition-colors"
+                className="flex items-center gap-2 px-3 py-2 bg-background border border-border hover:border-placeholder text-muted hover:text-foreground rounded-md text-sm transition-colors"
               >
                 <IconTemplate size={15} />
                 Browse Templates
               </button>
               {selectedTemplate && (
-                <div className="flex items-center justify-between px-3 py-2 bg-[#5B57D1]/10 border border-[#5B57D1]/30 rounded-md">
-                  <span className="text-sm text-[#5B57D1] truncate">
+                <div className="flex items-center justify-between px-3 py-2 bg-primary/10 border border-primary/30 rounded-md">
+                  <span className="text-sm text-primary truncate">
                     Template: {selectedTemplate.name}
                   </span>
                   <button
                     type="button"
                     onClick={handleClearTemplate}
-                    className="text-[#64748B] hover:text-[#0F172A] transition-colors ml-2 shrink-0"
+                    className="text-subtle hover:text-foreground transition-colors ml-2 shrink-0"
                     aria-label="Clear template"
                   >
                     <IconX size={13} />
@@ -144,13 +144,13 @@ export default function NewDiagramModal({ onConfirm, onCancel }: Props) {
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-2 text-sm text-[#64748B] hover:text-[#0F172A] transition-colors rounded-md"
+                className="px-4 py-2 text-sm text-subtle hover:text-foreground transition-colors rounded-md"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-sm font-medium bg-[#5B57D1] hover:bg-[#4F4BC4] text-white rounded-md transition-colors"
+                className="px-4 py-2 text-sm font-medium bg-primary hover:bg-primary-hover text-white rounded-md transition-colors"
               >
                 Create Diagram
               </button>

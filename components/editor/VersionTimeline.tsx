@@ -123,24 +123,24 @@ export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimati
 
   if (versions.length === 0) {
     return (
-      <div className="px-4 py-3 border-b border-[#E5E7EB]">
+      <div className="px-4 py-3 border-b border-border-subtle">
         <div className="flex items-center gap-1.5 mb-2">
-          <IconClock size={12} className="text-[#94A3B8]" />
-          <span className="text-[11px] font-semibold text-[#0F172A]">Versions</span>
+          <IconClock size={12} className="text-placeholder" />
+          <span className="text-[11px] font-semibold text-foreground">Versions</span>
         </div>
-        <p className="text-[11px] text-[#94A3B8]">Versions appear here as you work.</p>
+        <p className="text-[11px] text-placeholder">Versions appear here as you work.</p>
       </div>
     )
   }
 
   return (
-    <div className="border-b border-[#E5E7EB]">
+    <div className="border-b border-border-subtle">
       {/* Header */}
       <div className="px-4 pt-3 pb-1 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <IconClock size={12} className="text-[#94A3B8]" />
-          <span className="text-[11px] font-semibold text-[#0F172A]">Versions</span>
-          <span className="text-[10px] text-[#94A3B8] bg-[#F1F5F9] px-1.5 py-0.5 rounded-full tabular-nums">
+          <IconClock size={12} className="text-placeholder" />
+          <span className="text-[11px] font-semibold text-foreground">Versions</span>
+          <span className="text-[10px] text-placeholder bg-surface px-1.5 py-0.5 rounded-full tabular-nums">
             {versions.length}
           </span>
         </div>
@@ -183,10 +183,10 @@ export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimati
                     ? 'border-violet-400 bg-violet-100'
                     : isCurrent
                     ? 'border-emerald-400 bg-emerald-50'
-                    : 'border-[#D1D5DB] bg-white group-hover:border-[#94A3B8] group-hover:bg-[#F8FAFC]'
+                    : 'border-border bg-white group-hover:border-placeholder group-hover:bg-background'
                 }`}>
                   <span className={`text-[8px] font-bold ${
-                    isSelected ? 'text-violet-700' : isCurrent ? 'text-emerald-700' : 'text-[#94A3B8] group-hover:text-[#64748B]'
+                    isSelected ? 'text-violet-700' : isCurrent ? 'text-emerald-700' : 'text-placeholder group-hover:text-subtle'
                   }`}>
                     {displayNum}
                   </span>
@@ -204,14 +204,14 @@ export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimati
 
       {/* Selected version detail panel */}
       {selectedVersion && (
-        <div className="mx-4 mb-3 rounded-lg border border-[#E5E7EB] bg-[#F8FAFC] overflow-hidden">
+        <div className="mx-4 mb-3 rounded-lg border border-border-subtle bg-background overflow-hidden">
           <div className="px-3 py-2.5 flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[11px] font-semibold text-[#0F172A]">
+                <span className="text-[11px] font-semibold text-foreground">
                   Version {selectedDisplayNum}
                 </span>
-                <span className="text-[10px] text-[#94A3B8]">
+                <span className="text-[10px] text-placeholder">
                   {relativeTime(selectedVersion.savedAt)}
                 </span>
                 <span className="text-[10px] text-[#CBD5E1]">
@@ -219,30 +219,30 @@ export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimati
                 </span>
               </div>
               {versionLabel(selectedVersion) && (
-                <p className="text-[11px] text-[#64748B] line-clamp-2 italic">
+                <p className="text-[11px] text-subtle line-clamp-2 italic">
                   {'"'}{versionLabel(selectedVersion)}{'"'}
                 </p>
               )}
             </div>
             <button
               onClick={handleCancelView}
-              className="p-1 text-[#CBD5E1] hover:text-[#64748B] transition-colors rounded"
+              className="p-1 text-[#CBD5E1] hover:text-subtle transition-colors rounded"
               title="Close preview"
             >
               <IconX size={12} />
             </button>
           </div>
-          <div className="px-3 pb-2.5 flex items-center gap-2 border-t border-[#E5E7EB] pt-2">
+          <div className="px-3 pb-2.5 flex items-center gap-2 border-t border-border-subtle pt-2">
             <button
               onClick={() => handleRevert(selectedVersion.id)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-medium bg-[#5B57D1] hover:bg-[#4F4BC4] text-white transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-medium bg-primary hover:bg-primary-hover text-white transition-colors"
             >
               <IconArrowBackUp size={12} />
               Restore this version
             </button>
             <button
               onClick={handleCancelView}
-              className="px-3 py-1.5 rounded-md text-[11px] text-[#64748B] hover:bg-[#E2E8F0] transition-colors"
+              className="px-3 py-1.5 rounded-md text-[11px] text-subtle hover:bg-[#E2E8F0] transition-colors"
             >
               Cancel
             </button>

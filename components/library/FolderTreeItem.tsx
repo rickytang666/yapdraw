@@ -59,10 +59,10 @@ export default function FolderTreeItem({
         onContextMenu={e => onContextMenu(e, folder)}
         className={`group flex items-center gap-2 py-2 text-[13px] cursor-pointer select-none transition-colors ${
           isOver
-            ? 'bg-[#5B57D1]/10 border-l-2 border-[#5B57D1]'
+            ? 'bg-primary/10 border-l-2 border-primary'
             : isActive
-            ? 'bg-[#F1F5F9] text-[#0F172A] font-medium'
-            : 'text-[#64748B] hover:bg-[#FAFAFA] hover:text-[#0F172A]'
+            ? 'bg-surface text-foreground font-medium'
+            : 'text-subtle hover:bg-background hover:text-foreground'
         }`}
         style={{ paddingLeft: `${16 + indentPx}px`, paddingRight: '16px' }}
       >
@@ -71,7 +71,7 @@ export default function FolderTreeItem({
           {hasChildren ? (
             <button
               onClick={handleChevronClick}
-              className="text-[#94A3B8] hover:text-[#64748B] transition-colors"
+              className="text-placeholder hover:text-subtle transition-colors"
             >
               {expanded ? <IconChevronDown size={12} /> : <IconChevronRight size={12} />}
             </button>
@@ -82,12 +82,12 @@ export default function FolderTreeItem({
         {isActive || isOver ? (
           <IconFolderOpen
             size={16}
-            className={`shrink-0 ${folder.color ? COLOR_CLASS[folder.color] : 'text-[#0F172A]'}`}
+            className={`shrink-0 ${folder.color ? COLOR_CLASS[folder.color] : 'text-foreground'}`}
           />
         ) : (
           <IconFolder
             size={16}
-            className={`shrink-0 ${folder.color ? COLOR_CLASS[folder.color] : 'text-[#94A3B8]'}`}
+            className={`shrink-0 ${folder.color ? COLOR_CLASS[folder.color] : 'text-placeholder'}`}
           />
         )}
 
@@ -96,7 +96,7 @@ export default function FolderTreeItem({
 
         {/* Diagram count */}
         {folder.diagramCount > 0 && (
-          <span className="ml-auto text-xs text-[#94A3B8] bg-[#F1F5F9] px-1.5 py-0.5 rounded tabular-nums shrink-0">
+          <span className="ml-auto text-xs text-placeholder bg-surface px-1.5 py-0.5 rounded tabular-nums shrink-0">
             {folder.diagramCount}
           </span>
         )}

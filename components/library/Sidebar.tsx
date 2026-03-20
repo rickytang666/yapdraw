@@ -48,11 +48,11 @@ export default function Sidebar({
   onAddSubfolder,
 }: Props) {
   return (
-    <aside className="w-60 shrink-0 bg-white border-r border-[#E5E7EB] flex flex-col overflow-y-auto">
+    <aside className="w-60 shrink-0 bg-white border-r border-border-subtle flex flex-col overflow-y-auto">
       {/* Logo + Name */}
       <Link
         href="/"
-        className="px-4 py-4 flex items-center gap-2.5 border-b border-[#F1F5F9] hover:bg-[#FAFAFA] transition-colors"
+        className="px-4 py-4 flex items-center gap-2.5 border-b border-surface hover:bg-background transition-colors"
       >
         <Image
           src="/yapdraw_logo.png"
@@ -61,7 +61,7 @@ export default function Sidebar({
           height={24}
           className="rounded"
         />
-        <h1 className="text-sm font-semibold text-[#0F172A] tracking-tight">
+        <h1 className="text-sm font-semibold text-foreground tracking-tight">
           YapDraw
         </h1>
       </Link>
@@ -76,16 +76,16 @@ export default function Sidebar({
               onClick={() => onSection(id)}
               className={`flex items-center gap-3 px-4 py-2 text-[13px] transition-colors text-left w-full ${
                 isActive
-                  ? "bg-[#F1F5F9] text-[#0F172A] font-medium"
-                  : "text-[#64748B] hover:bg-[#FAFAFA] hover:text-[#0F172A]"
+                  ? "bg-surface text-foreground font-medium"
+                  : "text-subtle hover:bg-background hover:text-foreground"
               }`}
             >
-              <span className={isActive ? "text-[#0F172A]" : "text-[#94A3B8]"}>
+              <span className={isActive ? "text-foreground" : "text-placeholder"}>
                 {icon}
               </span>
               <span>{label}</span>
               {id === "trash" && trashedCount > 0 && (
-                <span className="ml-auto text-xs text-[#94A3B8] bg-[#F1F5F9] px-1.5 py-0.5 rounded">
+                <span className="ml-auto text-xs text-placeholder bg-surface px-1.5 py-0.5 rounded">
                   {trashedCount}
                 </span>
               )}
@@ -95,17 +95,17 @@ export default function Sidebar({
       </nav>
 
       {/* Divider */}
-      <div className="h-px bg-[#F1F5F9] mx-3" />
+      <div className="h-px bg-surface mx-3" />
 
       {/* Folders section */}
       <div className="py-2 flex-1">
         <div className="flex items-center justify-between px-4 py-1.5">
-          <span className="text-[11px] font-medium text-[#94A3B8] uppercase tracking-wider">
+          <span className="text-[11px] font-medium text-placeholder uppercase tracking-wider">
             Folders
           </span>
           <button
             onClick={onCreateFolder}
-            className="p-1 rounded text-[#94A3B8] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
+            className="p-1 rounded text-placeholder hover:text-foreground hover:bg-surface transition-colors"
             title="New folder"
           >
             <IconFolderPlus size={14} />
@@ -113,7 +113,7 @@ export default function Sidebar({
         </div>
 
         {folders.length === 0 ? (
-          <p className="px-4 py-1 text-xs text-[#94A3B8]">No folders yet</p>
+          <p className="px-4 py-1 text-xs text-placeholder">No folders yet</p>
         ) : (
           <FolderTree
             folders={folders}

@@ -227,7 +227,7 @@ export default function LibraryView() {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex h-screen w-screen overflow-hidden bg-[#FAFAFA]">
+      <div className="flex h-screen w-screen overflow-hidden bg-background">
         {settingsOpen && (
           <SettingsPanel
             settings={settings}
@@ -287,22 +287,22 @@ export default function LibraryView() {
 
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           {/* Header */}
-          <header className="flex items-center gap-3 h-14 px-6 border-b border-[#F1F5F9] bg-white shrink-0">
-            <h2 className="text-[#0F172A] font-semibold text-base shrink-0">{sectionLabel()}</h2>
+          <header className="flex items-center gap-3 h-14 px-6 border-b border-surface bg-white shrink-0">
+            <h2 className="text-foreground font-semibold text-base shrink-0">{sectionLabel()}</h2>
 
             {/* Search */}
             {!isTrash && (
-              <div className="flex items-center gap-2 ml-4 bg-white border border-[#E5E7EB] rounded-md px-3 py-1.5 flex-1 max-w-xs">
-                <IconSearch size={14} className="text-[#94A3B8] shrink-0" />
+              <div className="flex items-center gap-2 ml-4 bg-white border border-border-subtle rounded-md px-3 py-1.5 flex-1 max-w-xs">
+                <IconSearch size={14} className="text-placeholder shrink-0" />
                 <input
                   ref={searchRef}
-                  className="bg-transparent text-sm text-[#0F172A] placeholder-[#94A3B8] outline-none flex-1"
+                  className="bg-transparent text-sm text-foreground placeholder-placeholder outline-none flex-1"
                   placeholder="Search diagrams…"
                   value={lib.state.searchQuery}
                   onChange={e => lib.setSearch(e.target.value)}
                 />
                 {!lib.state.searchQuery && (
-                  <kbd className="hidden sm:flex items-center gap-0.5 text-[#94A3B8] text-xs font-sans pointer-events-none">
+                  <kbd className="hidden sm:flex items-center gap-0.5 text-placeholder text-xs font-sans pointer-events-none">
                     <span className="text-[11px]">⌘</span>K
                   </kbd>
                 )}
@@ -329,7 +329,7 @@ export default function LibraryView() {
             {/* Import button */}
             {!isTrash && (
               <button
-                className="flex items-center gap-1.5 px-2.5 py-1.5 text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F5F9] border border-[#D1D5DB] hover:border-[#94A3B8] text-sm rounded-md transition-colors"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-muted hover:text-foreground hover:bg-surface border border-border hover:border-placeholder text-sm rounded-md transition-colors"
                 onClick={() => importInputRef.current?.click()}
                 title="Import .excalidraw file"
               >
@@ -341,7 +341,7 @@ export default function LibraryView() {
             {/* Settings button */}
             <button
               onClick={() => setSettingsOpen(true)}
-              className="flex items-center p-1.5 text-[#94A3B8] hover:text-[#475569] hover:bg-[#F1F5F9] rounded-md transition-colors"
+              className="flex items-center p-1.5 text-placeholder hover:text-muted hover:bg-surface rounded-md transition-colors"
               aria-label="Open settings"
             >
               <IconSettings size={16} />
@@ -350,7 +350,7 @@ export default function LibraryView() {
             {/* New Diagram button */}
             {!isTrash && (
               <button
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#5B57D1] hover:bg-[#4F4BC4] text-white text-sm font-medium rounded-md transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-md transition-colors"
                 onClick={() => setShowNewModal(true)}
               >
                 <IconPlus size={16} />
