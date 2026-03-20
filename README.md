@@ -69,12 +69,40 @@ npm run dev
 Required env vars:
 
 ```bash
-DEEPGRAM_API_KEY=...
-DEEPGRAM_PROJECT_ID=...
-GROQ_API_KEY=...   # free tier LLM fallback
+DEEPGRAM_API_KEY=...      # console.deepgram.com — create with Admin role (not default Member)
+DEEPGRAM_PROJECT_ID=...   # console.deepgram.com → your project settings
+GROQ_API_KEY=...          # console.groq.com — free tier available
 ```
 
 You can also bring your own OpenRouter or Gemini key via the in-app settings — no env var needed for that.
+
+## Self-Hosting
+
+Deploy your own instance in a few steps:
+
+1. Fork this repo
+2. Create a [Vercel](https://vercel.com) project and import the fork
+3. Add the required environment variables in Vercel's project settings:
+   ```bash
+   DEEPGRAM_API_KEY=...
+   DEEPGRAM_PROJECT_ID=...
+   GROQ_API_KEY=...
+   ```
+4. Deploy — Vercel will build and serve the app automatically
+
+No database setup needed. All diagram data is stored locally in the user's browser.
+
+## Contributing
+
+PRs are welcome. For anything beyond small fixes, open an issue first so we can align on the approach.
+
+## Acknowledgements
+
+Built on top of [Excalidraw](https://github.com/excalidraw/excalidraw) — the open-source canvas that makes the drawing side possible.
+
+## License
+
+[MIT](LICENSE).
 
 ---
 
