@@ -209,16 +209,16 @@ export default function LandingPage() {
   }, [step]);
 
   const transcriptionText = [
-    "we'll start with a react single page app...",
-    "...talking directly to a fastify api gateway...",
-    "...which authenticates through Clerk identity...",
-    "...before routing to our core golang service...",
-    "...that drops messages into an apache kafka topic...",
-    "...and saves state in a mysql database.",
-    "wait actually, we use supabase, not mysql...",
-    "...and let's hook up a redis cache in front of it.",
-    "...and we need a datadog agent watching the gateway.",
-    "...finally, put a cloudflare proxy protecting the golang backend.",
+    "so we've got a React frontend...",
+    "...it hits a Fastify API gateway...",
+    "...Clerk handles the auth...",
+    "...which calls into our Go core service...",
+    "...that publishes events to a Kafka topic...",
+    "...and writes to MySQL.",
+    "wait — actually we're on Supabase, not MySQL...",
+    "...oh and Redis in front for caching.",
+    "...Datadog watching the gateway too.",
+    "...and Cloudflare sitting in front of the Go backend.",
   ];
 
   return (
