@@ -208,7 +208,7 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="h-screen w-full bg-[#FDFDFC] text-[#111111] font-sans overflow-y-auto overflow-x-hidden flex flex-col justify-between selection:bg-[#EAEAEA]">
+    <div className="h-screen max-h-dvh w-full bg-[#FDFDFC] text-[#111111] font-sans overflow-y-auto overflow-x-hidden flex flex-col justify-start selection:bg-[#EAEAEA]">
       {/* Background Soft Grids */}
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.25] mix-blend-multiply flex-1"
@@ -220,7 +220,7 @@ export default function LandingPage() {
       ></div>
 
       {/* Top Left: Pitch & CTA */}
-      <header className="relative z-10 px-8 lg:px-16 py-10 flex flex-col md:flex-row md:items-start justify-between">
+      <header className="relative z-10 px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 py-10 flex flex-col md:flex-row md:items-start justify-between">
         <div className="flex flex-col gap-6 max-w-xl">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-6 h-6 rounded overflow-hidden shadow-sm flex items-center justify-center border border-[#EAEAEA] bg-white">
@@ -283,23 +283,20 @@ export default function LandingPage() {
       </header>
 
       {/* Center Layout: Transcription vs Canvas */}
-      <main className="relative z-10 flex-1 grid grid-cols-1 xl:grid-cols-2 mt-8 lg:mt-0 px-8 lg:px-16 w-full max-w-[1600px] mx-auto min-h-[550px] gap-12 xl:gap-0 pb-24">
+      <main className="relative z-10 grid grid-cols-1 xl:grid-cols-2 mt-6 lg:mt-0 px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 w-full max-w-[1600px] mx-auto min-w-0 shrink-0 xl:min-h-[550px] gap-2 pb-12 max-xl:pb-20 xl:pb-14">
         {/* Left Side: Voice Stream */}
-        <div className="flex flex-col justify-center h-full gap-4 pr-0 lg:pr-16 relative">
-          <div className="flex items-center justify-between mb-4 z-20 relative border-b border-[#F0F0F0] pb-3">
+        <div className="flex flex-col justify-center max-xl:justify-start h-full gap-3 max-xl:gap-2 min-w-0 relative">
+          <div className="flex items-center justify-between mb-2 max-xl:mb-1.5 z-20 relative border-b border-[#F0F0F0] pb-2">
             <div className="flex items-center gap-1.5 opacity-80">
               <div className="w-1 h-3 bg-primary animate-[pulse_1s_ease-in-out_infinite]"></div>
               <div className="w-1 h-5 bg-primary animate-[pulse_0.8s_ease-in-out_infinite_0.2s]"></div>
               <div className="w-1 h-2 bg-primary animate-[pulse_1.2s_ease-in-out_infinite_0.4s]"></div>
               <div className="w-1 h-4 bg-primary animate-[pulse_0.9s_ease-in-out_infinite_0.1s]"></div>
               <div className="w-1 h-3 bg-primary animate-[pulse_1.1s_ease-in-out_infinite_0.3s]"></div>
-              <span className="text-[10px] font-mono tracking-widest text-[#B4B4B4] uppercase ml-2">
-                Audio Processing...
-              </span>
             </div>
           </div>
 
-          <div className="flex flex-col gap-2.5 justify-start h-[450px] overflow-hidden relative z-0 pb-4">
+          <div className="flex flex-col gap-2.5 justify-start h-[min(370px,55vh)] min-h-[320px] overflow-hidden relative z-0 pb-1 max-xl:pb-0">
             {transcriptionText.map((text, idx) => (
               <div
                 key={idx}
@@ -331,7 +328,7 @@ export default function LandingPage() {
 
         {/* Right Side: Generated DOM Architecture Diagram */}
         <div
-          className="flex items-center justify-center relative bg-[#FAFAFA] border border-[#EAEAEA] rounded-xl w-full h-[450px] self-center overflow-hidden"
+          className="relative bg-[#FAFAFA] border border-[#EAEAEA] rounded-xl w-full min-w-0 h-[min(450px,55vh)] min-h-[320px] xl:self-center overflow-hidden"
           style={{
             backgroundImage: "radial-gradient(#D4D4D4 1px, transparent 1px)",
             backgroundSize: "24px 24px",
