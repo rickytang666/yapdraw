@@ -197,6 +197,7 @@ export default function EditorPage({ params }: Props) {
       });
       const data = await res.json();
       if (data.skipped) return;
+      if (data.usedFallback) showError("api key invalid — used free tier instead");
       if (!res.ok || !data.elements) {
         console.error("generate-diagram failed:", data.error ?? data);
         // only delete orphan if it's not a shared session snapshot
@@ -313,6 +314,15 @@ export default function EditorPage({ params }: Props) {
 
       <StorageBanner />
 
+      {/* Error toast */}
+      {errorMessage && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+          <div className="px-4 py-2 bg-red-500/90 text-white text-sm rounded-lg shadow-lg">
+            {errorMessage}
+          </div>
+        </div>
+      )}
+
       {shortcutsOpen && <ShortcutsModal onClose={() => setShortcutsOpen(false)} />}
 
       {settingsOpen && (
@@ -363,14 +373,6 @@ export default function EditorPage({ params }: Props) {
               <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-zinc-400 animate-pulse pointer-events-none" />
             )}
 
-            {/* Error toast */}
-            {errorMessage && (
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-                <div className="px-4 py-2 bg-red-500/90 text-white text-sm rounded-lg shadow-lg">
-                  {errorMessage}
-                </div>
-              </div>
-            )}
 
             {/* Locked overlay */}
             {diagram?.locked && (

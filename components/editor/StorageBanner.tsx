@@ -12,9 +12,9 @@ export default function StorageBanner() {
 
   useEffect(() => {
     if (localStorage.getItem(STORAGE_KEY) === "1") return;
-    setMounted(true);
-    // double rAF so the enter transition plays after mount
+    // double rAF: first mounts the element, second triggers the transition
     requestAnimationFrame(() => {
+      setMounted(true);
       requestAnimationFrame(() => setVisible(true));
     });
   }, []);

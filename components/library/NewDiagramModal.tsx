@@ -5,9 +5,9 @@ import { IconX } from '@tabler/icons-react'
 import type { DiagramType } from '@/types/library'
 
 const DIAGRAM_TYPES: { value: DiagramType; label: string; description: string }[] = [
-  { value: 'freeform', label: 'Freeform', description: 'Open canvas, no constraints' },
-  { value: 'system-architecture', label: 'System Architecture', description: 'System and component diagrams' },
-  { value: 'operations-flowchart', label: 'Operations Flowchart', description: 'Process flows and decisions' },
+  { value: 'freeform',             label: 'Freeform',              description: 'Any diagram — architecture, org charts, mind maps' },
+  { value: 'system-architecture',  label: 'System Architecture',   description: 'Microservices, APIs, databases, and infrastructure' },
+  { value: 'operations-flowchart', label: 'Operations Flowchart',  description: 'Business processes, approvals, and decision trees' },
 ]
 
 interface Props {
@@ -37,6 +37,7 @@ export default function NewDiagramModal({ onConfirm, onCancel }: Props) {
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
       onClick={handleBackdropClick}
+      onKeyDown={e => { if (e.key === 'Escape') onCancel() }}
     >
       <div className="bg-white border border-border-subtle rounded-xl shadow-2xl w-full max-w-md mx-4">
         {/* Header */}
