@@ -79,6 +79,7 @@ export default function EditorPage({ params }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, diagram?.id]);
 
+
   const isLoading = loadingPhase !== "idle";
   const {
     triggerSave,

@@ -11,6 +11,7 @@ type Variant = 'empty-library' | 'empty-folder' | 'no-results' | 'empty-trash'
 
 interface Props {
   variant: Variant
+  onCreateDiagram?: () => void
 }
 
 const CONFIG: Record<Variant, { icon: React.ReactNode; title: string; subtitle: string }> = {
@@ -36,7 +37,7 @@ const CONFIG: Record<Variant, { icon: React.ReactNode; title: string; subtitle: 
   },
 }
 
-export default function EmptyState({ variant }: Props) {
+export default function EmptyState({ variant, onCreateDiagram }: Props) {
   const { icon, title, subtitle } = CONFIG[variant]
 
   return (
@@ -44,6 +45,14 @@ export default function EmptyState({ variant }: Props) {
       <div className="opacity-60">{icon}</div>
       <p className="text-muted font-medium text-base">{title}</p>
       <p className="text-placeholder text-sm max-w-xs">{subtitle}</p>
+      {variant === 'empty-library' && onCreateDiagram && (
+        <button
+          onClick={onCreateDiagram}
+          className="mt-2 px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-md transition-colors"
+        >
+          New Diagram
+        </button>
+      )}
     </div>
   )
 }

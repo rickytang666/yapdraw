@@ -368,7 +368,7 @@ export default function LibraryView() {
               onEmptyTrash={lib.emptyTrash}
             />
           ) : lib.diagrams.length === 0 ? (
-            <EmptyState variant={getEmptyVariant()} />
+            <EmptyState variant={getEmptyVariant()} onCreateDiagram={() => setShowNewModal(true)} />
           ) : lib.state.viewMode === 'list' ? (
             <div className="flex-1 overflow-hidden flex flex-col">
               <DiagramList

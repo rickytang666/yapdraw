@@ -301,7 +301,7 @@ export default function LandingPage() {
       </header>
 
       {/* Center Layout: Transcription vs Canvas */}
-      <main className="relative z-10 grid grid-cols-1 xl:grid-cols-2 mt-2 lg:mt-0 px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 w-full max-w-[1600px] mx-auto min-w-0 shrink-0 xl:min-h-[550px] gap-8 xl:gap-12 pb-12 max-xl:pb-20 xl:pb-14">
+      <main className="relative z-10 grid grid-cols-1 xl:grid-cols-2 mt-2 lg:mt-0 px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 w-full max-w-[1600px] mx-auto min-w-0 shrink-0 xl:min-h-[550px] gap-4 pb-12 max-xl:pb-20 xl:pb-14">
         {/* Left Side: Voice Stream */}
         <div className="flex flex-col justify-center max-xl:justify-start h-full gap-3 max-xl:gap-2 min-w-0 relative">
           <div className="flex items-center justify-between mb-2 max-xl:mb-1.5 z-20 relative border-b border-[#F0F0F0] pb-2">
