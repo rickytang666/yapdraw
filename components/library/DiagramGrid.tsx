@@ -14,7 +14,7 @@ interface Props {
   onDuplicate: (id: string) => void
   onRename: (id: string, name: string) => void
   onMove: (id: string, folderId: string | null) => void
-  emptyVariant?: 'empty-library' | 'empty-folder' | 'no-results'
+  emptyVariant?: 'empty-library' | 'empty-starred' | 'empty-folder' | 'no-results'
 }
 
 export default function DiagramGrid({
