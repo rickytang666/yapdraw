@@ -6,7 +6,7 @@
 
 # YapDraw
 
-_Why draw it with your mouse when you can just yap it out?_
+_Build diagrams at the speed of speech._
 
 </div>
 
@@ -16,9 +16,7 @@ _Why draw it with your mouse when you can just yap it out?_
 
 YapDraw is [Wispr Flow](https://wisprflow.ai) for [Excalidraw](https://excalidraw.com).
 
-Describe anything out loud — a system architecture, a business process, a research workflow, a project plan — and it draws it as a clean, editable Excalidraw diagram. No code, no syntax, no drag-and-drop.
-
-For engineers, students, educators, researchers, business analysts, or anyone who has ever stared at a blank whiteboard.
+Describe anything out loud — a system architecture, a business process, a research workflow, a project plan — and it draws it as a clean, editable Excalidraw diagram. No code, no syntax, no drag-and-drop. For anyone who has ever stared at a blank whiteboard.
 
 ## [Demo Video](https://youtu.be/JoLELmPKW6w?si=vIdsas2C-dv69O4P)
 
@@ -30,13 +28,11 @@ For engineers, students, educators, researchers, business analysts, or anyone wh
 
 ## Features
 
-- **Just talk** — no special syntax, no templates. Describe it the way you'd explain it to a colleague and it figures out the rest
-- **Handles how people actually speak** — mid-sentence corrections, filler words, backtracking — the final diagram reflects your intent, not your exact words
-- **Truly incremental** — say "add X" or "remove Y" and only that changes. The rest of your diagram stays exactly where it is
-- **Fully editable output** — every diagram lands on an Excalidraw canvas. Drag nodes, adjust layout, add annotations — it's yours to edit
-- **Undo AI changes** — every generation is snapshotted. Use `[` / `]` to step through AI change history without touching anything you edited manually
-- **Three modes** — Freeform (anything), System Architecture (layered service graphs), Process Flowchart (decision trees, approval flows, research pipelines)
-- **Local-first** — auto-saves to your browser, no account needed
+- **Just talk** — mid-sentence corrections, filler words, backtracking — it reflects your intent, not your exact words. No syntax, no templates.
+- **Incremental updates** — say "add X" or "remove Y" and only that changes. The rest of your diagram stays exactly where it is.
+- **Local-first** — auto-saves to your browser. No account, no data leaving your machine.
+- **Undo AI changes** — every generation is snapshotted. Use `[` / `]` to step through AI change history without touching anything you edited manually.
+- **Three modes** — Freeform (anything), System Architecture (layered service graphs), Process Flowchart (decision trees, approval flows, research plans).
 
 ## How to Use
 
