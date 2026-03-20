@@ -28,6 +28,8 @@ const indieFlower = Indie_Flower({
 export default function LandingPage() {
   const [step, setStep] = useState(0);
   const arrowsRef = useRef<SVGSVGElement>(null);
+  const diagramContainerRef = useRef<HTMLDivElement>(null);
+  const [diagramScale, setDiagramScale] = useState(1);
 
   useEffect(() => {
     // Sequence loop (0 to 11 steps, step 10 and 11 are rest)
@@ -35,6 +37,18 @@ export default function LandingPage() {
       setStep((s) => (s + 1) % 12);
     }, 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Mirror the SVG viewBox scaling (xMidYMid meet) for the DOM nodes layer
+  useEffect(() => {
+    const el = diagramContainerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setDiagramScale(Math.min(width / 600, height / 450));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   // Draw rough.js arrows dynamically based on the step
@@ -326,8 +340,9 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Right Side: Generated DOM Architecture Diagram */}
+        {/* Right Side: Generated DOM Architecture Diagram (hidden on small screens) */}
         <div
+          ref={diagramContainerRef}
           className="relative bg-[#FAFAFA] border border-[#EAEAEA] rounded-xl w-full min-w-0 h-[min(450px,55vh)] min-h-[320px] xl:self-center overflow-hidden"
           style={{
             backgroundImage: "radial-gradient(#D4D4D4 1px, transparent 1px)",
@@ -344,14 +359,14 @@ export default function LandingPage() {
 
           {/* DOM Nodes Layer */}
           <div
-            className="absolute inset-0 w-full h-full"
             style={{
               position: "absolute",
               width: "600px",
               height: "450px",
               left: "50%",
               top: "50%",
-              transform: "translate(-50%, -50%)",
+              transform: `translate(-50%, -50%) scale(${diagramScale})`,
+              transformOrigin: "center center",
             }}
           >
             {/* 0: React Frontend */}
