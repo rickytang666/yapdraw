@@ -128,7 +128,7 @@ export default function VoicePanel({
       <div className="flex-1 overflow-y-auto">
         <div className="py-3 space-y-2 px-4">
           {messages.length === 0 && !finalTranscript && (
-            <>
+            <div className="hidden lg:contents">
               <p className="text-placeholder text-xs px-1 pb-1">Try an example:</p>
               {[
                 {
@@ -159,7 +159,7 @@ export default function VoicePanel({
                   {label}
                 </button>
               ))}
-            </>
+            </div>
           )}
           {messages.map((msg, i) => (
             <p

@@ -46,7 +46,7 @@ export default function Sidebar({
   onAddSubfolder,
 }: Props) {
   return (
-    <aside className="w-60 shrink-0 bg-white border-r border-border-subtle flex flex-col overflow-y-auto">
+    <aside className="w-60 shrink-0 bg-white border-r border-border-subtle flex-col overflow-y-auto hidden md:flex">
       {/* Logo + Name */}
       <Link
         href="/"

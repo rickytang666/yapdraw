@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import Link from 'next/link'
 import { IconPlus, IconSearch, IconUpload, IconSettings, IconKey } from '@tabler/icons-react'
 import {
   DndContext,
@@ -285,12 +287,15 @@ export default function LibraryView() {
 
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           {/* Header */}
-          <header className="flex items-center gap-3 h-14 px-6 border-b border-surface bg-white shrink-0">
-            <h2 className="text-foreground font-semibold text-base shrink-0">{sectionLabel()}</h2>
+          <header className="flex items-center gap-2 md:gap-3 h-14 px-4 md:px-6 border-b border-surface bg-white shrink-0">
+            <Link href="/" className="sm:hidden shrink-0">
+              <Image src="/yapdraw_logo.png" alt="YapDraw" width={24} height={24} className="rounded" />
+            </Link>
+            <h2 className="text-foreground font-semibold text-base shrink-0 hidden sm:block">{sectionLabel()}</h2>
 
             {/* Search */}
             {!isTrash && (
-              <div className="flex items-center gap-2 ml-4 bg-white border border-border-subtle rounded-md px-3 py-1.5 flex-1 max-w-xs">
+              <div className="flex items-center gap-2 sm:ml-4 bg-white border border-border-subtle rounded-md px-3 py-1.5 flex-1 max-w-xs">
                 <IconSearch size={14} className="text-placeholder shrink-0" />
                 <input
                   ref={searchRef}
@@ -311,7 +316,7 @@ export default function LibraryView() {
 
             {/* Sort + View toggles */}
             {!isTrash && (
-              <div className="flex items-center gap-2">
+              <div className="hidden md:flex items-center gap-2">
                 <SortDropdown
                   sortField={lib.state.sortField}
                   sortDirection={lib.state.sortDirection}
@@ -327,7 +332,7 @@ export default function LibraryView() {
             {/* Import button */}
             {!isTrash && (
               <button
-                className="flex items-center gap-1.5 px-2.5 py-1.5 text-muted hover:text-foreground hover:bg-surface border border-border hover:border-placeholder text-sm rounded-md transition-colors"
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 text-muted hover:text-foreground hover:bg-surface border border-border hover:border-placeholder text-sm rounded-md transition-colors"
                 onClick={() => importInputRef.current?.click()}
                 title="Import .excalidraw file"
               >
@@ -355,14 +360,50 @@ export default function LibraryView() {
             {/* New Diagram button */}
             {!isTrash && (
               <button
-                className="flex items-center gap-2 px-3 py-1.5 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-md transition-colors"
+                className="flex items-center gap-2 px-2.5 py-1.5 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-md transition-colors"
                 onClick={() => setShowNewModal(true)}
               >
                 <IconPlus size={16} />
-                New Diagram
+                <span className="hidden sm:inline">New Diagram</span>
               </button>
             )}
           </header>
+
+          {/* mobile section pills */}
+          <div className="md:hidden flex overflow-x-auto shrink-0 border-b border-border-subtle bg-white px-3 py-2 gap-1.5">
+            {(
+              [
+                { id: 'all' as const, label: 'All' },
+                { id: 'starred' as const, label: 'Starred' },
+                { id: 'trash' as const, label: `Trash${lib.trashedCount > 0 ? ` (${lib.trashedCount})` : ''}` },
+              ] as { id: 'all' | 'starred' | 'trash'; label: string }[]
+            ).map(({ id, label }) => (
+              <button
+                key={id}
+                onClick={() => lib.setSection(id)}
+                className={`shrink-0 px-3 py-1 rounded-full text-xs transition-colors ${
+                  lib.state.activeSection === id
+                    ? 'bg-primary text-white'
+                    : 'bg-surface text-muted hover:text-foreground'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+            {folderHook.tree.map((folder) => (
+              <button
+                key={folder.id}
+                onClick={() => lib.setSection(`folder:${folder.id}`)}
+                className={`shrink-0 px-3 py-1 rounded-full text-xs transition-colors ${
+                  lib.state.activeSection === `folder:${folder.id}`
+                    ? 'bg-primary text-white'
+                    : 'bg-surface text-muted hover:text-foreground'
+                }`}
+              >
+                {folder.name}
+              </button>
+            ))}
+          </div>
 
           {/* Content */}
           {isTrash ? (

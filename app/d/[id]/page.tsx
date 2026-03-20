@@ -317,6 +317,11 @@ export default function EditorPage({ params }: Props) {
         canvasRef={canvasRef}
       />
 
+      {/* mobile warning */}
+      <div className="lg:hidden flex items-center justify-center py-1.5 px-4 bg-amber-50 border-b border-amber-200 text-amber-700 text-xs shrink-0">
+        For best experience, open on a desktop browser.
+      </div>
+
       {settingsOpen && (
         <SettingsPanel
           settings={settings}
@@ -325,9 +330,9 @@ export default function EditorPage({ params }: Props) {
         />
       )}
 
-      <div className="flex flex-1 min-h-0 overflow-hidden">
+      <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden">
         {/* Voice panel */}
-        <div className="w-[30%] h-full border-r border-border-subtle shrink-0">
+        <div className="h-[42vh] lg:h-full w-full lg:w-[30%] shrink-0 border-b lg:border-b-0 lg:border-r border-border-subtle overflow-hidden">
           <VoicePanel
             diagramId={id}
             diagramType={diagram.diagramType}
@@ -342,7 +347,7 @@ export default function EditorPage({ params }: Props) {
             resumeSave={resumeSave}
           />
         </div>
-        <div className="flex-1 min-w-0 min-h-0 p-3 bg-background">
+        <div className="flex-1 min-h-0 min-w-0 p-2 mx-3 lg:mx-0 lg:p-3 bg-background">
           <div
             className="relative w-full h-full rounded-2xl overflow-hidden bg-white border border-border-subtle"
             style={{ maxWidth: 4096, maxHeight: 4096 }}
@@ -385,6 +390,7 @@ export default function EditorPage({ params }: Props) {
           </div>
         </div>
       </div>
+
     </div>
   );
 }
