@@ -234,9 +234,10 @@ export default function LandingPage() {
       ></div>
 
       {/* Top Left: Pitch & CTA */}
-      <header className="relative z-10 px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 py-10 flex flex-col md:flex-row md:items-start justify-between">
-        <div className="flex flex-col gap-6 max-w-xl">
-          <div className="flex items-center gap-3 mb-2">
+      <header className="relative z-10 px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 py-10 flex flex-col gap-6">
+        {/* navbar row: logo + github */}
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-3">
             <div className="w-6 h-6 rounded overflow-hidden shadow-sm flex items-center justify-center border border-[#EAEAEA] bg-white">
               <Image
                 src="/yapdraw_logo.png"
@@ -250,7 +251,21 @@ export default function LandingPage() {
               YapDraw
             </span>
           </div>
+          <a
+            href="https://github.com/rickytang666/yapdraw"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 rounded-full border border-border/50 hover:border-border transition-all group shadow-sm"
+          >
+            <FaGithub className="w-5 h-5 shrink-0" />
+            <span className="text-[11px] font-semibold tracking-wide hidden sm:block">
+              Star us on GitHub!
+            </span>
+            <IconStar className="w-4 h-4 group-hover:fill-yellow-500/40 group-hover:text-yellow-500 transition-colors hidden sm:block shrink-0" />
+          </a>
+        </div>
 
+        <div className="flex flex-col gap-6 max-w-xl">
           <h1 className="text-[34px] md:text-[42px] font-medium tracking-tight text-[#111111] leading-[1.1]">
             The whiteboard that{" "}
             <span
@@ -280,20 +295,6 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <nav className="flex gap-4 items-center mt-6 md:mt-0">
-          <a
-            href="https://github.com/rickytang666/yapdraw"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 rounded-full border border-border/50 hover:border-border transition-all group shadow-sm"
-          >
-            <FaGithub className="w-5 h-5 shrink-0" />
-            <span className="text-[11px] font-semibold tracking-wide hidden sm:block">
-              Star us on GitHub!
-            </span>
-            <IconStar className="w-4 h-4 group-hover:fill-yellow-500/40 group-hover:text-yellow-500 transition-colors hidden sm:block shrink-0" />
-          </a>
-        </nav>
       </header>
 
       {/* Center Layout: Transcription vs Canvas */}
