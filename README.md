@@ -58,6 +58,10 @@ Works out of the box on the free tier. For higher limits, add your own OpenRoute
 - Speech-to-text: Deepgram
 - Storage: Dexie (IndexedDB, local-first)
 
+## How it works
+
+![](public/arch.png)
+
 ## Local Development
 
 ```bash
