@@ -38,7 +38,6 @@ export default function DiagramList({
         <span className="flex-1">Name</span>
         <span className="shrink-0 w-20">Type</span>
         <span className="shrink-0 w-28 text-right hidden md:block">Folder</span>
-        <span className="shrink-0 w-24 hidden lg:block">Tags</span>
         <span className="shrink-0 w-28 text-right hidden sm:block">Updated</span>
         <div className="shrink-0 w-20" />
       </div>

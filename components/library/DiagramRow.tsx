@@ -42,7 +42,6 @@ export default function DiagramRow({
   const hasMounted = useSyncExternalStore(() => () => {}, () => true, () => false)
 
   const folder = folders.find(f => f.id === diagram.folderId)
-  const visibleTags = diagram.tags.slice(0, 2)
   const typeColor = TYPE_COLORS[diagram.diagramType] || 'bg-surface text-subtle'
 
   return (
@@ -98,23 +97,6 @@ export default function DiagramRow({
       <span className="shrink-0 w-28 text-xs text-placeholder truncate text-right hidden md:block">
         {folder ? folder.name : '—'}
       </span>
-
-      {/* Tags */}
-      <div className="shrink-0 flex gap-1 hidden lg:flex">
-        {visibleTags.map(tag => (
-          <span
-            key={tag}
-            className="px-1.5 py-0.5 rounded bg-surface text-subtle text-xs"
-          >
-            {tag}
-          </span>
-        ))}
-        {diagram.tags.length > 2 && (
-          <span className="px-1.5 py-0.5 rounded bg-surface text-placeholder text-xs">
-            +{diagram.tags.length - 2}
-          </span>
-        )}
-      </div>
 
       {/* Date */}
       <span className="shrink-0 text-xs text-placeholder w-28 text-right hidden sm:block">

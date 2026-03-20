@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { IconX } from '@tabler/icons-react'
 import type { UserProvider, UserSettings } from '@/hooks/useUserSettings'
 
@@ -18,6 +18,9 @@ const PROVIDERS: { id: UserProvider; label: string; placeholder: string }[] = [
 export default function SettingsPanel({ settings, onSave, onClose }: Props) {
   const [provider, setProvider] = useState<UserProvider>(settings.provider)
   const [apiKey, setApiKey]     = useState(settings.apiKey)
+  const overlayRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => { overlayRef.current?.focus() }, [])
 
   function handleSave() {
     onSave({ provider, apiKey: apiKey.trim() })
@@ -27,7 +30,12 @@ export default function SettingsPanel({ settings, onSave, onClose }: Props) {
   const placeholder = PROVIDERS.find(p => p.id === provider)!.placeholder
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+    <div
+      ref={overlayRef}
+      tabIndex={-1}
+      onKeyDown={e => { if (e.key === 'Escape') { e.stopPropagation(); onClose() } }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 outline-none"
+    >
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
         {/* header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle">

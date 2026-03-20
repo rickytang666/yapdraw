@@ -28,7 +28,12 @@ function load(): UserSettings {
 }
 
 export function useUserSettings() {
-  const [settings, setSettings] = useState<UserSettings>(load)
+  const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS)
+
+  // hydrate from localStorage after mount to avoid SSR mismatch
+  useEffect(() => {
+    setSettings(load())
+  }, [])
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
