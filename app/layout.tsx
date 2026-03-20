@@ -24,9 +24,35 @@ const architectsDaughter = Architects_Daughter({
 
 export const metadata: Metadata = {
   title: "YapDraw",
-  description: "Draw diagrams in real-time as you work",
+  description:
+    "Speak your idea — watch it become a diagram. YapDraw turns voice into Excalidraw diagrams in real time.",
   icons: {
     icon: "/yapdraw_logo.png",
+  },
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL ?? "https://yapdraw.vercel.app"
+  ),
+  openGraph: {
+    title: "YapDraw",
+    description:
+      "Speak your idea — watch it become a diagram. YapDraw turns voice into Excalidraw diagrams in real time.",
+    siteName: "YapDraw",
+    images: [
+      {
+        url: "/yapdraw_og.png",
+        width: 1200,
+        height: 630,
+        alt: "YapDraw — voice-to-diagram",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "YapDraw",
+    description:
+      "Speak your idea — watch it become a diagram. YapDraw turns voice into Excalidraw diagrams in real time.",
+    images: ["/yapdraw_og.png"],
   },
 };
 
