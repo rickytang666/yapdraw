@@ -234,7 +234,7 @@ export default function LandingPage() {
       ></div>
 
       {/* Top Left: Pitch & CTA */}
-      <header className="relative z-10 px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 py-6 flex flex-col gap-6">
+      <header className="relative z-10 px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 flex flex-col gap-6">
         {/* navbar row: logo + github */}
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
@@ -301,10 +301,10 @@ export default function LandingPage() {
       </header>
 
       {/* Center Layout: Transcription vs Canvas */}
-      <main className="relative z-10 grid grid-cols-1 xl:grid-cols-2 mt-2 lg:mt-0 px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 w-full max-w-[1600px] mx-auto min-w-0 shrink-0 xl:min-h-[550px] gap-4 pb-12 max-xl:pb-20 xl:pb-14">
+      <main className="relative z-10 grid grid-cols-1 lg:grid-cols-[2fr_3fr] mt-2 lg:mt-0 px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 w-full max-w-[1600px] mx-auto min-w-0 shrink-0 lg:min-h-[550px] gap-3 pb-12 max-lg:pb-20 lg:pb-14">
         {/* Left Side: Voice Stream */}
-        <div className="flex flex-col justify-center max-xl:justify-start h-full gap-3 max-xl:gap-2 min-w-0 relative">
-          <div className="flex items-center justify-between mb-2 max-xl:mb-1.5 z-20 relative border-b border-[#F0F0F0] pb-2">
+        <div className="flex flex-col justify-center max-lg:justify-start h-full gap-3 max-lg:gap-2 min-w-0 relative">
+          <div className="flex items-center justify-between mb-2 max-lg:mb-1.5 z-20 relative border-b border-[#F0F0F0] pb-2">
             <div className="flex items-center gap-2 opacity-80">
               <div className="flex items-center gap-1.5">
                 <div className="w-1 h-3 bg-primary animate-[pulse_1s_ease-in-out_infinite]"></div>
@@ -319,7 +319,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5 sm:gap-2.5 justify-start h-[min(370px,55vh)] min-h-[320px] overflow-hidden relative z-0 pb-1 max-xl:pb-0">
+          <div className="flex flex-col gap-1.5 sm:gap-2.5 justify-start h-[min(370px,55vh)] min-h-[320px] overflow-hidden relative z-0 pb-1 max-lg:pb-0">
             {transcriptionText.map((text, idx) => (
               <div
                 key={idx}
@@ -352,7 +352,7 @@ export default function LandingPage() {
         {/* Right Side: Generated DOM Architecture Diagram (hidden on small screens) */}
         <div
           ref={diagramContainerRef}
-          className="relative bg-[#FAFAFA] border border-[#EAEAEA] rounded-xl w-full min-w-0 h-[min(450px,55vh)] min-h-[320px] xl:self-center overflow-hidden"
+          className="relative bg-[#FAFAFA] border border-[#EAEAEA] rounded-xl w-full min-w-0 h-[min(450px,55vh)] min-h-[320px] lg:self-center overflow-hidden"
           style={{
             backgroundImage: "radial-gradient(#D4D4D4 1px, transparent 1px)",
             backgroundSize: "24px 24px",
