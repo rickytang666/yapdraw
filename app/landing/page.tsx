@@ -319,7 +319,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2.5 justify-start h-[min(370px,55vh)] min-h-[320px] overflow-hidden relative z-0 pb-1 max-xl:pb-0">
+          <div className="flex flex-col gap-1.5 sm:gap-2.5 justify-start h-[min(370px,55vh)] min-h-[320px] overflow-hidden relative z-0 pb-1 max-xl:pb-0">
             {transcriptionText.map((text, idx) => (
               <div
                 key={idx}
@@ -330,7 +330,7 @@ export default function LandingPage() {
                    `}
               >
                 <p
-                  className={`font-mono text-[13px] leading-relaxed ${idx === step ? "text-primary font-medium" : "text-[#888888]"}`}
+                  className={`font-mono text-[11px] sm:text-[13px] leading-relaxed ${idx === step ? "text-primary font-medium" : "text-[#888888]"}`}
                 >
                   {idx === 5 && step >= 6 ? (
                     <span className="line-through">{text}</span>
