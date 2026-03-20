@@ -1,208 +1,568 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState, useRef } from "react";
+import rough from "roughjs";
+import { Indie_Flower } from "next/font/google";
+import {
+  siReact,
+  siCloudflare,
+  siFastify,
+  siGo,
+  siApachekafka,
+  siMysql,
+  siSupabase,
+  siRedis,
+  siDatadog,
+  siClerk,
+  siGithub,
+} from "simple-icons";
+import { IconStar, IconArrowRight, IconFolders } from "@tabler/icons-react";
+import { FaGithub } from "react-icons/fa";
 
-export const metadata = {
-  title: "YapDraw",
-  description:
-    "Create architecture diagrams by describing them out loud. Built for developers and teams.",
-};
+const indieFlower = Indie_Flower({
+  subsets: ["latin"],
+  weight: "400",
+});
 
 export default function LandingPage() {
+  const [step, setStep] = useState(0);
+  const arrowsRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    // Sequence loop (0 to 11 steps, step 10 and 11 are rest)
+    const interval = setInterval(() => {
+      setStep((s) => (s + 1) % 12);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Draw rough.js arrows dynamically based on the step
+  useEffect(() => {
+    if (!arrowsRef.current) return;
+    const svgNode = arrowsRef.current;
+
+    // Clear previous drawings
+    while (svgNode.firstChild) {
+      svgNode.removeChild(svgNode.firstChild);
+    }
+
+    const rc = rough.svg(svgNode);
+
+    const drawRoughArrow = (
+      points: [number, number][],
+      tip: [number, number],
+      wing1: [number, number],
+      wing2: [number, number],
+      customSeed: number,
+    ) => {
+      const curve = rc.curve(points, {
+        roughness: 1.2,
+        strokeWidth: 1.8,
+        stroke: "#111111",
+        bowing: 1,
+        seed: customSeed,
+      });
+      svgNode.appendChild(curve);
+      const w1 = rc.line(tip[0], tip[1], wing1[0], wing1[1], {
+        roughness: 1,
+        strokeWidth: 1.8,
+        stroke: "#111111",
+        seed: customSeed + 1,
+      });
+      const w2 = rc.line(tip[0], tip[1], wing2[0], wing2[1], {
+        roughness: 1,
+        strokeWidth: 1.8,
+        stroke: "#111111",
+        seed: customSeed + 2,
+      });
+      svgNode.appendChild(w1);
+      svgNode.appendChild(w2);
+    };
+
+    if (step >= 1) {
+      // React (40) -> Fastify (180)
+      drawRoughArrow(
+        [
+          [140, 215],
+          [160, 215],
+          [175, 215],
+        ],
+        [175, 215],
+        [167, 207],
+        [167, 223],
+        10,
+      );
+    }
+    if (step >= 2) {
+      // Fastify (180, 250) down to Clerk (180, 320)
+      drawRoughArrow(
+        [
+          [230, 255],
+          [230, 280],
+          [230, 315],
+        ],
+        [230, 315],
+        [222, 307],
+        [238, 307],
+        20,
+      );
+    }
+    if (step >= 3) {
+      // Fastify (180) -> Go (320)
+      drawRoughArrow(
+        [
+          [280, 215],
+          [300, 215],
+          [315, 215],
+        ],
+        [315, 215],
+        [307, 207],
+        [307, 223],
+        30,
+      );
+    }
+    if (step >= 4) {
+      // Go (320) -> Kafka (460)
+      drawRoughArrow(
+        [
+          [420, 215],
+          [440, 215],
+          [455, 215],
+        ],
+        [455, 215],
+        [447, 207],
+        [447, 223],
+        40,
+      );
+    }
+    if (step >= 5) {
+      // Go (x:370, y:250) -> MySQL (x:455, y:335)
+      drawRoughArrow(
+        [
+          [380, 250],
+          [420, 290],
+          [455, 335],
+        ],
+        [455, 335],
+        [452, 323],
+        [442, 332],
+        50,
+      );
+    }
+    if (step >= 7) {
+      // Go (x:370, y:180) up to Redis (370, 115)
+      drawRoughArrow(
+        [
+          [370, 175],
+          [370, 140],
+          [370, 115],
+        ],
+        [370, 115],
+        [362, 123],
+        [378, 123],
+        60,
+      );
+    }
+    if (step >= 8) {
+      // Datadog (230, 40) down to Fastify (230, 175)
+      drawRoughArrow(
+        [
+          [230, 115],
+          [230, 140],
+          [230, 175],
+        ],
+        [230, 175],
+        [222, 167],
+        [238, 167],
+        70,
+      );
+    }
+    if (step >= 9) {
+      // Cloudflare (370, 320) straight UP to Go (370, 250)
+      drawRoughArrow(
+        [
+          [370, 315],
+          [370, 285],
+          [370, 255],
+        ],
+        [370, 255],
+        [362, 263],
+        [378, 263],
+        80,
+      );
+    }
+  }, [step]);
+
+  const transcriptionText = [
+    "we'll start with a react single page app...",
+    "...talking directly to a fastify api gateway...",
+    "...which authenticates through Clerk identity...",
+    "...before routing to our core golang service...",
+    "...that drops messages into an apache kafka topic...",
+    "...and saves state in a mysql database.",
+    "wait actually, we use supabase, not mysql...",
+    "...and let's hook up a redis cache in front of it.",
+    "...and we need a datadog agent watching the gateway.",
+    "...finally, put a cloudflare proxy protecting the golang backend.",
+  ];
+
   return (
-    <div
-      className="min-h-screen text-slate-900 antialiased bg-[#fbfcfd] overflow-auto"
-      style={{
-        backgroundImage: "radial-gradient(#e5e7eb 1px, transparent 1px)",
-        backgroundSize: "24px 24px",
-      }}
-    >
-      {/* Navigation */}
-      <nav className="flex items-center px-8 py-6 max-w-7xl mx-auto">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/yapdraw_logo.png"
-            alt="YapDraw logo"
-            width={32}
-            height={32}
-            className="rounded"
-          />
-          <span className="font-bold text-xl tracking-tight uppercase">
-            YapDraw
-          </span>
-        </div>
-      </nav>
+    <div className="h-screen w-full bg-[#FDFDFC] text-[#111111] font-sans overflow-y-auto overflow-x-hidden flex flex-col justify-between selection:bg-[#EAEAEA]">
+      {/* Background Soft Grids */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.25] mix-blend-multiply flex-1"
+        style={{
+          backgroundSize: "32px 32px",
+          backgroundImage:
+            "linear-gradient(to right, #EEEEEE 1px, transparent 1px), linear-gradient(to bottom, #EEEEEE 1px, transparent 1px)",
+        }}
+      ></div>
 
-      {/* Hero Section: The "Kinetic Canvas" */}
-      <header className="max-w-5xl mx-auto pt-20 pb-32 px-6 text-center">
-        <div className="inline-block px-3 py-1 mb-6 text-xs font-mono tracking-widest uppercase border border-slate-200 rounded-full bg-white/50 backdrop-blur-sm">
-          Powered by Deepgram &amp; Excalidraw
-        </div>
-        <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-slate-900 mb-8 leading-[1.1]">
-          Describe your system. <br />
-          <span className="text-[#6965db] italic underline decoration-wavy decoration-2 underline-offset-8 mt-4 inline-block font-serif">
-            Watch it appear.
-          </span>
-        </h1>
-        <p className="text-xl text-slate-500 max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-          Skip the drag-and-drop. Describe architecture, flows, and sketches
-          naturally. We&apos;ll draw the nodes, you lead the session.
-        </p>
+      {/* Top Left: Pitch & CTA */}
+      <header className="relative z-10 px-8 lg:px-16 py-10 flex flex-col md:flex-row md:items-start justify-between">
+        <div className="flex flex-col gap-6 max-w-xl">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-6 h-6 rounded overflow-hidden shadow-sm flex items-center justify-center border border-[#EAEAEA] bg-white">
+              <Image
+                src="/yapdraw_logo.png"
+                alt="YapDraw Logo"
+                width={20}
+                height={20}
+                className="object-cover opacity-90"
+              />
+            </div>
+            <span className="text-[13px] font-semibold tracking-wide">
+              YapDraw
+            </span>
+          </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
-            href="/d/new"
-            className="bg-[#6965db] text-white px-10 py-4 text-lg font-bold flex items-center gap-3 border-2 border-[#1e1e1e] shadow-[3px_3px_0px_#1e1e1e] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_#1e1e1e] transition-all"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
+          <h1 className="text-[34px] md:text-[42px] font-medium tracking-tight text-[#111111] leading-[1.1]">
+            The whiteboard that{" "}
+            <span
+              className={`relative whitespace-nowrap inline-block z-10 text-primary`}
             >
-              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-              <line x1="12" y1="19" x2="12" y2="23" />
-              <line x1="8" y1="23" x2="16" y2="23" />
-            </svg>
-            Start Drawing
-          </Link>
-          <Link
-            href="/library"
-            className="bg-white text-[#1e1e1e] px-10 py-4 text-lg font-bold border-2 border-[#1e1e1e] shadow-[3px_3px_0px_#1e1e1e] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_#1e1e1e] transition-all"
-          >
-            Library
-          </Link>
+              listens.
+              <span className="absolute inset-0 bg-primary/10 -z-10 rounded-sm scale-105"></span>
+            </span>
+          </h1>
+
+          <div className="flex items-center gap-3 mt-4">
+            <Link
+              href="/d/new"
+              className="group flex items-center justify-center gap-2 bg-white border border-border px-5 py-3 rounded-xl text-[13px] font-semibold transition-all hover:text-primary hover:border-primary/30 shadow-sm active:scale-[0.98]"
+            >
+              Start drawing
+              <IconArrowRight className="w-5 h-5 group-hover:fill-primary/20 group-hover:text-primary transition-all" />
+            </Link>
+
+            <Link
+              href="/library"
+              className="group flex items-center justify-center gap-2 bg-white border border-border px-5 py-3 rounded-xl text-[13px] font-semibold transition-all hover:text-primary hover:border-primary/30"
+            >
+              Go to Library
+              <IconFolders className="w-5 h-5 group-hover:fill-primary/20 group-hover:text-primary transition-all" />
+            </Link>
+          </div>
         </div>
+
+        <nav className="flex gap-4 items-center mt-6 md:mt-0">
+          <a
+            href="https://github.com/rickytang666/yapdraw"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 rounded-full border border-border/50 hover:border-border transition-all group shadow-sm"
+          >
+            <FaGithub className="w-5 h-5 shrink-0" />
+            <span className="text-[11px] font-semibold tracking-wide hidden sm:block">
+              Star us on GitHub!
+            </span>
+            <IconStar className="w-4 h-4 group-hover:fill-yellow-500/40 group-hover:text-yellow-500 transition-colors hidden sm:block shrink-0" />
+          </a>
+        </nav>
       </header>
 
-      {/* How it works: The "Draftsman" Grid */}
-      <section className="bg-white border-y border-slate-200 py-32">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="mb-20">
-            <h2 className="text-xs font-mono font-bold uppercase tracking-widest text-slate-400 mb-4">
-              Process / Workflow
-            </h2>
-            <p className="text-4xl font-bold tracking-tight">
-              Built for technical architects.
-            </p>
+      {/* Center Layout: Transcription vs Canvas */}
+      <main className="relative z-10 flex-1 grid grid-cols-1 xl:grid-cols-2 mt-8 lg:mt-0 px-8 lg:px-16 w-full max-w-[1600px] mx-auto min-h-[550px] gap-12 xl:gap-0 pb-24">
+        {/* Left Side: Voice Stream */}
+        <div className="flex flex-col justify-center h-full gap-4 pr-0 lg:pr-16 relative">
+          <div className="flex items-center justify-between mb-4 z-20 relative border-b border-[#F0F0F0] pb-3">
+            <div className="flex items-center gap-1.5 opacity-80">
+              <div className="w-1 h-3 bg-primary animate-[pulse_1s_ease-in-out_infinite]"></div>
+              <div className="w-1 h-5 bg-primary animate-[pulse_0.8s_ease-in-out_infinite_0.2s]"></div>
+              <div className="w-1 h-2 bg-primary animate-[pulse_1.2s_ease-in-out_infinite_0.4s]"></div>
+              <div className="w-1 h-4 bg-primary animate-[pulse_0.9s_ease-in-out_infinite_0.1s]"></div>
+              <div className="w-1 h-3 bg-primary animate-[pulse_1.1s_ease-in-out_infinite_0.3s]"></div>
+              <span className="text-[10px] font-mono tracking-widest text-[#B4B4B4] uppercase ml-2">
+                Audio Processing...
+              </span>
+            </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
-            {/* The "Excalidraw-style" Hero Visual */}
-            <div className="relative border-2 border-[#1e1e1e] shadow-[4px_4px_0px_#1e1e1e] rounded-sm bg-white p-2 overflow-hidden sticky top-8">
-              <div className="absolute top-4 right-4 flex gap-2 z-10">
-                <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                <div className="w-3 h-3 rounded-full bg-green-400"></div>
-              </div>
-              {/* Placeholder for diagram image - can be replaced */}
-              <div className="w-full h-64 bg-gradient-to-br from-slate-50 to-slate-100 border-b border-slate-100 mb-4 flex items-center justify-center">
-                <span className="text-slate-300 text-sm font-mono">
-                  [ Diagram Preview ]
-                </span>
-              </div>
-              <div className="p-8 text-left">
-                <p className="text-[#6965db] text-2xl mb-2 font-[family-name:var(--font-hand)]">
-                  &quot;Create a 3-tier AWS architecture...&quot;
+          <div className="flex flex-col gap-2.5 justify-start h-[450px] overflow-hidden relative z-0 pb-4">
+            {transcriptionText.map((text, idx) => (
+              <div
+                key={idx}
+                className={`
+                     transition-all duration-500 ease-out flex-shrink-0 w-full
+                     ${idx <= step ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 hidden"}
+                     ${idx === step ? "opacity-100" : "opacity-40"}
+                   `}
+              >
+                <p
+                  className={`font-mono text-[13px] leading-relaxed ${idx === step ? "text-primary font-medium" : "text-[#888888]"}`}
+                >
+                  {idx === 5 && step >= 6 ? (
+                    <span className="line-through">{text}</span>
+                  ) : (
+                    text
+                  )}
                 </p>
-                <div className="h-1 w-24 bg-[#6965db] rounded"></div>
               </div>
-            </div>
-
-            {/* Steps */}
-            <div className="grid gap-8">
-              {/* Step 1 */}
-              <div className="bg-white border border-slate-200 p-10 rounded-xl relative group hover:border-[#6965db] hover:translate-y-[-4px] transition-all duration-300">
-                <span className="absolute top-6 right-8 text-6xl font-black text-slate-100 group-hover:text-slate-200 transition-colors">
-                  01
-                </span>
-                <h3 className="text-xl font-bold mb-4">Speak Naturally</h3>
-                <p className="text-slate-500 leading-relaxed mb-6">
-                  Explain your microservices, databases, and message queues just
-                  like you&apos;re talking to a senior engineer.
-                </p>
-                <div className="text-slate-400 italic font-[family-name:var(--font-hand)]">
-                  &quot;First, we have a React frontend hitting a
-                  Gateway...&quot;
-                </div>
+            ))}
+            {/* Minimal terminal cursor */}
+            {step < 10 && (
+              <div className="flex items-center h-5 opacity-60 flex-shrink-0 mt-1">
+                <div className="w-1.5 h-3.5 bg-primary animate-[pulse_0.8s_ease-in-out_infinite]"></div>
               </div>
-
-              {/* Step 2 */}
-              <div className="bg-white border border-[#6965db]/20 p-10 rounded-xl relative group hover:border-[#6965db] hover:translate-y-[-4px] transition-all duration-300">
-                <span className="absolute top-6 right-8 text-6xl font-black text-slate-100 group-hover:text-slate-200 transition-colors">
-                  02
-                </span>
-                <h3 className="text-xl font-bold mb-4">Real-time Rendering</h3>
-                <p className="text-slate-500 leading-relaxed mb-6">
-                  Our engine translates intent into Excalidraw primitives. Nodes
-                  connect and labels appear as you speak.
-                </p>
-                <div className="flex gap-2">
-                  <div className="w-12 h-8 border-2 border-dashed border-slate-300 rounded"></div>
-                  <div className="w-12 h-8 border-2 border-slate-800 rounded"></div>
-                </div>
-              </div>
-
-              {/* Step 3 */}
-              <div className="bg-white border border-slate-200 p-10 rounded-xl relative group hover:border-[#6965db] hover:translate-y-[-4px] transition-all duration-300">
-                <span className="absolute top-6 right-8 text-6xl font-black text-slate-100 group-hover:text-slate-200 transition-colors">
-                  03
-                </span>
-                <h3 className="text-xl font-bold mb-4">Full Ownership</h3>
-                <p className="text-slate-500 leading-relaxed mb-6">
-                  Export directly to high-res PNG, SVG, or take the JSON into
-                  Excalidraw for final manual polishes.
-                </p>
-                <div className="inline-flex items-center gap-2 text-sm font-bold text-[#6965db]">
-                  <span>EXPORT TO SVG</span>
-                  <svg
-                    width="14"
-                    height="14"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M7 7l5 5 5-5M7 13l5 5 5-5" />
-                  </svg>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
-      </section>
 
-      {/* Footer / CTA */}
-      <footer className="py-24 px-8 text-center bg-[#0a0a0b] text-white">
-        <h2 className="text-4xl font-bold mb-8">Ready to whiteboard?</h2>
-        <div className="flex flex-col items-center gap-6">
-          <Link
-            href="/d/new"
-            className="bg-white text-black px-12 py-4 font-bold rounded-lg hover:scale-105 transition-transform"
+        {/* Right Side: Generated DOM Architecture Diagram */}
+        <div
+          className="flex items-center justify-center relative bg-[#FAFAFA] border border-[#EAEAEA] rounded-xl w-full h-[450px] self-center overflow-hidden"
+          style={{
+            backgroundImage: "radial-gradient(#D4D4D4 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        >
+          {/* Rough.js overlay layer for hand-drawn arrows */}
+          <svg
+            ref={arrowsRef}
+            className="absolute inset-0 w-full h-full pointer-events-none z-10"
+            viewBox="0 0 600 450"
+            preserveAspectRatio="xMidYMid meet"
+          ></svg>
+
+          {/* DOM Nodes Layer */}
+          <div
+            className="absolute inset-0 w-full h-full"
+            style={{
+              position: "absolute",
+              width: "600px",
+              height: "450px",
+              left: "50%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
           >
-            Open Canvas Now
-          </Link>
-          <p className="text-slate-500 text-sm font-mono uppercase tracking-widest">
-            No credit card. No friction. Just draw.
-          </p>
-        </div>
-        <div className="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-500 text-sm max-w-7xl mx-auto">
-          <p>© 2024 YapDraw Inc.</p>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-white transition-colors">
-              Twitter
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
-              GitHub
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
-              Changelog
-            </a>
+            {/* 0: React Frontend */}
+            <div
+              className={`absolute top-[180px] left-[40px] w-[100px] h-[70px] bg-white border border-[#E0E0E0] shadow-sm rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all duration-700 ease-out transform ${step >= 0 ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="w-4 h-4"
+                style={{ color: `#${siReact.hex}` }}
+                fill="currentColor"
+              >
+                <path d={siReact.path} />
+              </svg>
+              <span
+                className={`text-[13px] text-[#333333] ${indieFlower.className}`}
+                style={{ fontWeight: 600 }}
+              >
+                Frontend
+              </span>
+            </div>
+
+            {/* 1: Fastify API Gateway */}
+            <div
+              className={`absolute top-[180px] left-[180px] w-[100px] h-[70px] bg-white border border-[#E0E0E0] shadow-sm rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all duration-700 ease-out transform ${step >= 1 ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"}`}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="w-4 h-4"
+                style={{ color: `#${siFastify.hex}` }}
+                fill="currentColor"
+              >
+                <path d={siFastify.path} />
+              </svg>
+              <span
+                className={`text-[13px] text-[#333333] ${indieFlower.className}`}
+                style={{ fontWeight: 600 }}
+              >
+                API Gateway
+              </span>
+            </div>
+
+            {/* 2: Clerk Auth */}
+            <div
+              className={`absolute top-[320px] left-[180px] w-[100px] h-[70px] bg-white border border-[#E0E0E0] shadow-sm rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all duration-700 ease-out transform ${step >= 2 ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"}`}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="w-4 h-4"
+                style={{ color: `#${siClerk.hex}` }}
+                fill="currentColor"
+              >
+                <path d={siClerk.path} />
+              </svg>
+              <span
+                className={`text-[13px] text-[#333333] ${indieFlower.className}`}
+                style={{ fontWeight: 600 }}
+              >
+                Clerk
+              </span>
+            </div>
+
+            {/* 3: Go Core Service */}
+            <div
+              className={`absolute top-[180px] left-[320px] w-[100px] h-[70px] bg-white border border-[#E0E0E0] shadow-sm rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all duration-700 ease-out transform ${step >= 3 ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"}`}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="w-5 h-4"
+                style={{ color: `#${siGo.hex}` }}
+                fill="currentColor"
+              >
+                <path d={siGo.path} />
+              </svg>
+              <span
+                className={`text-[13px] text-[#333333] ${indieFlower.className}`}
+                style={{ fontWeight: 600 }}
+              >
+                Core Service
+              </span>
+            </div>
+
+            {/* 4: Apache Kafka */}
+            <div
+              className={`absolute top-[180px] left-[460px] w-[100px] h-[70px] bg-white border border-[#E0E0E0] shadow-sm rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all duration-700 ease-out transform ${step >= 4 ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"}`}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="w-4 h-4"
+                style={{ color: `#${siApachekafka.hex}` }}
+                fill="currentColor"
+              >
+                <path d={siApachekafka.path} />
+              </svg>
+              <span
+                className={`text-[13px] text-[#333333] ${indieFlower.className}`}
+                style={{ fontWeight: 600 }}
+              >
+                Kafka Topic
+              </span>
+            </div>
+
+            {/* 5 & 6: MySQL -> Supabase (Correction logic) */}
+            <div
+              className={`absolute top-[320px] left-[460px] w-[100px] h-[70px] bg-white border shadow-sm rounded-full flex flex-col items-center justify-center gap-1.5 transition-all duration-700 ease-in-out transform
+               ${step >= 5 ? "opacity-100 scale-100" : "opacity-0 scale-95"}
+               ${step >= 6 ? "border-[#3FCF8E] shadow-[0_0_12px_rgba(63,207,142,0.2)]" : "border-[#E0E0E0]"}
+             `}
+            >
+              {step < 6 ? (
+                <>
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-4 h-4"
+                    style={{ color: `#${siMysql.hex}` }}
+                    fill="currentColor"
+                  >
+                    <path d={siMysql.path} />
+                  </svg>
+                  <span
+                    className={`text-[13px] text-[#333333] ${indieFlower.className}`}
+                    style={{ fontWeight: 600 }}
+                  >
+                    MySQL
+                  </span>
+                </>
+              ) : (
+                <>
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-4 h-4"
+                    style={{ color: `#${siSupabase.hex}` }}
+                    fill="currentColor"
+                  >
+                    <path d={siSupabase.path} />
+                  </svg>
+                  <span
+                    className={`text-[13px] text-[#333333] ${indieFlower.className}`}
+                    style={{ fontWeight: 600 }}
+                  >
+                    Supabase
+                  </span>
+                </>
+              )}
+            </div>
+
+            {/* 7: Redis Cache */}
+            <div
+              className={`absolute top-[40px] left-[320px] w-[100px] h-[70px] bg-white border border-[#E0E0E0] shadow-sm rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all duration-700 ease-out transform ${step >= 7 ? "opacity-100 translate-y-0" : "opacity-y-4"} ${step < 7 ? "opacity-0 translate-y-4" : ""}`}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="w-4 h-4"
+                style={{ color: `#${siRedis.hex}` }}
+                fill="currentColor"
+              >
+                <path d={siRedis.path} />
+              </svg>
+              <span
+                className={`text-[13px] text-[#333333] ${indieFlower.className}`}
+                style={{ fontWeight: 600 }}
+              >
+                Redis Cache
+              </span>
+            </div>
+
+            {/* 8: Datadog */}
+            <div
+              className={`absolute top-[40px] left-[180px] w-[100px] h-[70px] bg-white border border-[#E0E0E0] shadow-sm rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all duration-700 ease-out transform ${step >= 8 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="w-4 h-4"
+                style={{ color: `#${siDatadog.hex}` }}
+                fill="currentColor"
+              >
+                <path d={siDatadog.path} />
+              </svg>
+              <span
+                className={`text-[13px] text-[#333333] ${indieFlower.className}`}
+                style={{ fontWeight: 600 }}
+              >
+                Datadog Agent
+              </span>
+            </div>
+
+            {/* 9: Cloudflare */}
+            <div
+              className={`absolute top-[320px] left-[320px] w-[100px] h-[70px] bg-white border border-[#E0E0E0] shadow-sm rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all duration-700 ease-out transform ${step >= 9 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="w-4 h-4"
+                style={{ color: `#${siCloudflare.hex}` }}
+                fill="currentColor"
+              >
+                <path d={siCloudflare.path} />
+              </svg>
+              <span
+                className={`text-[13px] text-[#333333] ${indieFlower.className}`}
+                style={{ fontWeight: 600 }}
+              >
+                Cloudflare
+              </span>
+            </div>
           </div>
         </div>
-      </footer>
+      </main>
     </div>
   );
 }
