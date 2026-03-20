@@ -45,16 +45,16 @@ export default function NewFolderModal({ parentName, onConfirm, onCancel }: Prop
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-sm mx-4">
+      <div className="bg-white border border-border rounded-xl shadow-xl w-full max-w-sm mx-4">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
-          <h2 className="text-white font-semibold text-base">{title}</h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
+          <h2 className="text-foreground font-semibold text-base">{title}</h2>
           <button
             onClick={onCancel}
-            className="text-zinc-400 hover:text-white transition-colors"
+            className="text-placeholder hover:text-foreground transition-colors"
           >
             <IconX size={18} />
           </button>
@@ -63,10 +63,10 @@ export default function NewFolderModal({ parentName, onConfirm, onCancel }: Prop
         <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-5">
           {/* Folder preview + name */}
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${color ? COLOR_MAP[color].bg : 'bg-zinc-800'}`}>
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${color ? COLOR_MAP[color].bg : 'bg-surface'}`}>
               <IconFolder
                 size={20}
-                className={color ? `text-${color}-400` : 'text-zinc-400'}
+                className={color ? `text-${color}-500` : 'text-placeholder'}
               />
             </div>
             <input
@@ -75,20 +75,20 @@ export default function NewFolderModal({ parentName, onConfirm, onCancel }: Prop
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="Folder name"
-              className="flex-1 bg-zinc-800 border border-zinc-700 focus:border-blue-500 outline-none rounded-md px-3 py-2 text-white text-sm placeholder-zinc-500 transition-colors"
+              className="flex-1 bg-white border border-border focus:border-primary outline-none rounded-md px-3 py-2 text-foreground text-sm placeholder:text-placeholder transition-colors"
             />
           </div>
 
           {/* Color picker */}
           <div className="flex flex-col gap-2">
-            <label className="text-zinc-400 text-sm">Color</label>
+            <label className="text-muted text-sm">Color</label>
             <div className="flex gap-2 flex-wrap">
               {/* No color option */}
               <button
                 type="button"
                 onClick={() => setColor(null)}
-                className={`w-6 h-6 rounded-full border-2 bg-zinc-700 transition-all ${
-                  color === null ? 'border-white scale-110' : 'border-transparent hover:border-zinc-500'
+                className={`w-6 h-6 rounded-full border-2 bg-surface transition-all ${
+                  color === null ? 'border-foreground scale-110' : 'border-transparent hover:border-border'
                 }`}
                 title="No color"
               />
@@ -99,7 +99,7 @@ export default function NewFolderModal({ parentName, onConfirm, onCancel }: Prop
                   onClick={() => setColor(c)}
                   className={`w-6 h-6 rounded-full transition-all ${COLOR_MAP[c].swatch} ${
                     color === c
-                      ? 'ring-2 ring-offset-2 ring-offset-zinc-900 scale-110 ' + COLOR_MAP[c].ring
+                      ? 'ring-2 ring-offset-2 ring-offset-white scale-110 ' + COLOR_MAP[c].ring
                       : 'hover:scale-105'
                   }`}
                   title={c.charAt(0).toUpperCase() + c.slice(1)}
@@ -113,14 +113,14 @@ export default function NewFolderModal({ parentName, onConfirm, onCancel }: Prop
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors rounded-md"
+              className="px-4 py-2 text-sm text-muted hover:text-foreground transition-colors rounded-md"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!name.trim()}
-              className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-md transition-colors"
+              className="px-4 py-2 text-sm font-medium bg-primary hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-md transition-colors"
             >
               Create Folder
             </button>

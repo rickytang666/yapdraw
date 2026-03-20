@@ -56,16 +56,16 @@ export default function BulkActionBar({
   }
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-4 py-2.5 bg-zinc-800 border border-zinc-600 rounded-xl shadow-2xl shadow-black/50">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-3 py-2 bg-white border border-border rounded-xl shadow-lg shadow-black/10">
       {/* Count */}
-      <span className="text-sm text-zinc-300 font-medium pr-2 border-r border-zinc-600">
+      <span className="text-sm text-muted font-medium px-1.5 pr-3 border-r border-border-subtle">
         {selectedCount} selected
       </span>
 
       {/* Star */}
       <button
         onClick={onStar}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-muted hover:bg-surface hover:text-foreground transition-colors"
         title="Star selected"
       >
         <IconStar size={15} />
@@ -75,7 +75,7 @@ export default function BulkActionBar({
       {/* Unstar */}
       <button
         onClick={onUnstar}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-muted hover:bg-surface hover:text-foreground transition-colors"
         title="Unstar selected"
       >
         <IconStarOff size={15} />
@@ -86,7 +86,7 @@ export default function BulkActionBar({
       <div ref={moveButtonRef} className="relative">
         <button
           onClick={() => setShowFolderPicker(v => !v)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-muted hover:bg-surface hover:text-foreground transition-colors"
           title="Move to folder"
         >
           <IconFolderSymlink size={15} />
@@ -109,7 +109,7 @@ export default function BulkActionBar({
       <button
         onClick={handleExportZip}
         disabled={isExporting}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-muted hover:bg-surface hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         title="Export selected as ZIP"
       >
         <IconPackageExport size={15} />
@@ -119,7 +119,7 @@ export default function BulkActionBar({
       {/* Trash */}
       <button
         onClick={onTrash}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-red-400 hover:bg-zinc-700 hover:text-red-300 transition-colors"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-muted hover:bg-red-50 hover:text-red-500 transition-colors"
         title="Move to trash"
       >
         <IconTrash size={15} />
@@ -127,12 +127,12 @@ export default function BulkActionBar({
       </button>
 
       {/* Divider */}
-      <div className="w-px h-5 bg-zinc-600" />
+      <div className="w-px h-5 bg-border-subtle mx-1" />
 
       {/* Clear selection */}
       <button
         onClick={onClear}
-        className="p-1.5 rounded-md text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors"
+        className="p-1.5 rounded-md text-placeholder hover:bg-surface hover:text-muted transition-colors"
         title="Clear selection"
       >
         <IconX size={15} />

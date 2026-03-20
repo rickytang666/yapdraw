@@ -5,9 +5,10 @@ import {
   IconFolder,
   IconSearchOff,
   IconTrashOff,
+  IconStarOff,
 } from '@tabler/icons-react'
 
-type Variant = 'empty-library' | 'empty-folder' | 'no-results' | 'empty-trash'
+type Variant = 'empty-library' | 'empty-starred' | 'empty-folder' | 'no-results' | 'empty-trash'
 
 interface Props {
   variant: Variant
@@ -15,6 +16,11 @@ interface Props {
 }
 
 const CONFIG: Record<Variant, { icon: React.ReactNode; title: string; subtitle: string }> = {
+  'empty-starred': {
+    icon: <IconStarOff size={48} className="text-placeholder" />,
+    title: 'No starred diagrams',
+    subtitle: 'Star a diagram to find it quickly here.',
+  },
   'empty-library': {
     icon: <IconBooks size={48} className="text-placeholder" />,
     title: 'No diagrams yet',

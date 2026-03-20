@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { IconPlus, IconSearch, IconUpload, IconSettings } from '@tabler/icons-react'
+import { IconPlus, IconSearch, IconUpload, IconSettings, IconKey } from '@tabler/icons-react'
 import {
   DndContext,
   type DragEndEvent,
@@ -18,7 +18,7 @@ import { migrateFromLocalStorage } from '@/lib/migrate'
 import { importExcalidrawFile } from '@/lib/import'
 import { db } from '@/lib/db'
 import { nanoid } from 'nanoid'
-import type { Diagram, DiagramType, DiagramTemplate, FolderColor } from '@/types/library'
+import type { Diagram, DiagramType, FolderColor } from '@/types/library'
 import Sidebar from './Sidebar'
 import SettingsPanel from '@/components/editor/SettingsPanel'
 import { useUserSettings } from '@/hooks/useUserSettings'
@@ -79,7 +79,7 @@ export default function LibraryView() {
 
   const isTrash = lib.state.activeSection === 'trash'
 
-  async function handleCreateDiagram(name: string, diagramType: DiagramType, template?: DiagramTemplate) {
+  async function handleCreateDiagram(name: string, diagramType: DiagramType) {
     setShowNewModal(false)
     const id = nanoid()
     const now = Date.now()
@@ -87,13 +87,11 @@ export default function LibraryView() {
       ? lib.state.activeSection.slice(7)
       : null
 
-    const elements = template?.elements ?? []
-
     const diagram: Diagram = {
       id,
       name,
       folderId,
-      elements,
+      elements: [],
       transcript: '',
       diagramType,
       thumbnail: null, files: {}, graph: null,
@@ -106,10 +104,10 @@ export default function LibraryView() {
       version: 1,
       trashedAt: null,
       metadata: {
-        elementCount: elements.length,
+        elementCount: 0,
         arrowCount: 0,
         colorPalette: [],
-        generatedVia: template ? 'template' : 'manual',
+        generatedVia: 'manual',
       },
     }
 
@@ -200,7 +198,6 @@ export default function LibraryView() {
     switch (lib.state.activeSection) {
       case 'all': return 'All Diagrams'
       case 'starred': return 'Starred'
-      case 'recent': return 'Recent'
       case 'trash': return 'Trash'
       default:
         if (lib.state.activeSection.startsWith('folder:')) {
@@ -212,8 +209,9 @@ export default function LibraryView() {
     }
   }
 
-  function getEmptyVariant(): 'empty-library' | 'empty-folder' | 'no-results' {
+  function getEmptyVariant(): 'empty-library' | 'empty-folder' | 'no-results' | 'empty-starred' {
     if (lib.state.searchQuery.trim()) return 'no-results'
+    if (lib.state.activeSection === 'starred') return 'empty-starred'
     if (lib.state.activeSection.startsWith('folder:')) return 'empty-folder'
     return 'empty-library'
   }
@@ -341,10 +339,17 @@ export default function LibraryView() {
             {/* Settings button */}
             <button
               onClick={() => setSettingsOpen(true)}
-              className="flex items-center p-1.5 text-placeholder hover:text-muted hover:bg-surface rounded-md transition-colors"
+              className={`flex items-center p-1.5 rounded-md transition-colors ${
+                !settings.apiKey
+                  ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-50'
+                  : 'text-placeholder hover:text-muted hover:bg-surface'
+              }`}
               aria-label="Open settings"
             >
-              <IconSettings size={16} />
+              {!settings.apiKey
+                ? <IconKey size={18} className="animate-pulse" />
+                : <IconSettings size={18} />
+              }
             </button>
 
             {/* New Diagram button */}

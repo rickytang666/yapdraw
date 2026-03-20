@@ -3,12 +3,12 @@ import { ExcalidrawElement, BinaryFileData } from './diagram'
 // ─── Enums & Literals ───────────────────────────────────────────
 
 export type DiagramType = 'freeform' | 'system-architecture' | 'operations-flowchart'
-export type GenerationMethod = 'voice' | 'manual' | 'template' | 'import'
+export type GenerationMethod = 'voice' | 'manual' | 'import'
 export type SortField = 'updatedAt' | 'lastOpenedAt' | 'createdAt' | 'name' | 'diagramType' | 'elementCount'
 export type SortDirection = 'asc' | 'desc'
 export type ViewMode = 'grid' | 'list'
 
-export type SidebarSection = 'all' | 'starred' | 'recent' | 'trash' | `folder:${string}`
+export type SidebarSection = 'all' | 'starred' | 'trash' | `folder:${string}`
 
 export const FOLDER_COLORS = [
   'slate', 'red', 'orange', 'amber', 'green', 'teal', 'blue', 'purple'
@@ -68,14 +68,6 @@ export interface DiagramVersion {
 
 // ─── Template ───────────────────────────────────────────────────
 
-export interface DiagramTemplate {
-  id: string
-  name: string
-  category: 'architecture' | 'flowchart' | 'data' | 'blank'
-  description: string
-  elements: ExcalidrawElement[]
-  suggestedType: DiagramType
-}
 
 // ─── UI State ───────────────────────────────────────────────────
 

@@ -24,9 +24,9 @@ function formatDate(ts: number): string {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  freeform: 'bg-zinc-700 text-zinc-300',
-  'system-architecture': 'bg-blue-900/50 text-blue-300',
-  'operations-flowchart': 'bg-green-900/50 text-green-300',
+  freeform: 'bg-surface text-subtle',
+  'system-architecture': 'bg-blue-50 text-blue-600',
+  'operations-flowchart': 'bg-green-50 text-green-600',
 }
 
 export default function DiagramRow({
@@ -43,12 +43,12 @@ export default function DiagramRow({
 
   const folder = folders.find(f => f.id === diagram.folderId)
   const visibleTags = diagram.tags.slice(0, 2)
-  const typeColor = TYPE_COLORS[diagram.diagramType] || 'bg-zinc-700 text-zinc-300'
+  const typeColor = TYPE_COLORS[diagram.diagramType] || 'bg-surface text-subtle'
 
   return (
     <div
-      className={`group flex items-center gap-3 px-4 py-2.5 border-b border-zinc-800 cursor-pointer hover:bg-zinc-800/60 transition-colors ${
-        selected ? 'bg-zinc-800' : ''
+      className={`group flex items-center gap-3 px-4 py-2.5 border-b border-border-subtle cursor-pointer hover:bg-surface transition-colors ${
+        selected ? 'bg-surface' : ''
       }`}
       onClick={onOpen}
     >
@@ -61,13 +61,13 @@ export default function DiagramRow({
           type="checkbox"
           checked={selected}
           onChange={onSelect}
-          className="w-4 h-4 rounded accent-blue-500 cursor-pointer"
+          className="w-4 h-4 rounded accent-primary cursor-pointer"
           onClick={e => e.stopPropagation()}
         />
       </div>
 
       {/* Thumbnail */}
-      <div className="w-10 h-7 bg-zinc-900 rounded overflow-hidden shrink-0 border border-zinc-700">
+      <div className="w-10 h-7 bg-background rounded overflow-hidden shrink-0 border border-border-subtle">
         {diagram.thumbnail ? (
           <img
             src={diagram.thumbnail}
@@ -76,13 +76,13 @@ export default function DiagramRow({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-zinc-600 text-[8px]">—</span>
+            <span className="text-placeholder text-[8px]">—</span>
           </div>
         )}
       </div>
 
       {/* Name */}
-      <p className="flex-1 text-sm font-medium text-white truncate min-w-0">{diagram.name}</p>
+      <p className="flex-1 text-sm font-medium text-foreground truncate min-w-0">{diagram.name}</p>
 
       {/* Type badge */}
       <span className={`shrink-0 px-2 py-0.5 rounded text-xs capitalize ${typeColor}`}>
@@ -90,12 +90,12 @@ export default function DiagramRow({
       </span>
 
       {/* Updated */}
-      <span className="shrink-0 text-xs text-zinc-500 tabular-nums hidden md:inline">
+      <span className="shrink-0 text-xs text-placeholder tabular-nums hidden md:inline">
         {hasMounted ? formatDate(diagram.updatedAt) : ''}
       </span>
 
       {/* Folder */}
-      <span className="shrink-0 w-28 text-xs text-zinc-500 truncate text-right hidden md:block">
+      <span className="shrink-0 w-28 text-xs text-placeholder truncate text-right hidden md:block">
         {folder ? folder.name : '—'}
       </span>
 
@@ -104,21 +104,21 @@ export default function DiagramRow({
         {visibleTags.map(tag => (
           <span
             key={tag}
-            className="px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300 text-xs"
+            className="px-1.5 py-0.5 rounded bg-surface text-subtle text-xs"
           >
             {tag}
           </span>
         ))}
         {diagram.tags.length > 2 && (
-          <span className="px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-500 text-xs">
+          <span className="px-1.5 py-0.5 rounded bg-surface text-placeholder text-xs">
             +{diagram.tags.length - 2}
           </span>
         )}
       </div>
 
       {/* Date */}
-      <span className="shrink-0 text-xs text-zinc-500 w-28 text-right hidden sm:block">
-  {hasMounted ? formatDate(diagram.updatedAt) : ''}
+      <span className="shrink-0 text-xs text-placeholder w-28 text-right hidden sm:block">
+        {hasMounted ? formatDate(diagram.updatedAt) : ''}
       </span>
 
       {/* Actions */}
@@ -128,7 +128,7 @@ export default function DiagramRow({
       >
         <button
           onClick={() => onStar(!diagram.starred)}
-          className="p-1 rounded text-zinc-500 hover:text-yellow-400 transition-colors"
+          className="p-1 rounded text-placeholder hover:text-yellow-500 transition-colors"
           title={diagram.starred ? 'Unstar' : 'Star'}
         >
           {diagram.starred
@@ -138,14 +138,14 @@ export default function DiagramRow({
         </button>
         <button
           onClick={onDuplicate}
-          className="p-1 rounded text-zinc-500 hover:text-blue-400 transition-colors"
+          className="p-1 rounded text-placeholder hover:text-primary transition-colors"
           title="Duplicate"
         >
           <IconCopy size={14} />
         </button>
         <button
           onClick={onTrash}
-          className="p-1 rounded text-zinc-500 hover:text-red-400 transition-colors"
+          className="p-1 rounded text-placeholder hover:text-red-500 transition-colors"
           title="Move to trash"
         >
           <IconTrash size={14} />

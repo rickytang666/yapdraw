@@ -5,8 +5,7 @@ import Link from "next/link";
 import {
   IconLayoutGrid,
   IconStar,
-  IconClock,
-  IconTrash,
+IconTrash,
   IconFolderPlus,
 } from "@tabler/icons-react";
 import type { SidebarSection } from "@/types/library";
@@ -32,7 +31,6 @@ const FIXED_SECTIONS: {
 }[] = [
   { id: "all", label: "All Diagrams", icon: <IconLayoutGrid size={16} /> },
   { id: "starred", label: "Starred", icon: <IconStar size={16} /> },
-  { id: "recent", label: "Recent", icon: <IconClock size={16} /> },
   { id: "trash", label: "Trash", icon: <IconTrash size={16} /> },
 ];
 

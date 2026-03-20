@@ -73,11 +73,6 @@ export function useLibrary() {
       case 'starred':
         filtered = filtered.filter(d => d.starred)
         break
-      case 'recent':
-        filtered = filtered
-          .sort((a, b) => b.lastOpenedAt - a.lastOpenedAt)
-          .slice(0, 20)
-        break
       case 'trash':
         return trashedDiagrams || []
       default:

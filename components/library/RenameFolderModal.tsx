@@ -42,18 +42,18 @@ export default function RenameFolderModal({ folder, onConfirm, onCancel }: Props
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-sm mx-4">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
+      <div className="bg-white border border-border rounded-xl shadow-xl w-full max-w-sm mx-4">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
           <div className="flex items-center gap-2">
-            <IconFolder size={18} className="text-zinc-400" />
-            <h2 className="text-white font-semibold text-base">Rename folder</h2>
+            <IconFolder size={18} className="text-placeholder" />
+            <h2 className="text-foreground font-semibold text-base">Rename folder</h2>
           </div>
           <button
             onClick={onCancel}
-            className="text-zinc-400 hover:text-white transition-colors"
+            className="text-placeholder hover:text-foreground transition-colors"
             aria-label="Close"
           >
             <IconX size={18} />
@@ -62,14 +62,14 @@ export default function RenameFolderModal({ folder, onConfirm, onCancel }: Props
 
         <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <label className="text-zinc-400 text-sm">Folder name</label>
+            <label className="text-muted text-sm">Folder name</label>
             <input
               ref={inputRef}
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="Folder name"
-              className="bg-zinc-800 border border-zinc-700 focus:border-blue-500 outline-none rounded-md px-3 py-2 text-white text-sm placeholder-zinc-500 transition-colors"
+              className="bg-white border border-border focus:border-primary outline-none rounded-md px-3 py-2 text-foreground text-sm placeholder:text-placeholder transition-colors"
             />
           </div>
 
@@ -77,7 +77,7 @@ export default function RenameFolderModal({ folder, onConfirm, onCancel }: Props
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors rounded-md"
+              className="px-4 py-2 text-sm text-muted hover:text-foreground transition-colors rounded-md"
               disabled={isSaving}
             >
               Cancel
@@ -85,7 +85,7 @@ export default function RenameFolderModal({ folder, onConfirm, onCancel }: Props
             <button
               type="submit"
               disabled={isSaving || !name.trim()}
-              className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-md transition-colors"
+              className="px-4 py-2 text-sm font-medium bg-primary hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-md transition-colors"
             >
               {isSaving ? 'Saving…' : 'Rename'}
             </button>
