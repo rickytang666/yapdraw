@@ -24,6 +24,7 @@ import type { Diagram } from "@/types/library";
 import { buildDebrief } from "@/lib/debrief";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import SettingsPanel from "@/components/editor/SettingsPanel";
+import StorageBanner from "@/components/editor/StorageBanner";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -321,6 +322,8 @@ export default function EditorPage({ params }: Props) {
       <div className="lg:hidden flex items-center justify-center py-1.5 px-4 bg-amber-50 border-b border-amber-200 text-amber-700 text-xs shrink-0">
         For best experience, open on a desktop browser.
       </div>
+
+      <StorageBanner />
 
       {settingsOpen && (
         <SettingsPanel
