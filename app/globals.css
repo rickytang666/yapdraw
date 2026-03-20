@@ -1,113 +1,113 @@
 @import "tailwindcss";
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   YapDraw Theme: Excalidraw Pro Edition
-   Inspired by Excalidraw's aesthetic with professional refinements
-   ═══════════════════════════════════════════════════════════════════════════ */
+html,
+body {
+  overscroll-behavior: none;
+}
 
 :root {
   /* Core */
-  --background: #FAFAFA;
-  --foreground: #0F172A;
+  --background: #fafafa;
+  --foreground: #0f172a;
 
   /* Surfaces */
-  --surface: #F1F5F9;
-  --surface-hover: #E2E8F0;
+  --surface: #f1f5f9;
+  --surface-hover: #e2e8f0;
 
   /* Brand - Excalidraw violet, refined */
-  --primary: #5B57D1;
-  --primary-hover: #4F4BC4;
-  --primary-foreground: #FFFFFF;
+  --primary: #5b57d1;
+  --primary-hover: #4f4bc4;
+  --primary-foreground: #ffffff;
 
   /* Neutral */
-  --secondary: #3D4551;
-  --secondary-hover: #2D333B;
-  --secondary-foreground: #FFFFFF;
+  --secondary: #3d4551;
+  --secondary-hover: #2d333b;
+  --secondary-foreground: #ffffff;
 
   /* Accent - Action red */
-  --accent: #E85555;
-  --accent-hover: #DC4444;
-  --accent-foreground: #FFFFFF;
+  --accent: #e85555;
+  --accent-hover: #dc4444;
+  --accent-foreground: #ffffff;
 
   /* Text */
-  --text: #0F172A;
+  --text: #0f172a;
   --text-muted: #475569;
-  --text-subtle: #64748B;
-  --text-placeholder: #94A3B8;
+  --text-subtle: #64748b;
+  --text-placeholder: #94a3b8;
 
   /* Borders & Dividers */
-  --border: #D1D5DB;
-  --border-subtle: #E5E7EB;
-  --ring: #5B57D1;
+  --border: #d1d5db;
+  --border-subtle: #e5e7eb;
+  --ring: #5b57d1;
 
   /* Semantic */
-  --success: #16A34A;
-  --success-light: #DCFCE7;
-  --warning: #D97706;
-  --warning-light: #FEF3C7;
-  --error: #DC2626;
-  --error-light: #FEE2E2;
+  --success: #16a34a;
+  --success-light: #dcfce7;
+  --warning: #d97706;
+  --warning-light: #fef3c7;
+  --error: #dc2626;
+  --error-light: #fee2e2;
 
   /* Voice/Recording */
-  --recording: #EF4444;
-  --recording-pulse: #FCA5A5;
+  --recording: #ef4444;
+  --recording-pulse: #fca5a5;
 
   /* Canvas */
-  --canvas-bg: #FFFFFF;
-  --canvas-grid: #E5E7EB;
+  --canvas-bg: #ffffff;
+  --canvas-grid: #e5e7eb;
 }
 
 /* Dark Mode - only when explicitly set via class */
 .dark {
   /* Core */
-  --background: #0D0D0D;
-  --foreground: #F9FAFB;
+  --background: #0d0d0d;
+  --foreground: #f9fafb;
 
   /* Surfaces */
-  --surface: #1A1A1A;
+  --surface: #1a1a1a;
   --surface-hover: #262626;
 
   /* Brand */
-  --primary: #7C78FF;
-  --primary-hover: #8B87FF;
-  --primary-foreground: #0D0D0D;
+  --primary: #7c78ff;
+  --primary-hover: #8b87ff;
+  --primary-foreground: #0d0d0d;
 
   /* Neutral */
-  --secondary: #6B7280;
-  --secondary-hover: #9CA3AF;
-  --secondary-foreground: #0D0D0D;
+  --secondary: #6b7280;
+  --secondary-hover: #9ca3af;
+  --secondary-foreground: #0d0d0d;
 
   /* Accent */
-  --accent: #F87171;
-  --accent-hover: #FCA5A5;
-  --accent-foreground: #0D0D0D;
+  --accent: #f87171;
+  --accent-hover: #fca5a5;
+  --accent-foreground: #0d0d0d;
 
   /* Text */
-  --text: #F9FAFB;
-  --text-muted: #9CA3AF;
-  --text-subtle: #6B7280;
-  --text-placeholder: #64748B;
+  --text: #f9fafb;
+  --text-muted: #9ca3af;
+  --text-subtle: #6b7280;
+  --text-placeholder: #64748b;
 
   /* Borders */
-  --border: #2D2D2D;
-  --border-subtle: #3D3D3D;
-  --ring: #7C78FF;
+  --border: #2d2d2d;
+  --border-subtle: #3d3d3d;
+  --ring: #7c78ff;
 
   /* Semantic */
-  --success: #4ADE80;
+  --success: #4ade80;
   --success-light: #166534;
-  --warning: #FBBF24;
-  --warning-light: #854D0E;
-  --error: #F87171;
-  --error-light: #991B1B;
+  --warning: #fbbf24;
+  --warning-light: #854d0e;
+  --error: #f87171;
+  --error-light: #991b1b;
 
   /* Voice/Recording */
-  --recording: #F87171;
-  --recording-pulse: #EF4444;
+  --recording: #f87171;
+  --recording-pulse: #ef4444;
 
   /* Canvas */
   --canvas-bg: #121212;
-  --canvas-grid: #2D2D2D;
+  --canvas-grid: #2d2d2d;
 }
 
 @theme inline {
@@ -154,7 +154,11 @@ body {
   overflow: hidden;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-family:
+    var(--font-inter),
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 /* Focus rings */

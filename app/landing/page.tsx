@@ -234,7 +234,7 @@ export default function LandingPage() {
       ></div>
 
       {/* Top Left: Pitch & CTA */}
-      <header className="relative z-10 px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 py-10 flex flex-col gap-6">
+      <header className="relative z-10 px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 py-6 flex flex-col gap-6">
         {/* navbar row: logo + github */}
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
@@ -265,7 +265,7 @@ export default function LandingPage() {
           </a>
         </div>
 
-        <div className="flex flex-col gap-6 max-w-xl">
+        <div className="flex flex-col gap-3 max-w-xl">
           <h1 className="text-[34px] md:text-[42px] font-medium tracking-tight text-[#111111] leading-[1.1]">
             The whiteboard that{" "}
             <span
@@ -276,7 +276,11 @@ export default function LandingPage() {
             </span>
           </h1>
 
-          <div className="flex items-center gap-3 mt-4">
+          <p className="text-[15px] text-[#666666] leading-relaxed">
+            Think out loud. Watch it draw.
+          </p>
+
+          <div className="flex items-center gap-3 mt-2">
             <Link
               href="/d/new"
               className="group flex items-center justify-center gap-2 bg-white border border-border px-5 py-3 rounded-xl text-[13px] font-semibold transition-all hover:text-primary hover:border-primary/30 shadow-sm active:scale-[0.98]"
@@ -294,20 +298,24 @@ export default function LandingPage() {
             </Link>
           </div>
         </div>
-
       </header>
 
       {/* Center Layout: Transcription vs Canvas */}
-      <main className="relative z-10 grid grid-cols-1 xl:grid-cols-2 mt-6 lg:mt-0 px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 w-full max-w-[1600px] mx-auto min-w-0 shrink-0 xl:min-h-[550px] gap-2 pb-12 max-xl:pb-20 xl:pb-14">
+      <main className="relative z-10 grid grid-cols-1 xl:grid-cols-2 mt-2 lg:mt-0 px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 w-full max-w-[1600px] mx-auto min-w-0 shrink-0 xl:min-h-[550px] gap-8 xl:gap-12 pb-12 max-xl:pb-20 xl:pb-14">
         {/* Left Side: Voice Stream */}
         <div className="flex flex-col justify-center max-xl:justify-start h-full gap-3 max-xl:gap-2 min-w-0 relative">
           <div className="flex items-center justify-between mb-2 max-xl:mb-1.5 z-20 relative border-b border-[#F0F0F0] pb-2">
-            <div className="flex items-center gap-1.5 opacity-80">
-              <div className="w-1 h-3 bg-primary animate-[pulse_1s_ease-in-out_infinite]"></div>
-              <div className="w-1 h-5 bg-primary animate-[pulse_0.8s_ease-in-out_infinite_0.2s]"></div>
-              <div className="w-1 h-2 bg-primary animate-[pulse_1.2s_ease-in-out_infinite_0.4s]"></div>
-              <div className="w-1 h-4 bg-primary animate-[pulse_0.9s_ease-in-out_infinite_0.1s]"></div>
-              <div className="w-1 h-3 bg-primary animate-[pulse_1.1s_ease-in-out_infinite_0.3s]"></div>
+            <div className="flex items-center gap-2 opacity-80">
+              <div className="flex items-center gap-1.5">
+                <div className="w-1 h-3 bg-primary animate-[pulse_1s_ease-in-out_infinite]"></div>
+                <div className="w-1 h-5 bg-primary animate-[pulse_0.8s_ease-in-out_infinite_0.2s]"></div>
+                <div className="w-1 h-2 bg-primary animate-[pulse_1.2s_ease-in-out_infinite_0.4s]"></div>
+                <div className="w-1 h-4 bg-primary animate-[pulse_0.9s_ease-in-out_infinite_0.1s]"></div>
+                <div className="w-1 h-3 bg-primary animate-[pulse_1.1s_ease-in-out_infinite_0.3s]"></div>
+              </div>
+              <span className="text-[11px] font-semibold text-primary font-mono uppercase">
+                voice stream
+              </span>
             </div>
           </div>
 
