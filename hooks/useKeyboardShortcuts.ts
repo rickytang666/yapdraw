@@ -30,9 +30,12 @@ export function useKeyboardShortcuts(shortcuts: ShortcutMap): void {
       for (const combo of Object.keys(shortcutsRef.current)) {
         const parts = combo.toLowerCase().split('+')
         const needsMod = parts.includes('mod')
+        const needsShift = parts.includes('shift')
         const comboKey = parts[parts.length - 1]
 
         if (needsMod !== isMod) continue
+        // distinguish mod+h from mod+shift+h — only enforce shift check for mod combos
+        if (needsMod && needsShift !== e.shiftKey) continue
         if (key !== comboKey) continue
 
         // Don't fire shortcuts when user is typing in an input/textarea

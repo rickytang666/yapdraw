@@ -1,12 +1,17 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { IconArrowBackUp, IconClock, IconChevronRight, IconX } from '@tabler/icons-react'
 import { useVersionHistory } from '@/hooks/useVersionHistory'
 import { decodeAIMeta } from '@/lib/versionMeta'
 import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
 import type { ExcalidrawElement } from '@/types/diagram'
 import type { DiagramVersion } from '@/types/library'
+
+export interface VersionTimelineHandle {
+  navigatePrev: () => void
+  navigateNext: () => void
+}
 
 interface Props {
   diagramId: string
@@ -36,7 +41,10 @@ function versionLabel(v: DiagramVersion): string | null {
   return null
 }
 
-export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimation, pauseSave, resumeSave }: Props) {
+const VersionTimeline = forwardRef<VersionTimelineHandle, Props>(function VersionTimeline(
+  { diagramId, canvasRef, onRestoreAnimation, pauseSave, resumeSave },
+  ref,
+) {
   const { versions, restoreVersion } = useVersionHistory(diagramId)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [isViewing, setIsViewing] = useState(false)
@@ -88,7 +96,7 @@ export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimati
     liveSnapshotRef.current = null
   }
 
-  // Escape key to cancel view
+  // escape to cancel preview
   useEffect(() => {
     if (!isViewing) return
     function onKey(e: KeyboardEvent) {
@@ -98,23 +106,23 @@ export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimati
     return () => window.removeEventListener('keydown', onKey)
   }, [isViewing, handleCancelView])
 
-  // Cmd+Z — restore previous version, but only when not typing in an input
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (!(e.metaKey || e.ctrlKey) || e.key !== 'z') return
-      const tag = (document.activeElement as HTMLElement)?.tagName?.toLowerCase()
-      const isEditable = tag === 'input' || tag === 'textarea' || (document.activeElement as HTMLElement)?.isContentEditable
-      if (isEditable) return
-      e.preventDefault()
-      if (isViewing && selectedId) {
-        handleCancelView()
-      } else if (versions.length > 1) {
-        handleSelect(versions[1])
+  useImperativeHandle(ref, () => ({
+    navigatePrev() {
+      if (versions.length === 0) return
+      if (!selectedId) {
+        if (versions.length > 1) handleSelect(versions[1])
+        return
       }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [isViewing, selectedId, versions, handleCancelView, handleSelect])
+      const idx = versions.findIndex(v => v.id === selectedId)
+      if (idx < versions.length - 1) handleSelect(versions[idx + 1])
+    },
+    navigateNext() {
+      if (!selectedId) return
+      const idx = versions.findIndex(v => v.id === selectedId)
+      if (idx === 0) handleCancelView()
+      else handleSelect(versions[idx - 1])
+    },
+  }), [versions, selectedId, handleSelect, handleCancelView])
 
   const selectedVersion = selectedId ? versions.find(v => v.id === selectedId) : null
   const selectedDisplayNum = selectedVersion
@@ -251,4 +259,6 @@ export default function VersionTimeline({ diagramId, canvasRef, onRestoreAnimati
       )}
     </div>
   )
-}
+})
+
+export default VersionTimeline

@@ -6,7 +6,7 @@ import type { SaveStatus } from '@/hooks/useAutoSave'
 import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
 import InlineName from './InlineName'
 import SaveStatusIndicator from './SaveStatusIndicator'
-import EditorMenu from './EditorMenu'
+import EditorMenu, { type EditorMenuHandle } from './EditorMenu'
 
 interface Props {
   diagram: Diagram
@@ -18,7 +18,9 @@ interface Props {
   onToggleLock?: () => void
   onSaveVersion?: () => void
   onOpenSettings?: () => void
+  onOpenShortcuts?: () => void
   canvasRef?: React.RefObject<ExcalidrawCanvasHandle | null>
+  menuRef?: React.Ref<EditorMenuHandle>
 }
 
 export default function EditorTopBar({
@@ -31,7 +33,9 @@ export default function EditorTopBar({
   onToggleLock,
   onSaveVersion,
   onOpenSettings,
+  onOpenShortcuts,
   canvasRef,
+  menuRef,
 }: Props) {
   return (
     <header className="flex items-center gap-3 h-12 px-4 bg-white border-b border-border-subtle shrink-0">
@@ -81,6 +85,16 @@ export default function EditorTopBar({
         </button>
       )}
 
+      {onOpenShortcuts && (
+        <button
+          onClick={onOpenShortcuts}
+          className="flex items-center gap-1.5 text-xs text-subtle hover:text-foreground hover:bg-surface px-2 py-1 rounded transition-colors"
+          aria-label="Keyboard shortcuts"
+        >
+          <span className="text-sm font-medium">?</span>
+        </button>
+      )}
+
       {onOpenSettings && (
         <button
           onClick={onOpenSettings}
@@ -93,6 +107,7 @@ export default function EditorTopBar({
 
       {canvasRef && onDuplicate && onToggleLock && (
         <EditorMenu
+          ref={menuRef}
           diagram={diagram}
           canvasRef={canvasRef}
           onDuplicate={onDuplicate}

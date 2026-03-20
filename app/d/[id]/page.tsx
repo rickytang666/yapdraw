@@ -8,9 +8,10 @@ import { nanoid } from "nanoid";
 import ExcalidrawCanvas, {
   ExcalidrawCanvasHandle,
 } from "@/components/ExcalidrawCanvas";
-import VoicePanel from "@/components/VoicePanel";
+import VoicePanel, { type VoicePanelHandle } from "@/components/VoicePanel";
 import { type LoadingPhase } from "@/components/LoadingIndicator";
 import EditorTopBar from "@/components/editor/EditorTopBar";
+import { type EditorMenuHandle } from "@/components/editor/EditorMenu";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { useVersionHistory } from "@/hooks/useVersionHistory";
 import { useAIChangeHistory } from "@/hooks/useAIChangeHistory";
@@ -24,6 +25,7 @@ import type { Diagram } from "@/types/library";
 import { buildDebrief } from "@/lib/debrief";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import SettingsPanel from "@/components/editor/SettingsPanel";
+import ShortcutsModal from "@/components/editor/ShortcutsModal";
 import StorageBanner from "@/components/editor/StorageBanner";
 
 interface Props {
@@ -34,6 +36,8 @@ export default function EditorPage({ params }: Props) {
   const { id } = use(params);
   const router = useRouter();
   const canvasRef = useRef<ExcalidrawCanvasHandle>(null);
+  const voicePanelRef = useRef<VoicePanelHandle>(null);
+  const menuRef = useRef<EditorMenuHandle>(null);
   const abortRef = useRef<AbortController | null>(null);
   const [loadingPhase, setLoadingPhase] = useState<LoadingPhase>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -48,6 +52,7 @@ export default function EditorPage({ params }: Props) {
   const lastGraphInitRef = useRef(false);
   const [restoreFlash, setRestoreFlash] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const { settings, setSettings } = useUserSettings();
 
   function triggerRestoreAnimation() {
@@ -55,9 +60,7 @@ export default function EditorPage({ params }: Props) {
     setTimeout(() => setRestoreFlash(false), 500);
   }
 
-  // Tracks the versionId of the snapshot taken just before the last AI change (for Cmd+Z)
   const lastAIVersionIdRef = useRef<string | null>(null);
-  const isRestoringRef = useRef(false);
 
   // one snapshot per mic session
   const micSessionRef = useRef<{
@@ -104,17 +107,12 @@ export default function EditorPage({ params }: Props) {
       const elements = canvasRef.current?.getElements() ?? [];
       forceSave(elements);
     },
-    "mod+z": () => {
-      const vid = lastAIVersionIdRef.current;
-      if (vid && !isRestoringRef.current) {
-        isRestoringRef.current = true;
-        handleRestoreChange(vid)
-          .catch(console.error)
-          .finally(() => {
-            isRestoringRef.current = false;
-          });
-      }
-    },
+    "mod+k": () => voicePanelRef.current?.focusInput(),
+    "mod+e": () => menuRef.current?.toggle(),
+    "mod+shift+l": () => handleToggleLock(),
+    "[": () => voicePanelRef.current?.navigatePrev(),
+    "]": () => voicePanelRef.current?.navigateNext(),
+    "?": () => setShortcutsOpen(true),
   });
 
   // ─── Voice / AI generation ────────────────────────────────────────────────
@@ -253,18 +251,6 @@ export default function EditorPage({ params }: Props) {
     }
   }
 
-  // ─── Restore from a history card ──────────────────────────────────────────
-
-  async function handleRestoreChange(versionId: string) {
-    const target = await db.versions.get(versionId);
-    if (!target) return;
-    await restoreVersion(versionId);
-    canvasRef.current?.updateDiagram(target.elements as ExcalidrawElement[], {
-      replace: true,
-    });
-    lastAIVersionIdRef.current = null;
-  }
-
   // ─── Duplicate ────────────────────────────────────────────────────────────
 
   async function handleDuplicate() {
@@ -315,6 +301,8 @@ export default function EditorPage({ params }: Props) {
         onToggleLock={handleToggleLock}
         onSaveVersion={saveVersion}
         onOpenSettings={() => setSettingsOpen(true)}
+        onOpenShortcuts={() => setShortcutsOpen(true)}
+        menuRef={menuRef}
         canvasRef={canvasRef}
       />
 
@@ -324,6 +312,8 @@ export default function EditorPage({ params }: Props) {
       </div>
 
       <StorageBanner />
+
+      {shortcutsOpen && <ShortcutsModal onClose={() => setShortcutsOpen(false)} />}
 
       {settingsOpen && (
         <SettingsPanel
@@ -337,6 +327,7 @@ export default function EditorPage({ params }: Props) {
         {/* Voice panel */}
         <div className="h-[42vh] lg:h-full w-full lg:w-[30%] shrink-0 border-b lg:border-b-0 lg:border-r border-border-subtle overflow-hidden">
           <VoicePanel
+            ref={voicePanelRef}
             diagramId={id}
             diagramType={diagram.diagramType}
             isLoading={isLoading}

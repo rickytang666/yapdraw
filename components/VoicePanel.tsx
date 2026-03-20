@@ -1,14 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState, useEffect } from "react";
 import { IconSend } from "@tabler/icons-react";
 import MicButton from "./MicButton";
 import InterimIndicator from "./InterimIndicator";
-import VersionTimeline from "./editor/VersionTimeline";
+import VersionTimeline, { type VersionTimelineHandle } from "./editor/VersionTimeline";
 import { useDeepgram, type SpeechSpeed } from "@/hooks/useDeepgram";
 import type { ExcalidrawCanvasHandle } from "@/components/ExcalidrawCanvas";
 import type { ExcalidrawElement } from "@/types/diagram";
 import type { DiagramType } from "@/types/library";
+
+export interface VoicePanelHandle {
+  focusInput: () => void
+  navigatePrev: () => void
+  navigateNext: () => void
+}
 
 interface VoicePanelProps {
   diagramId: string;
@@ -25,7 +31,7 @@ interface VoicePanelProps {
   onError?: (msg: string) => void;
 }
 
-export default function VoicePanel({
+const VoicePanel = forwardRef<VoicePanelHandle, VoicePanelProps>(function VoicePanel({
   diagramId,
   diagramType,
   isLoading,
@@ -38,7 +44,9 @@ export default function VoicePanel({
   pauseSave,
   resumeSave,
   onError,
-}: VoicePanelProps) {
+}, ref) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const timelineRef = useRef<VersionTimelineHandle>(null);
   const [mockInput, setMockInput] = useState("");
   const [messages, setMessages] = useState<string[]>([]);
   const [speed, setSpeed] = useState<SpeechSpeed>(() => {
@@ -51,6 +59,12 @@ export default function VoicePanel({
   useEffect(() => {
     localStorage.setItem("yapdraw-speech-speed", speed);
   }, [speed]);
+
+  useImperativeHandle(ref, () => ({
+    focusInput() { inputRef.current?.focus() },
+    navigatePrev() { timelineRef.current?.navigatePrev() },
+    navigateNext() { timelineRef.current?.navigateNext() },
+  }));
 
   const handleSilence = (transcript: string) => {
     setMessages((prev) => [...prev, transcript]);
@@ -89,6 +103,7 @@ export default function VoicePanel({
     <div className="flex flex-col h-full bg-white text-foreground">
       {/* Version timeline — above the chat */}
       <VersionTimeline
+        ref={timelineRef}
         diagramId={diagramId}
         canvasRef={canvasRef}
         onRestoreAnimation={onRestoreAnimation}
@@ -184,6 +199,7 @@ export default function VoicePanel({
       {onMockSubmit && (
         <div className="px-4 py-2 border-t border-border-subtle flex gap-2">
           <input
+            ref={inputRef}
             className="flex-1 text-sm bg-surface border border-border rounded-lg px-3 py-2 text-foreground placeholder-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
             placeholder="Or type a description…"
             value={mockInput}
@@ -202,4 +218,6 @@ export default function VoicePanel({
       )}
     </div>
   );
-}
+})
+
+export default VoicePanel
