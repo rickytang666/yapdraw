@@ -345,6 +345,7 @@ export default function EditorPage({ params }: Props) {
             onRestoreAnimation={triggerRestoreAnimation}
             pauseSave={pauseSave}
             resumeSave={resumeSave}
+            onError={showError}
           />
         </div>
         <div className="flex-1 min-h-0 min-w-0 p-2 mx-3 lg:mx-0 lg:p-3 bg-background">

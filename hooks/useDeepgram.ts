@@ -68,6 +68,7 @@ export function useDeepgram(
   onSilence: (transcript: string) => void,
   speed: SpeechSpeed = "normal",
   boostTechTerms = false,
+  onError?: (msg: string) => void,
 ) {
   const [isListening, setIsListening] = useState(false);
   const [interimTranscript, setInterimTranscript] = useState("");
@@ -79,8 +80,10 @@ export function useDeepgram(
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const finalTranscriptRef = useRef("");
   const onSilenceRef = useRef(onSilence);
+  const onErrorRef = useRef(onError);
   const activeSessionRef = useRef(0); // incremented on each start; stale callbacks self-cancel
   onSilenceRef.current = onSilence;
+  onErrorRef.current = onError;
 
   const teardown = useCallback(() => {
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
@@ -213,12 +216,16 @@ export function useDeepgram(
           console.error(
             `deepgram ws closed unexpectedly: code=${e.code} reason="${e.reason}"`,
           );
+          onErrorRef.current?.("mic error — check browser permissions");
         }
         if (session === activeSessionRef.current) setIsListening(false);
       };
     } catch (err) {
       console.error("Failed to start Deepgram", err);
-      if (session === activeSessionRef.current) teardown();
+      if (session === activeSessionRef.current) {
+        teardown();
+        onErrorRef.current?.("mic error — check browser permissions");
+      }
     }
   }, [teardown, resetSilenceTimer]);
 

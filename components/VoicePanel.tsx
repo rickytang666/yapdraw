@@ -22,6 +22,7 @@ interface VoicePanelProps {
   onRestoreAnimation: () => void;
   pauseSave: (liveElements: ExcalidrawElement[]) => void;
   resumeSave: () => void;
+  onError?: (msg: string) => void;
 }
 
 export default function VoicePanel({
@@ -36,6 +37,7 @@ export default function VoicePanel({
   onRestoreAnimation,
   pauseSave,
   resumeSave,
+  onError,
 }: VoicePanelProps) {
   const [mockInput, setMockInput] = useState("");
   const [messages, setMessages] = useState<string[]>([]);
@@ -62,7 +64,7 @@ export default function VoicePanel({
     start,
     stop,
     reset,
-  } = useDeepgram(handleSilence, speed, diagramType === "system-architecture");
+  } = useDeepgram(handleSilence, speed, diagramType === "system-architecture", onError);
 
   const handleToggle = () => {
     if (isListening) {
