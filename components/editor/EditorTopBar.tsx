@@ -77,7 +77,7 @@ export default function EditorTopBar({
           aria-label="Save version checkpoint"
         >
           <IconBookmark size={14} />
-          <span className="hidden sm:inline">Checkpoint</span>
+          <span className="hidden sm:inline">Save version</span>
         </button>
       )}
 
@@ -87,7 +87,7 @@ export default function EditorTopBar({
           className="flex items-center gap-1.5 text-xs text-subtle hover:text-foreground hover:bg-surface px-2 py-1 rounded transition-colors"
           aria-label="Open settings"
         >
-          <IconSettings size={14} />
+          <IconSettings size={18} />
         </button>
       )}
 

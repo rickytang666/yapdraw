@@ -79,7 +79,6 @@ export default function EditorPage({ params }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, diagram?.id]);
 
-
   const isLoading = loadingPhase !== "idle";
   const {
     triggerSave,
@@ -327,8 +326,8 @@ export default function EditorPage({ params }: Props) {
       )}
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
-        {/* Voice panel — 35% wide, version timeline above chat */}
-        <div className="w-[35%] h-full border-r border-border-subtle shrink-0">
+        {/* Voice panel */}
+        <div className="w-[30%] h-full border-r border-border-subtle shrink-0">
           <VoicePanel
             diagramId={id}
             diagramType={diagram.diagramType}

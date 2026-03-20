@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { IconSend } from "@tabler/icons-react";
 import MicButton from "./MicButton";
 import InterimIndicator from "./InterimIndicator";
 import VersionTimeline from "./editor/VersionTimeline";
 import { useDeepgram, type SpeechSpeed } from "@/hooks/useDeepgram";
-import Image from "next/image";
 import type { ExcalidrawCanvasHandle } from "@/components/ExcalidrawCanvas";
 import type { ExcalidrawElement } from "@/types/diagram";
 import type { DiagramType } from "@/types/library";
@@ -85,25 +85,6 @@ export default function VoicePanel({
 
   return (
     <div className="flex flex-col h-full bg-white text-foreground">
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-border-subtle">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/yapdraw_logo.png"
-            alt="YapDraw"
-            width={24}
-            height={24}
-            className="rounded-sm"
-          />
-          <h1 className="text-lg font-semibold tracking-tight text-foreground">
-            YapDraw
-          </h1>
-        </div>
-        <p className="text-subtle text-xs mt-0.5">
-          Start decribing a flow. Watch it appear before your eyes.
-        </p>
-      </div>
-
       {/* Version timeline — above the chat */}
       <VersionTimeline
         diagramId={diagramId}
@@ -114,16 +95,19 @@ export default function VoicePanel({
       />
 
       {/* Mic button */}
-      <div className="flex flex-col items-center gap-3 pt-8 pb-4">
+      <div className="flex flex-col items-center gap-2 pt-5 pb-3">
         <MicButton isListening={isListening} onClick={handleToggle} />
-        <span className="text-subtle text-xs">
-          {isListening
-            ? "Listening — pause to generate"
-            : isLoading
-              ? "Drawing..."
-              : "Click to start"}
-        </span>
-        <div className="flex items-center gap-1 text-xs">
+        <div className="flex flex-col items-center gap-0.5">
+          <span className="text-subtle text-xs">
+            {isListening
+              ? "Listening — pause to generate"
+              : isLoading
+                ? "Drawing..."
+                : "Click to start"}
+          </span>
+          <p className="text-placeholder text-xs">Just talk. Your diagram builds itself.</p>
+        </div>
+        <div className="flex items-center gap-1 text-xs mt-1">
           {(["fast", "normal", "slow"] as SpeechSpeed[]).map((s) => (
             <button
               key={s}
@@ -134,66 +118,59 @@ export default function VoicePanel({
                   : "text-placeholder hover:text-muted"
               }`}
             >
-              {s === "fast" ? "fast" : s === "slow" ? "slow" : "normal"}
+              {s}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Example prompt chips */}
-      {messages.length === 0 && !finalTranscript && (
-        <div className="px-4 pb-3 flex flex-col gap-2">
-          <p className="text-placeholder text-xs px-1">Try an example:</p>
-          {[
-            {
-              label: "React → Node API → Postgres & Redis",
-              prompt:
-                "React frontend calls a Node API, which reads from Postgres and caches in Redis",
-            },
-            {
-              label: "Form validation flow",
-              prompt:
-                "User submits a form, it gets validated, if valid send a confirmation email, if not show an error",
-            },
-            {
-              label: "Order fulfillment process",
-              prompt:
-                "Customer places an order, warehouse picks and packs it, courier delivers it, customer confirms receipt",
-            },
-          ].map(({ label, prompt }) => (
-            <button
-              key={label}
-              disabled={isLoading || isListening}
-              onClick={() => {
-                setMessages((prev) => [...prev, prompt]);
-                onMockSubmit?.(prompt);
-              }}
-              className="text-left text-xs px-3 py-2 rounded-lg border border-border-subtle bg-background text-muted hover:bg-[#EFF6FF] hover:border-[#BFDBFE] hover:text-[#1D4ED8] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Scrollable area: transcript */}
+      {/* Scrollable area: transcript + example chips when empty */}
       <div className="flex-1 overflow-y-auto">
-        <div className="py-4 space-y-2 px-4">
+        <div className="py-3 space-y-2 px-4">
           {messages.length === 0 && !finalTranscript && (
-            <p className="text-placeholder text-sm px-4">
-              Your transcript will appear here...
-            </p>
+            <>
+              <p className="text-placeholder text-xs px-1 pb-1">Try an example:</p>
+              {[
+                {
+                  label: "React → Node API → Postgres & Redis",
+                  prompt:
+                    "React frontend calls a Node API, which reads from Postgres and caches in Redis",
+                },
+                {
+                  label: "Form validation flow",
+                  prompt:
+                    "User submits a form, it gets validated, if valid send a confirmation email, if not show an error",
+                },
+                {
+                  label: "Order fulfillment process",
+                  prompt:
+                    "Customer places an order, warehouse picks and packs it, courier delivers it, customer confirms receipt",
+                },
+              ].map(({ label, prompt }) => (
+                <button
+                  key={label}
+                  disabled={isLoading || isListening}
+                  onClick={() => {
+                    setMessages((prev) => [...prev, prompt]);
+                    onMockSubmit?.(prompt);
+                  }}
+                  className="w-full text-left text-xs px-3 py-2 rounded-lg bg-surface text-muted hover:bg-primary/5 hover:text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {label}
+                </button>
+              ))}
+            </>
           )}
           {messages.map((msg, i) => (
             <p
               key={i}
-              className="text-foreground text-sm px-4 leading-relaxed whitespace-pre-wrap"
+              className="text-foreground text-sm px-1 leading-relaxed whitespace-pre-wrap"
             >
               {msg}
             </p>
           ))}
           {finalTranscript && (
-            <p className="text-foreground text-sm px-4 leading-relaxed whitespace-pre-wrap">
+            <p className="text-foreground text-sm px-1 leading-relaxed whitespace-pre-wrap">
               {finalTranscript}
             </p>
           )}
@@ -206,7 +183,7 @@ export default function VoicePanel({
         <div className="px-4 py-2 border-t border-border-subtle flex gap-2">
           <input
             className="flex-1 text-sm bg-surface border border-border rounded-lg px-3 py-2 text-foreground placeholder-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
-            placeholder="Type to test without mic..."
+            placeholder="Or type a description…"
             value={mockInput}
             onChange={(e) => setMockInput(e.target.value)}
             onKeyDown={(e) => {
@@ -215,9 +192,9 @@ export default function VoicePanel({
           />
           <button
             onClick={submitMock}
-            className="text-sm px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover"
+            className="px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover flex items-center justify-center"
           >
-            Go
+            <IconSend size={15} />
           </button>
         </div>
       )}
