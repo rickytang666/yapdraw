@@ -20,6 +20,8 @@ Describe anything out loud — a system architecture, a business process, a rese
 
 ## Demo
 
+https://github.com/user-attachments/assets/a8a7e6f6-1319-453d-9f0d-508b923a1427
+
 Watch it on [YouTube](https://youtu.be/gSKKap_LVrg).
 
 ## Features
