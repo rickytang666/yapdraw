@@ -2,7 +2,7 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 
-const SPEED_PRESETS = { fast: 400, normal: 800, slow: 1200 } as const;
+const SPEED_PRESETS = { fast: 800, normal: 1200, slow: 1800 } as const;
 export type SpeechSpeed = keyof typeof SPEED_PRESETS;
 export { SPEED_PRESETS };
 
