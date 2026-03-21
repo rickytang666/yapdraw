@@ -8,6 +8,8 @@
 
 _Build diagrams at the speed of speech._
 
+🏆 Winner @ [Canada's largest AI hackathon](https://genaigenesis.ca) (top 10 out of 250+ projects).
+
 </div>
 
 ---
@@ -107,5 +109,7 @@ Built on top of [Excalidraw](https://github.com/excalidraw/excalidraw) — the o
 [MIT](LICENSE).
 
 ---
+
+Check out our [Devpost page](https://devpost.com/software/yapdraw).
 
 ![views badge](https://visitor-badge.laobi.icu/badge?page_id=rickytang666.yapdraw&left_text=👀)
