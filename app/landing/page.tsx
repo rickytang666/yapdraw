@@ -290,7 +290,8 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-[15px] text-[#666666] leading-relaxed">
-            Think out loud. Watch it draw.
+            Talk through your idea — corrections, second thoughts, and all. It
+            keeps up.
           </p>
 
           <div className="flex items-center gap-3 mt-2">

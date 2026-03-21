@@ -27,7 +27,7 @@ Watch it on [YouTube](https://youtu.be/gSKKap_LVrg).
 ## Features
 
 - **Just talk** — mid-sentence corrections, filler words, backtracking — it reflects your intent, not your exact words. No syntax, no templates.
-- **Incremental updates** — say "add X" or "remove Y" and only that changes. The rest of your diagram stays exactly where it is.
+- **Incremental updates** — the current diagram and your manual edits are always passed as context. Say "add X" and only X changes — unlike one-shot generators that rebuild from scratch.
 - **Local-first** — auto-saves to your browser. No account, no data leaving your machine.
 - **Undo AI changes** — every generation is snapshotted. Use `[` / `]` to step through AI change history without touching anything you edited manually.
 - **Three modes** — Freeform (anything), System Architecture (layered service graphs), Process Flowchart (decision trees, approval flows, research plans).
