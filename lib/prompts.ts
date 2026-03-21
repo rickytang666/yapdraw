@@ -23,7 +23,7 @@ const BASE_PROMPT = `You are a diagram generator. Convert natural language descr
 - "group": (optional) id of the group this node belongs to
 - "icon": (optional) simple-icons slug for well-known technologies only:
   - use the most specific slug (e.g. "googlecloudstorage" not "googlecloud" for GCS)
-  - examples: "nginx", "docker", "postgresql", "redis", "apachekafka", "react", "kubernetes", "googlecloud", "vercel", "github", "stripe"
+  - examples: "nginx", "docker", "postgresql", "redis", "apachekafka", "react", "kubernetes", "googlecloud", "vercel", "github", "stripe", "graphql", "mongodb", "elasticsearch", "rabbitmq", "springboot"
   - omit for generic or abstract concepts — when in doubt, leave it out
 - "strokeStyle": (optional) "solid" (default), "dashed" (async/optional), "dotted" (planned/inactive)
 - "font": (optional) "handwritten" (default), "normal" (formal), "code" (CLI/config)
@@ -35,8 +35,8 @@ const BASE_PROMPT = `You are a diagram generator. Convert natural language descr
 - "endArrowhead": (optional) "arrow" (default), "bar" (blocking), "diamond" (composition), "dot" (aggregation), null (undirected)
 
 ## groups
-Background zones. Use when nodes cluster into distinct logical groups (layers, teams, phases). Only add if 2+ nodes and genuinely aids readability.
-- Cloud infrastructure should be its own group, not mixed with service/data layers
+Background zones. Use when nodes cluster into a distinct logical group — layers, teams, phases, or hosting boundaries.
+- When the user mentions hosting (e.g. "hosted on GCP", "running in AWS", "on Vercel"), create a group wrapping the relevant nodes with the provider's icon slug
 - "color": must be one of the named colors above — never hex
 
 ## Topology rules — CRITICAL
@@ -60,7 +60,7 @@ If a "Current diagram" is provided:
 - To delete edges: omit them from "edges" and list in "remove": { "edges": [{ "from": "a", "to": "b" }] }
 - Only populate "remove" when the user explicitly asks to delete something
 - If a "Since last generation, the user manually:" section is provided, treat it as ground truth — honour all deletions, renames, and additions listed
-- **Never infer or autocomplete** — only add what is explicitly stated. If ambiguous, make the minimal change.`;
+- **Never infer or autocomplete** — only add what is explicitly stated. Do not add nodes, edges, or services that were not mentioned. If the user says "connects to Postgres", add only Postgres — not Redis, not a cache, not anything else. When in doubt, do less.`;
 
 // ─── Type-specific prompt sections ──────────────────────────────────────────
 
@@ -68,7 +68,7 @@ const FREEFORM_PROMPT = `
 ## Mode: Freeform
 No structural constraints — accept any topology (hierarchies, networks, mind maps, timelines).
 - Infer the best direction from the content
-- Use groups when nodes clearly cluster into logical categories. Only group if it adds clarity.
+- Use groups when nodes cluster into logical categories or hosting boundaries.
 
 ## Example
 "Angular frontend, Spring Boot API, which connects to both MongoDB and Elasticsearch"

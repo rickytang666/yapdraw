@@ -8,33 +8,20 @@ export { SPEED_PRESETS };
 
 // terms that are out-of-vocabulary enough for keyword boost to help
 const SYSARCH_KEYWORDS = [
-  "kubernetes",
+  "async",
   "nginx",
   "postgresql",
   "elasticsearch",
   "rabbitmq",
-  "dynamodb",
-  "cloudfront",
-  "fargate",
-  "terraform",
-  "ansible",
-  "prometheus",
-  "grafana",
+  "graphql",
   "datadog",
-  "sendgrid",
   "supabase",
   "netlify",
   "cloudflare",
-  "traefik",
-  "istio",
-  "envoy",
-  "zookeeper",
-  "clickhouse",
-  "snowflake",
+  "astro",
   "bigquery",
-  "airflow",
   "llm",
-  "drizzle",
+  "vue",
 ];
 
 // phonetic near-misses
