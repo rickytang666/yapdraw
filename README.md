@@ -18,13 +18,9 @@ YapDraw is [Wispr Flow](https://wisprflow.ai) for [Excalidraw](https://excalidra
 
 Describe anything out loud — a system architecture, a business process, a research workflow, a project plan — and it draws it as a clean, editable Excalidraw diagram. No code, no syntax, no drag-and-drop. For anyone who has ever stared at a blank whiteboard.
 
-## [Demo Video](https://youtu.be/JoLELmPKW6w?si=vIdsas2C-dv69O4P)
+## Demo
 
-<div align="center">
-<a href="https://youtu.be/JoLELmPKW6w?si=vIdsas2C-dv69O4P">
-<img src="public/landing.png" alt="landing page">
-</a>
-</div>
+Watch it on [YouTube](https://youtu.be/gSKKap_LVrg).
 
 ## Features
 

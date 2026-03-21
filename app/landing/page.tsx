@@ -18,7 +18,7 @@ import {
   siGithub,
 } from "simple-icons";
 import { IconStar, IconArrowRight, IconFolders } from "@tabler/icons-react";
-import { FaGithub } from "react-icons/fa";
+import { FaGithub, FaYoutube } from "react-icons/fa";
 
 const indieFlower = Indie_Flower({
   subsets: ["latin"],
@@ -251,18 +251,31 @@ export default function LandingPage() {
               YapDraw
             </span>
           </div>
-          <a
-            href="https://github.com/rickytang666/yapdraw"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 rounded-full border border-border/50 hover:border-border transition-all group shadow-sm"
-          >
-            <FaGithub className="w-5 h-5 shrink-0" />
-            <span className="text-[11px] font-semibold tracking-wide hidden sm:block">
-              Star us on GitHub!
-            </span>
-            <IconStar className="w-4 h-4 group-hover:fill-yellow-500/40 group-hover:text-yellow-500 transition-colors hidden sm:block shrink-0" />
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href="https://github.com/rickytang666/yapdraw"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 rounded-full border border-border/50 hover:border-border transition-all group shadow-sm"
+            >
+              <FaGithub className="w-5 h-5 shrink-0" />
+              <span className="text-[11px] font-semibold tracking-wide hidden sm:block">
+                Star us on GitHub!
+              </span>
+              <IconStar className="w-4 h-4 group-hover:fill-yellow-500/40 group-hover:text-yellow-500 transition-colors hidden sm:block shrink-0" />
+            </a>
+            <a
+              href="https://youtu.be/gSKKap_LVrg"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 rounded-full border border-border/50 hover:border-border transition-all group shadow-sm"
+            >
+              <FaYoutube className="w-5 h-5 shrink-0 group-hover:text-[#FF0000] transition-colors" />
+              <span className="text-[11px] font-semibold tracking-wide hidden sm:block">
+                Demo Video
+              </span>
+            </a>
+          </div>
         </div>
 
         <div className="flex flex-col gap-3 max-w-xl">
