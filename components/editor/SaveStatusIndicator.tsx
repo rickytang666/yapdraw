@@ -1,6 +1,6 @@
 'use client'
 
-import type { SaveStatus } from '@/hooks/useAutoSave'
+import type { SaveStatus } from '@/hooks/editor/useAutoSave'
 
 interface Props {
   status: SaveStatus

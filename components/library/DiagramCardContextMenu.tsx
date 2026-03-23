@@ -16,7 +16,7 @@ import {
   IconFileCode,
 } from '@tabler/icons-react'
 import type { Diagram, Folder } from '@/types/library'
-import { exportAsExcalidraw, exportAsJSON } from '@/lib/export'
+import { exportAsExcalidraw, exportAsJSON } from '@/lib/io/export'
 
 interface Props {
   diagram: Diagram

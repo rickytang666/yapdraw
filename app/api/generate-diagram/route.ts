@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
-import { generateDiagram } from '@/lib/llm'
-import type { ProviderConfig } from '@/lib/llm'
+import { generateDiagram } from '@/lib/ai/llm'
+import type { ProviderConfig } from '@/lib/ai/llm'
 import type { GraphResponse } from '@/types/diagram'
 import type { DiagramType } from '@/types/library'
 

@@ -7,7 +7,7 @@ import {
 } from 'react'
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
 import { ExcalidrawElement, BinaryFileData } from '@/types/diagram'
-import { mergeElements, prepareForConversion, enrichArrows } from '@/lib/excalidraw-helpers'
+import { mergeElements, prepareForConversion, enrichArrows } from '@/lib/render/excalidraw-helpers'
 
 export interface ExcalidrawCanvasHandle {
   updateDiagram: (elements: ExcalidrawElement[], opts?: { replace?: boolean; files?: BinaryFileData[] }) => void

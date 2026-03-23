@@ -2,8 +2,8 @@ import OpenAI from "openai";
 import type { ExcalidrawElement, GraphResponse } from "@/types/diagram";
 import type { DiagramType, UserProvider } from "@/types/library";
 import { getSystemPrompt } from "./prompts";
-import { layoutGraph } from "./layout";
-import { fetchIcons } from "./icons";
+import { layoutGraph } from "../render/layout";
+import { fetchIcons } from "../render/icons";
 
 export type { UserProvider }
 

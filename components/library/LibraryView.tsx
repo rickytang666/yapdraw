@@ -10,13 +10,13 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
-import { useLibrary } from '@/hooks/useLibrary'
-import { useFolders } from '@/hooks/useFolders'
-import { useFolderOperations } from '@/hooks/useFolderOperations'
+import { useLibrary } from '@/hooks/library/useLibrary'
+import { useFolders } from '@/hooks/library/useFolders'
+import { useFolderOperations } from '@/hooks/library/useFolderOperations'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { useUserSettings } from '@/hooks/useUserSettings'
-import { migrateFromLocalStorage } from '@/lib/migrate'
-import { importExcalidrawFile } from '@/lib/import'
+import { migrateFromLocalStorage } from '@/lib/io/migrate'
+import { importExcalidrawFile } from '@/lib/io/import'
 import { db } from '@/lib/db'
 import { createDiagram } from '@/lib/diagram'
 import type { DiagramType, FolderColor } from '@/types/library'

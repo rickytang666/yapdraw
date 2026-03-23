@@ -5,7 +5,7 @@ import { IconSend } from "@tabler/icons-react";
 import MicButton from "./MicButton";
 import InterimIndicator from "./InterimIndicator";
 import VersionTimeline, { type VersionTimelineHandle } from "./VersionTimeline";
-import { useDeepgram, type SpeechSpeed } from "@/hooks/useDeepgram";
+import { useDeepgram, type SpeechSpeed } from "@/hooks/editor/useDeepgram";
 import type { ExcalidrawCanvasHandle } from "@/components/editor/ExcalidrawCanvas";
 import type { ExcalidrawElement } from "@/types/diagram";
 import type { DiagramType } from "@/types/library";

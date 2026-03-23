@@ -1,7 +1,7 @@
 import { useRef, useCallback, useEffect, useState, type RefObject } from 'react'
 import { db } from '@/lib/db'
 import { nanoid } from 'nanoid'
-import { pruneVersionsForDiagram } from '@/hooks/useVersionHistory'
+import { pruneVersionsForDiagram } from './useVersionHistory'
 import type { ExcalidrawCanvasHandle } from '@/components/editor/ExcalidrawCanvas'
 import type { ExcalidrawElement } from '@/types/diagram'
 

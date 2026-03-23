@@ -8,7 +8,7 @@ import {
   IconChevronRight,
   IconChevronDown,
 } from '@tabler/icons-react'
-import type { FolderNode } from '@/hooks/useFolders'
+import type { FolderNode } from '@/hooks/library/useFolders'
 import type { FolderColor, SidebarSection } from '@/types/library'
 
 const COLOR_CLASS: Record<FolderColor, string> = {

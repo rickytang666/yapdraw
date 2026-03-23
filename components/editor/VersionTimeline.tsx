@@ -2,7 +2,7 @@
 
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { IconArrowBackUp, IconClock, IconChevronRight, IconX } from '@tabler/icons-react'
-import { useVersionHistory } from '@/hooks/useVersionHistory'
+import { useVersionHistory } from '@/hooks/editor/useVersionHistory'
 import { decodeAIMeta } from '@/lib/versionMeta'
 import type { ExcalidrawCanvasHandle } from '@/components/editor/ExcalidrawCanvas'
 import type { ExcalidrawElement } from '@/types/diagram'

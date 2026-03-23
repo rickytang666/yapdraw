@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import FolderTreeItem from './FolderTreeItem'
 import FolderContextMenu from './FolderContextMenu'
-import type { FolderNode } from '@/hooks/useFolders'
+import type { FolderNode } from '@/hooks/library/useFolders'
 import type { SidebarSection } from '@/types/library'
 
 interface Props {

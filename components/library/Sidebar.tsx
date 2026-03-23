@@ -9,7 +9,7 @@ IconTrash,
   IconFolderPlus,
 } from "@tabler/icons-react";
 import type { SidebarSection } from "@/types/library";
-import type { FolderNode } from "@/hooks/useFolders";
+import type { FolderNode } from "@/hooks/library/useFolders";
 import FolderTree from "./FolderTree";
 
 interface Props {

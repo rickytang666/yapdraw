@@ -17,7 +17,7 @@ import {
   IconBraces,
   IconCheck,
 } from "@tabler/icons-react";
-import { exportAsExcalidraw, exportAsJSON } from "@/lib/export";
+import { exportAsExcalidraw, exportAsJSON } from "@/lib/io/export";
 import { graphToMermaid } from "@/lib/mermaid";
 import type { Diagram } from "@/types/library";
 import type { ExcalidrawCanvasHandle } from "@/components/editor/ExcalidrawCanvas";

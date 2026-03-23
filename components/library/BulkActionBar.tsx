@@ -10,7 +10,7 @@ import {
   IconPackageExport,
 } from '@tabler/icons-react'
 import FolderPicker from './FolderPicker'
-import { exportBulkAsZip } from '@/lib/export'
+import { exportBulkAsZip } from '@/lib/io/export'
 import type { Folder, Diagram } from '@/types/library'
 
 interface Props {
