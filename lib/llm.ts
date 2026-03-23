@@ -1,11 +1,11 @@
 import OpenAI from "openai";
 import type { ExcalidrawElement, GraphResponse } from "@/types/diagram";
-import type { DiagramType } from "@/types/library";
+import type { DiagramType, UserProvider } from "@/types/library";
 import { getSystemPrompt } from "./prompts";
 import { layoutGraph } from "./layout";
 import { fetchIcons } from "./icons";
 
-export type UserProvider = 'openrouter' | 'google'
+export type { UserProvider }
 
 export interface ProviderConfig {
   provider: UserProvider

@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
+import type { UserProvider } from "@/types/library";
 
-export type UserProvider = "openrouter" | "google";
+export type { UserProvider }
 
 export interface UserSettings {
   provider: UserProvider;

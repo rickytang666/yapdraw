@@ -18,8 +18,8 @@ import { useUserSettings } from '@/hooks/useUserSettings'
 import { migrateFromLocalStorage } from '@/lib/migrate'
 import { importExcalidrawFile } from '@/lib/import'
 import { db } from '@/lib/db'
-import { nanoid } from 'nanoid'
-import type { Diagram, DiagramType, FolderColor } from '@/types/library'
+import { createDiagram } from '@/lib/diagram'
+import type { DiagramType, FolderColor } from '@/types/library'
 import Sidebar from './Sidebar'
 import LibraryHeader from './LibraryHeader'
 import LibraryContent from './LibraryContent'
@@ -63,22 +63,12 @@ export default function LibraryView() {
 
   async function handleCreateDiagram(name: string, diagramType: DiagramType) {
     setShowNewModal(false)
-    const id = nanoid()
-    const now = Date.now()
     const folderId = lib.state.activeSection.startsWith('folder:')
       ? lib.state.activeSection.slice(7)
       : null
-
-    const diagram: Diagram = {
-      id, name, folderId, elements: [], transcript: '', diagramType,
-      thumbnail: null, files: {}, graph: null, tags: [],
-      starred: false, locked: false, createdAt: now, updatedAt: now,
-      lastOpenedAt: now, version: 1, trashedAt: null,
-      metadata: { elementCount: 0, arrowCount: 0, colorPalette: [], generatedVia: 'manual' },
-    }
-
+    const diagram = createDiagram({ name, folderId, diagramType })
     await db.diagrams.add(diagram)
-    router.push(`/d/${id}`)
+    router.push(`/d/${diagram.id}`)
   }
 
   async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
