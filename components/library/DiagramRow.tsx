@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from 'react'
 import { IconStar, IconStarFilled, IconCopy, IconTrash } from '@tabler/icons-react'
 import type { Diagram, Folder } from '@/types/library'
+import { formatDate } from '@/lib/utils'
 
 interface Props {
   diagram: Diagram
@@ -13,14 +14,6 @@ interface Props {
   onStar: (starred: boolean) => void
   onDuplicate: () => void
   onTrash: () => void
-}
-
-function formatDate(ts: number): string {
-  return new Date(ts).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
 }
 
 const TYPE_COLORS: Record<string, string> = {

@@ -3,18 +3,13 @@
 import { useSyncExternalStore } from 'react'
 import { IconTrash, IconArrowBackUp } from '@tabler/icons-react'
 import type { Diagram } from '@/types/library'
+import { formatDate } from '@/lib/utils'
 
 interface Props {
   diagrams: Diagram[]
   onRestore: (id: string) => void
   onDelete: (id: string) => void
   onEmptyTrash: () => void
-}
-
-function formatDate(ts: number): string {
-  return new Date(ts).toLocaleDateString(undefined, {
-    month: 'short', day: 'numeric', year: 'numeric',
-  })
 }
 
 export default function TrashView({ diagrams, onRestore, onDelete, onEmptyTrash }: Props) {

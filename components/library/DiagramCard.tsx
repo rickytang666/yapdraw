@@ -7,6 +7,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { IconStar, IconStarFilled, IconTrash, IconCopy } from '@tabler/icons-react'
 import type { Diagram, Folder } from '@/types/library'
 import DiagramCardContextMenu from './DiagramCardContextMenu'
+import { formatDate } from '@/lib/utils'
 
 interface Props {
   diagram: Diagram
@@ -18,11 +19,6 @@ interface Props {
   onRename: (name: string) => void
   onMove: (folderId: string | null) => void
   onToggleSelect?: () => void
-}
-
-function formatDate(ts: number): string {
-  const d = new Date(ts)
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 export default function DiagramCard({
