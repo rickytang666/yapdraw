@@ -1,9 +1,15 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useState, useRef, useEffect } from "react";
+import {
+  forwardRef,
+  useImperativeHandle,
+  useState,
+  useRef,
+  useEffect,
+} from "react";
 
 export interface EditorMenuHandle {
-  toggle: () => void
+  toggle: () => void;
 }
 import {
   IconDotsVertical,
@@ -29,15 +35,13 @@ interface Props {
   onToggleLock: () => void;
 }
 
-const EditorMenu = forwardRef<EditorMenuHandle, Props>(function EditorMenu({
-  diagram,
-  canvasRef,
-  onDuplicate,
-  onToggleLock,
-}, ref) {
+const EditorMenu = forwardRef<EditorMenuHandle, Props>(function EditorMenu(
+  { diagram, canvasRef, onDuplicate, onToggleLock },
+  ref,
+) {
   const [isOpen, setIsOpen] = useState(false);
 
-  useImperativeHandle(ref, () => ({ toggle: () => setIsOpen(v => !v) }));
+  useImperativeHandle(ref, () => ({ toggle: () => setIsOpen((v) => !v) }));
   const [copied, setCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -196,6 +200,6 @@ const EditorMenu = forwardRef<EditorMenuHandle, Props>(function EditorMenu({
       )}
     </div>
   );
-})
+});
 
-export default EditorMenu
+export default EditorMenu;

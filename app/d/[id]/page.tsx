@@ -116,7 +116,6 @@ export default function EditorPage({ params }: Props) {
         canvasRef={canvasRef}
       />
 
-      {/* mobile warning */}
       <div className="lg:hidden flex items-center justify-center py-1.5 px-4 bg-amber-50 border-b border-amber-200 text-amber-700 text-xs shrink-0">
         For best experience, open on a desktop browser.
       </div>

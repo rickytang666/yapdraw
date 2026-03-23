@@ -1,25 +1,34 @@
- 'use client'
+"use client";
 
-import { useSyncExternalStore } from 'react'
-import { IconTrash, IconArrowBackUp } from '@tabler/icons-react'
-import type { Diagram } from '@/types/library'
-import { formatDate } from '@/lib/utils'
+import { useSyncExternalStore } from "react";
+import { IconTrash, IconArrowBackUp } from "@tabler/icons-react";
+import type { Diagram } from "@/types/library";
+import { formatDate } from "@/lib/utils";
 
 interface Props {
-  diagrams: Diagram[]
-  onRestore: (id: string) => void
-  onDelete: (id: string) => void
-  onEmptyTrash: () => void
+  diagrams: Diagram[];
+  onRestore: (id: string) => void;
+  onDelete: (id: string) => void;
+  onEmptyTrash: () => void;
 }
 
-export default function TrashView({ diagrams, onRestore, onDelete, onEmptyTrash }: Props) {
-  const hasMounted = useSyncExternalStore(() => () => {}, () => true, () => false)
+export default function TrashView({
+  diagrams,
+  onRestore,
+  onDelete,
+  onEmptyTrash,
+}: Props) {
+  const hasMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       <div className="flex items-center justify-between px-6 py-3 border-b border-border-subtle">
         <p className="text-sm text-placeholder">
-          {diagrams.length} item{diagrams.length !== 1 ? 's' : ''} in trash
+          {diagrams.length} item{diagrams.length !== 1 ? "s" : ""} in trash
         </p>
         {diagrams.length > 0 && (
           <button
@@ -39,15 +48,18 @@ export default function TrashView({ diagrams, onRestore, onDelete, onEmptyTrash 
       ) : (
         <div className="overflow-y-auto flex-1 p-4">
           <div className="flex flex-col gap-2">
-            {diagrams.map(d => (
+            {diagrams.map((d) => (
               <div
                 key={d.id}
                 className="flex items-center justify-between px-4 py-3 bg-white rounded-lg border border-border-subtle"
               >
                 <div>
-                  <p className="text-sm font-medium text-foreground">{d.name}</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {d.name}
+                  </p>
                   <p className="text-xs text-placeholder">
-                    Trashed {hasMounted && d.trashedAt ? formatDate(d.trashedAt) : ''}
+                    Trashed{" "}
+                    {hasMounted && d.trashedAt ? formatDate(d.trashedAt) : ""}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -72,5 +84,5 @@ export default function TrashView({ diagrams, onRestore, onDelete, onEmptyTrash 
         </div>
       )}
     </div>
-  )
+  );
 }

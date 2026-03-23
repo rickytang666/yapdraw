@@ -9,7 +9,6 @@ import ArchitectureDemo from '@/components/landing/ArchitectureDemo'
 export default function LandingPage() {
   return (
     <div className="h-screen max-h-dvh w-full bg-[#FDFDFC] text-[#111111] font-sans overflow-y-auto overflow-x-hidden flex flex-col justify-start selection:bg-[#EAEAEA]">
-      {/* background soft grid */}
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.25] mix-blend-multiply flex-1"
         style={{
@@ -20,7 +19,6 @@ export default function LandingPage() {
       />
 
       <header className="relative z-10 px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 flex flex-col gap-6">
-        {/* navbar */}
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
             <div className="w-6 h-6 rounded overflow-hidden shadow-sm flex items-center justify-center border border-[#EAEAEA] bg-white">
@@ -51,7 +49,6 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* hero */}
         <div className="flex flex-col gap-3 max-w-xl">
           <h1 className="text-[34px] md:text-[42px] font-medium tracking-tight text-[#111111] leading-[1.1]">
             The whiteboard that{' '}

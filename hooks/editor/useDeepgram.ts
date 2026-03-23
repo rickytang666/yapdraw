@@ -6,7 +6,7 @@ const SPEED_PRESETS = { fast: 800, normal: 1200, slow: 1800 } as const;
 export type SpeechSpeed = keyof typeof SPEED_PRESETS;
 export { SPEED_PRESETS };
 
-// terms that are out-of-vocabulary enough for keyword boost to help
+// Deepgram keyword boost for OOV tech terms
 const SYSARCH_KEYWORDS = [
   "async",
   "nginx",
@@ -24,7 +24,6 @@ const SYSARCH_KEYWORDS = [
   "vue",
 ];
 
-// phonetic near-misses
 const SYSARCH_REGEX_REPLACEMENTS: [RegExp, string][] = [
   [/\b(lang|line|lam|lambda|land|lon)\s*(chain|Shane|chains)\b/gi, "LangChain"],
   [/\b(lang|line|lam|lambda|land|lon)\s*graph\b/gi, "LangGraph"],
@@ -37,9 +36,9 @@ const SYSARCH_REGEX_REPLACEMENTS: [RegExp, string][] = [
   [/\bdynamo\s*db\b/gi, "DynamoDB"],
   [/\bfire\s*base\b/gi, "Firebase"],
   [/\bver\s*cel\b/gi, "Vercel"],
-  [/\btraffic\b/gi, "Traefik"], // traefik is almost always heard as traffic
+  [/\btraffic\b/gi, "Traefik"], // ASR: "Traefik" → "traffic"
   [/\bpost\s*gres\s*(sql)?\b/gi, "PostgreSQL"],
-  [/\bpostgresql\s+sql\b/gi, "PostgreSQL"], // dedupe doubled suffix
+  [/\bpostgresql\s+sql\b/gi, "PostgreSQL"],
   [/\bL\.?R\.?M\b/g, "LLM"],
 ];
 
@@ -68,7 +67,7 @@ export function useDeepgram(
   const finalTranscriptRef = useRef("");
   const onSilenceRef = useRef(onSilence);
   const onErrorRef = useRef(onError);
-  const activeSessionRef = useRef(0); // incremented on each start; stale callbacks self-cancel
+  const activeSessionRef = useRef(0); // bump on start; stale handlers no-op
   onSilenceRef.current = onSilence;
   onErrorRef.current = onError;
 
@@ -90,7 +89,7 @@ export function useDeepgram(
   const resetSilenceTimer = useCallback((session: number) => {
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     silenceTimerRef.current = setTimeout(() => {
-      if (session !== activeSessionRef.current) return; // stale session
+      if (session !== activeSessionRef.current) return;
       if (finalTranscriptRef.current.trim()) {
         onSilenceRef.current(finalTranscriptRef.current);
         finalTranscriptRef.current = "";
@@ -100,7 +99,6 @@ export function useDeepgram(
   }, []);
 
   const start = useCallback(async () => {
-    // Tear down any existing session first
     teardown();
 
     const session = ++activeSessionRef.current;
@@ -109,7 +107,7 @@ export function useDeepgram(
       const res = await fetch("/api/deepgram-token");
       const { key, error } = await res.json();
       if (error) throw new Error(error);
-      if (session !== activeSessionRef.current) return; // superseded
+      if (session !== activeSessionRef.current) return;
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       if (session !== activeSessionRef.current) {
@@ -117,7 +115,7 @@ export function useDeepgram(
         return;
       }
       streamRef.current = stream;
-      setIsListening(true); // mic confirmed — show red immediately while ws connects
+      setIsListening(true); // UI: mic live before WS open
 
       const params = new URLSearchParams({
         model: "nova-2",
@@ -156,7 +154,7 @@ export function useDeepgram(
       };
 
       ws.onmessage = (event) => {
-        if (session !== activeSessionRef.current) return; // stale
+        if (session !== activeSessionRef.current) return;
         const data = JSON.parse(event.data);
 
         if (data.type === "UtteranceEnd") {
@@ -190,11 +188,10 @@ export function useDeepgram(
       };
 
       ws.onerror = () => {
-        // browser hides ws error details — actual reason is in onclose code/reason
         if (session === activeSessionRef.current) teardown();
       };
       ws.onclose = (e) => {
-        // 1005 = no status received — expected when teardown() closes the ws
+        // 1005: no status — normal when we close the socket
         if (
           e.code !== 1000 &&
           e.code !== 1005 &&
@@ -217,11 +214,9 @@ export function useDeepgram(
   }, [teardown, resetSilenceTimer]);
 
   const stop = useCallback(() => {
-    // Invalidate the active session so all in-flight callbacks are ignored
     activeSessionRef.current++;
     teardown();
-    // Don't flush here — any pending transcript was already sent by UtteranceEnd/silence timer,
-    // and flushing here races with the WS draining its last messages.
+    // no final flush: UtteranceEnd/silence already emitted; stop races last WS frames
     finalTranscriptRef.current = "";
     setFinalTranscript("");
   }, [teardown]);

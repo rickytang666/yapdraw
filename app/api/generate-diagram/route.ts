@@ -7,7 +7,7 @@ import type { DiagramType } from '@/types/library'
 function isAuthError(err: unknown): boolean {
   if (!(err instanceof Error)) return false
   const msg = err.message.toLowerCase()
-  // openai sdk surfaces 401/403 in the message
+  // OpenAI SDK folds 401/403 into message text
   return msg.includes('401') || msg.includes('403') || msg.includes('unauthorized') || msg.includes('invalid api key')
 }
 
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       const { elements, graph, files } = await generateDiagram(...args, body.providerConfig)
       return Response.json({ elements, graph, files })
     } catch (err) {
-      // invalid user key — silently fall back to groq
+      // bad BYOK → retry on server Groq
       if (isAuthError(err) && body.providerConfig?.apiKey) {
         const { elements, graph, files } = await generateDiagram(...args, null)
         return Response.json({ elements, graph, files, usedFallback: true })

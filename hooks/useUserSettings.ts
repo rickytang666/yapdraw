@@ -3,11 +3,11 @@
 import { useCallback, useSyncExternalStore } from "react";
 import type { UserProvider } from "@/types/library";
 
-export type { UserProvider }
+export type { UserProvider };
 
 export interface UserSettings {
   provider: UserProvider;
-  apiKey: string; // empty = fall back to free tier (groq)
+  apiKey: string; // empty → Groq
 }
 
 const STORAGE_KEY = "yapdraw-user-settings";

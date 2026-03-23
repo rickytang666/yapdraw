@@ -27,12 +27,10 @@ export default function VersionEntry({ version, isCurrent, isViewing, onView, on
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Status dot */}
       <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
         isViewing ? 'bg-violet-400' : isCurrent ? 'bg-blue-400' : 'bg-zinc-600'
       }`} />
 
-      {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
           <span className="text-[11px] text-zinc-500">v{version.version}</span>
@@ -46,7 +44,6 @@ export default function VersionEntry({ version, isCurrent, isViewing, onView, on
         )}
       </div>
 
-      {/* Actions */}
       {isCurrent ? (
         <span className="text-[10px] text-zinc-600 font-medium shrink-0">current</span>
       ) : (

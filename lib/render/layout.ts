@@ -7,8 +7,7 @@ import type {
   ExcalidrawElement,
 } from "@/types/diagram";
 
-// fontFamily numeric values — sourced from excalidraw bundle (dist/dev/chunk-*.js)
-// type definitions are inaccurate; the bundle is ground truth
+// fontFamily ids from Excalidraw bundle (types lie; bundle is source of truth)
 const FONT_FAMILY: Record<FontStyle, number> = {
   handwritten: 5, // Excalifont
   normal: 6, // Nunito
@@ -16,7 +15,7 @@ const FONT_FAMILY: Record<FontStyle, number> = {
 };
 import { iconFileId, isValidIcon, type IconRequest } from "./icons";
 
-// ── Sizing ────────────────────────────────────────────────────────────────
+// ── Sizing ─────────────────────────────────────────────────────────────────
 
 const SHAPE_SIZE: Record<NodeShape, { w: number; h: number }> = {
   rectangle: { w: 160, h: 70 },
@@ -24,7 +23,7 @@ const SHAPE_SIZE: Record<NodeShape, { w: number; h: number }> = {
   ellipse: { w: 140, h: 60 },
 };
 
-// ── Color palette ─────────────────────────────────────────────────────────
+// ── Color palette ───────────────────────────────────────────────────────────
 
 const COLORS: Record<NodeColor, { fill: string; stroke: string }> = {
   blue: { fill: "#a5d8ff", stroke: "#1971c2" },
@@ -62,7 +61,7 @@ interface Box {
   shape: NodeShape;
 }
 
-// ── Main layout function ──────────────────────────────────────────────────
+// ── Main layout ─────────────────────────────────────────────────────────────
 
 export function layoutGraph(graph: GraphResponse): {
   elements: ExcalidrawElement[];
@@ -101,7 +100,7 @@ export function layoutGraph(graph: GraphResponse): {
 
   dagre.layout(g);
 
-  // ── Collect computed node positions (top-left origin) ──────────────────
+  // ── Node positions (top-left) ────────────────────────────────────────────
 
   const boxes = new Map<string, Box>();
   for (const node of nodes) {
@@ -120,7 +119,7 @@ export function layoutGraph(graph: GraphResponse): {
   const elements: ExcalidrawElement[] = [];
   const iconRequests: IconRequest[] = [];
 
-  // ── Group background zones (behind nodes) ─────────────────────────────
+  // ── Group backgrounds ────────────────────────────────────────────────────
 
   for (const group of groups) {
     const memberBoxes = group.nodes
@@ -160,7 +159,7 @@ export function layoutGraph(graph: GraphResponse): {
       customData: { yapdraw: { type: "group", id: group.id } },
     });
 
-    // Group icon — bottom-left corner, from group.icon slug if provided
+    // group icon: bottom-left from slug
     if (group.icon && isValidIcon(group.icon)) {
       const slug = group.icon;
       const colorHex = gc.stroke;
@@ -187,7 +186,7 @@ export function layoutGraph(graph: GraphResponse): {
     }
   }
 
-  // ── Nodes ─────────────────────────────────────────────────────────────
+  // ── Nodes ────────────────────────────────────────────────────────────────
 
   for (const node of nodes) {
     const box = boxes.get(node.id);
@@ -223,7 +222,7 @@ export function layoutGraph(graph: GraphResponse): {
     if (box.shape === "rectangle") el.roundness = { type: 3 };
     elements.push(el);
 
-    // Icon badge — top-left corner, from node.icon slug if provided
+    // node icon badge: top-left from slug
     if (node.icon && isValidIcon(node.icon)) {
       const slug = node.icon;
       const colorHex = c.stroke;
@@ -250,16 +249,8 @@ export function layoutGraph(graph: GraphResponse): {
     }
   }
 
-  // ── Edges as UNBOUND arrows (explicit coordinates, no Excalidraw bindings)
-  //
-  // Why unbound: Excalidraw bound arrows require exact geometric consistency
-  // between startBinding/endBinding metadata and the points[] array.
-  // One wrong value → "Linear element is not normalized" crash.
-  //
-  // Dagre already clips edge waypoints to shape boundaries — the first waypoint
-  // is on the source shape edge, the last is on the target shape edge.
-  // We use these directly as the arrow path. Zero binding complexity.
-  // ─────────────────────────────────────────────────────────────────────────
+  // ── Edges: unbound arrows (explicit waypoints) ───────────────────────────
+  // bound arrows need points + binding metadata in lockstep → easy normalization crash; Dagre waypoints already sit on shape edges
 
   const edgeCounts = new Map<string, number>();
 
@@ -279,14 +270,10 @@ export function layoutGraph(graph: GraphResponse): {
     const waypoints: Pt[] = dagreEdge?.points ?? [];
     if (waypoints.length < 2) continue;
 
-    // Dagre waypoints are already clipped to shape edges:
-    //   waypoints[0]     = point where arrow leaves source shape
-    //   waypoints[last]  = point where arrow enters target shape
-    //   waypoints[1..-2] = intermediate routing points (orthogonal bends)
     const start = waypoints[0];
     const rest = waypoints.slice(1);
 
-    // Excalidraw requires points[] as offsets from (x, y), with points[0] = [0, 0]
+    // points[] are offsets from arrow x,y; first point must be [0,0]
     const points = [
       [0, 0],
       ...rest.map((p) => [
@@ -313,7 +300,6 @@ export function layoutGraph(graph: GraphResponse): {
       endArrowhead:
         edge.endArrowhead !== undefined ? edge.endArrowhead : "arrow",
       startArrowhead: null,
-      // No startBinding/endBinding — unbound arrows never throw normalization errors
       customData: { yapdraw: { type: "edge", from: edge.from, to: edge.to } },
     };
 

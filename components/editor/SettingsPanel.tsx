@@ -1,61 +1,73 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useRef } from 'react'
-import { IconX } from '@tabler/icons-react'
-import type { UserProvider, UserSettings } from '@/hooks/useUserSettings'
+import { useState, useEffect, useRef } from "react";
+import { IconX } from "@tabler/icons-react";
+import type { UserProvider, UserSettings } from "@/hooks/useUserSettings";
 
 interface Props {
-  settings: UserSettings
-  onSave: (settings: UserSettings) => void
-  onClose: () => void
+  settings: UserSettings;
+  onSave: (settings: UserSettings) => void;
+  onClose: () => void;
 }
 
 const PROVIDERS: { id: UserProvider; label: string; placeholder: string }[] = [
-  { id: 'openrouter', label: 'OpenRouter',       placeholder: 'sk-or-...' },
-  { id: 'google',     label: 'Google AI Studio', placeholder: 'AIza...'   },
-]
+  { id: "openrouter", label: "OpenRouter", placeholder: "sk-or-..." },
+  { id: "google", label: "Google AI Studio", placeholder: "AIza..." },
+];
 
 export default function SettingsPanel({ settings, onSave, onClose }: Props) {
-  const [provider, setProvider] = useState<UserProvider>(settings.provider)
-  const [apiKey, setApiKey]     = useState(settings.apiKey)
-  const overlayRef = useRef<HTMLDivElement>(null)
+  const [provider, setProvider] = useState<UserProvider>(settings.provider);
+  const [apiKey, setApiKey] = useState(settings.apiKey);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { overlayRef.current?.focus() }, [])
+  useEffect(() => {
+    overlayRef.current?.focus();
+  }, []);
 
   function handleSave() {
-    onSave({ provider, apiKey: apiKey.trim() })
-    onClose()
+    onSave({ provider, apiKey: apiKey.trim() });
+    onClose();
   }
 
-  const placeholder = PROVIDERS.find(p => p.id === provider)!.placeholder
+  const placeholder = PROVIDERS.find((p) => p.id === provider)!.placeholder;
 
   return (
     <div
       ref={overlayRef}
       tabIndex={-1}
-      onKeyDown={e => { if (e.key === 'Escape') { e.stopPropagation(); onClose() } }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          e.stopPropagation();
+          onClose();
+        }
+      }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 outline-none"
     >
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
-        {/* header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle">
           <h2 className="text-sm font-semibold text-foreground">Settings</h2>
-          <button onClick={onClose} className="text-placeholder hover:text-muted transition-colors">
+          <button
+            onClick={onClose}
+            className="text-placeholder hover:text-muted transition-colors"
+          >
             <IconX size={18} />
           </button>
         </div>
 
-        {/* body */}
         <div className="px-5 py-4 space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-subtle">AI provider</label>
+            <label className="text-xs font-medium text-subtle">
+              AI provider
+            </label>
             <select
               value={provider}
-              onChange={e => setProvider(e.target.value as UserProvider)}
+              onChange={(e) => setProvider(e.target.value as UserProvider)}
               className="w-full text-sm bg-background border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              {PROVIDERS.map(p => (
-                <option key={p.id} value={p.id}>{p.label}</option>
+              {PROVIDERS.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label}
+                </option>
               ))}
             </select>
           </div>
@@ -65,7 +77,7 @@ export default function SettingsPanel({ settings, onSave, onClose }: Props) {
             <input
               type="password"
               value={apiKey}
-              onChange={e => setApiKey(e.target.value)}
+              onChange={(e) => setApiKey(e.target.value)}
               placeholder={placeholder}
               className="w-full text-sm bg-background border border-border rounded-lg px-3 py-2 text-foreground placeholder-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
             />
@@ -75,7 +87,6 @@ export default function SettingsPanel({ settings, onSave, onClose }: Props) {
           </div>
         </div>
 
-        {/* footer */}
         <div className="flex justify-end gap-2 px-5 py-4 border-t border-border-subtle">
           <button
             onClick={onClose}
@@ -92,5 +103,5 @@ export default function SettingsPanel({ settings, onSave, onClose }: Props) {
         </div>
       </div>
     </div>
-  )
+  );
 }
