@@ -7,9 +7,9 @@ import { db } from "@/lib/db";
 import { nanoid } from "nanoid";
 import ExcalidrawCanvas, {
   ExcalidrawCanvasHandle,
-} from "@/components/ExcalidrawCanvas";
-import VoicePanel, { type VoicePanelHandle } from "@/components/VoicePanel";
-import { type LoadingPhase } from "@/components/LoadingIndicator";
+} from "@/components/editor/ExcalidrawCanvas";
+import VoicePanel, { type VoicePanelHandle } from "@/components/editor/VoicePanel";
+import { type LoadingPhase } from "@/components/editor/LoadingIndicator";
 import EditorTopBar from "@/components/editor/EditorTopBar";
 import { type EditorMenuHandle } from "@/components/editor/EditorMenu";
 import { useAutoSave } from "@/hooks/useAutoSave";

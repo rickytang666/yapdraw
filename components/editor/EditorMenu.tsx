@@ -20,7 +20,7 @@ import {
 import { exportAsExcalidraw, exportAsJSON } from "@/lib/export";
 import { graphToMermaid } from "@/lib/mermaid";
 import type { Diagram } from "@/types/library";
-import type { ExcalidrawCanvasHandle } from "@/components/ExcalidrawCanvas";
+import type { ExcalidrawCanvasHandle } from "@/components/editor/ExcalidrawCanvas";
 
 interface Props {
   diagram: Diagram;

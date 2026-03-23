@@ -4,7 +4,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useSta
 import { IconArrowBackUp, IconClock, IconChevronRight, IconX } from '@tabler/icons-react'
 import { useVersionHistory } from '@/hooks/useVersionHistory'
 import { decodeAIMeta } from '@/lib/versionMeta'
-import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
+import type { ExcalidrawCanvasHandle } from '@/components/editor/ExcalidrawCanvas'
 import type { ExcalidrawElement } from '@/types/diagram'
 import type { DiagramVersion } from '@/types/library'
 import { relativeTime } from '@/lib/utils'

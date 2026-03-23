@@ -4,9 +4,9 @@ import { forwardRef, useImperativeHandle, useRef, useState, useEffect } from "re
 import { IconSend } from "@tabler/icons-react";
 import MicButton from "./MicButton";
 import InterimIndicator from "./InterimIndicator";
-import VersionTimeline, { type VersionTimelineHandle } from "./editor/VersionTimeline";
+import VersionTimeline, { type VersionTimelineHandle } from "./VersionTimeline";
 import { useDeepgram, type SpeechSpeed } from "@/hooks/useDeepgram";
-import type { ExcalidrawCanvasHandle } from "@/components/ExcalidrawCanvas";
+import type { ExcalidrawCanvasHandle } from "@/components/editor/ExcalidrawCanvas";
 import type { ExcalidrawElement } from "@/types/diagram";
 import type { DiagramType } from "@/types/library";
 

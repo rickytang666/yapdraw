@@ -3,7 +3,7 @@
 import { IconArrowLeft, IconStar, IconStarFilled, IconLock, IconBookmark, IconSettings } from '@tabler/icons-react'
 import type { Diagram } from '@/types/library'
 import type { SaveStatus } from '@/hooks/useAutoSave'
-import type { ExcalidrawCanvasHandle } from '@/components/ExcalidrawCanvas'
+import type { ExcalidrawCanvasHandle } from '@/components/editor/ExcalidrawCanvas'
 import InlineName from './InlineName'
 import SaveStatusIndicator from './SaveStatusIndicator'
 import EditorMenu, { type EditorMenuHandle } from './EditorMenu'
