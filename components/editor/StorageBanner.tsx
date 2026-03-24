@@ -12,7 +12,7 @@ export default function StorageBanner() {
 
   useEffect(() => {
     if (localStorage.getItem(STORAGE_KEY) === "1") return;
-    // double rAF: first mounts the element, second triggers the transition
+    // double rAF: paint mounted node, then run opacity transition
     requestAnimationFrame(() => {
       setMounted(true);
       requestAnimationFrame(() => setVisible(true));

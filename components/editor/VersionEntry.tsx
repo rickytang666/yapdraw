@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { IconEye, IconArrowBackUp } from '@tabler/icons-react'
 import type { DiagramVersion } from '@/types/library'
+import { relativeTime } from '@/lib/utils'
 
 interface Props {
   version: DiagramVersion
@@ -11,20 +12,6 @@ interface Props {
   onView: () => void
   onRestore: () => void
 }
-
-function relativeTime(ts: number): string {
-  const diff = Date.now() - ts
-  const s = Math.floor(diff / 1000)
-  if (s < 60) return 'just now'
-  const m = Math.floor(s / 60)
-  if (m < 60) return `${m}m ago`
-  const h = Math.floor(m / 60)
-  if (h < 24) return `${h}h ago`
-  const d = Math.floor(h / 24)
-  if (d < 7) return `${d}d ago`
-  return `${Math.floor(d / 7)}w ago`
-}
-
 export default function VersionEntry({ version, isCurrent, isViewing, onView, onRestore }: Props) {
   const [hovered, setHovered] = useState(false)
 
@@ -40,12 +27,10 @@ export default function VersionEntry({ version, isCurrent, isViewing, onView, on
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Status dot */}
       <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
         isViewing ? 'bg-violet-400' : isCurrent ? 'bg-blue-400' : 'bg-zinc-600'
       }`} />
 
-      {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
           <span className="text-[11px] text-zinc-500">v{version.version}</span>
@@ -59,7 +44,6 @@ export default function VersionEntry({ version, isCurrent, isViewing, onView, on
         )}
       </div>
 
-      {/* Actions */}
       {isCurrent ? (
         <span className="text-[10px] text-zinc-600 font-medium shrink-0">current</span>
       ) : (

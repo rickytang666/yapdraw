@@ -1,10 +1,7 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Image from 'next/image'
-import Link from 'next/link'
-import { IconPlus, IconSearch, IconUpload, IconSettings, IconKey } from '@tabler/icons-react'
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   DndContext,
   type DragEndEvent,
@@ -12,214 +9,130 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-} from '@dnd-kit/core'
-import { useLibrary } from '@/hooks/useLibrary'
-import { useFolders } from '@/hooks/useFolders'
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
-import { migrateFromLocalStorage } from '@/lib/migrate'
-import { importExcalidrawFile } from '@/lib/import'
-import { db } from '@/lib/db'
-import { nanoid } from 'nanoid'
-import type { Diagram, DiagramType, FolderColor } from '@/types/library'
-import Sidebar from './Sidebar'
-import SettingsPanel from '@/components/editor/SettingsPanel'
-import { useUserSettings } from '@/hooks/useUserSettings'
-import DiagramGrid from './DiagramGrid'
-import DiagramList from './DiagramList'
-import TrashView from './TrashView'
-import NewDiagramModal from './NewDiagramModal'
-import NewFolderModal from './NewFolderModal'
-import RenameFolderModal from './RenameFolderModal'
-import BulkActionBar from './BulkActionBar'
-import SortDropdown from './SortDropdown'
-import ViewModeToggle from './ViewModeToggle'
-import EmptyState from './EmptyState'
+} from "@dnd-kit/core";
+import { useLibrary } from "@/hooks/library/useLibrary";
+import { useFolders } from "@/hooks/library/useFolders";
+import { useFolderOperations } from "@/hooks/library/useFolderOperations";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useUserSettings } from "@/hooks/useUserSettings";
+import { migrateFromLocalStorage } from "@/lib/io/migrate";
+import { importExcalidrawFile } from "@/lib/io/import";
+import { db } from "@/lib/db";
+import { createDiagram } from "@/lib/diagram";
+import type { DiagramType, FolderColor } from "@/types/library";
+import Sidebar from "./Sidebar";
+import LibraryHeader from "./LibraryHeader";
+import LibraryContent from "./LibraryContent";
+import SettingsPanel from "@/components/editor/SettingsPanel";
+import NewDiagramModal from "./NewDiagramModal";
+import NewFolderModal from "./NewFolderModal";
+import RenameFolderModal from "./RenameFolderModal";
+import BulkActionBar from "./BulkActionBar";
 
 export default function LibraryView() {
-  const router = useRouter()
-  const lib = useLibrary()
-  const folderHook = useFolders()
+  const router = useRouter();
+  const lib = useLibrary();
+  const folderHook = useFolders();
+  const { settings, setSettings } = useUserSettings();
+  const folderOps = useFolderOperations(folderHook, lib);
 
-  const [showNewModal, setShowNewModal] = useState(false)
-  const [settingsOpen, setSettingsOpen] = useState(false)
-  const { settings, setSettings } = useUserSettings()
-  const [folderModalParentId, setFolderModalParentId] = useState<string | undefined>(undefined)
-  const [showFolderModal, setShowFolderModal] = useState(false)
-  const [renameFolderId, setRenameFolderId] = useState<string | null>(null)
-  const [overFolderId, setOverFolderId] = useState<string | null>(null)
-  const searchRef = useRef<HTMLInputElement>(null)
-  const importInputRef = useRef<HTMLInputElement>(null)
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [overFolderId, setOverFolderId] = useState<string | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
-  )
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+  );
 
-  // Run migration once on first load
   useEffect(() => {
-    migrateFromLocalStorage()
-    lib.purgeExpiredTrash()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    migrateFromLocalStorage();
+    lib.purgeExpiredTrash();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Keyboard shortcuts
   useKeyboardShortcuts({
-    '/': () => {
-      searchRef.current?.focus()
-      searchRef.current?.select()
+    "/": () => {
+      searchRef.current?.focus();
+      searchRef.current?.select();
     },
-    'mod+k': () => {
-      searchRef.current?.focus()
-      searchRef.current?.select()
+    "mod+k": () => {
+      searchRef.current?.focus();
+      searchRef.current?.select();
     },
-    'mod+n': () => {
-      if (!isTrash) setShowNewModal(true)
+    "mod+n": () => {
+      if (!isTrash) setShowNewModal(true);
     },
-    'escape': () => {
-      lib.clearSelection()
+    escape: () => {
+      lib.clearSelection();
     },
-  })
+  });
 
-  const isTrash = lib.state.activeSection === 'trash'
+  const isTrash = lib.state.activeSection === "trash";
 
   async function handleCreateDiagram(name: string, diagramType: DiagramType) {
-    setShowNewModal(false)
-    const id = nanoid()
-    const now = Date.now()
-    const folderId = lib.state.activeSection.startsWith('folder:')
+    setShowNewModal(false);
+    const folderId = lib.state.activeSection.startsWith("folder:")
       ? lib.state.activeSection.slice(7)
-      : null
-
-    const diagram: Diagram = {
-      id,
-      name,
-      folderId,
-      elements: [],
-      transcript: '',
-      diagramType,
-      thumbnail: null, files: {}, graph: null,
-      tags: [],
-      starred: false,
-      locked: false,
-      createdAt: now,
-      updatedAt: now,
-      lastOpenedAt: now,
-      version: 1,
-      trashedAt: null,
-      metadata: {
-        elementCount: 0,
-        arrowCount: 0,
-        colorPalette: [],
-        generatedVia: 'manual',
-      },
-    }
-
-    await db.diagrams.add(diagram)
-    router.push(`/d/${id}`)
+      : null;
+    const diagram = createDiagram({ name, folderId, diagramType });
+    await db.diagrams.add(diagram);
+    router.push(`/d/${diagram.id}`);
   }
 
-  function handleCreateFolder(parentId?: string) {
-    setFolderModalParentId(parentId)
-    setShowFolderModal(true)
-  }
-
-  async function handleConfirmFolder(name: string, color: FolderColor | null) {
-    setShowFolderModal(false)
-    try {
-      const id = await folderHook.createFolder(name, folderModalParentId)
-      if (color) await folderHook.setFolderColor(id, color)
-    } catch (err) {
-      alert((err as Error).message)
-    }
-  }
-
-  async function handleRenameFolder(id: string) {
-    const folder = folderHook.folders.find(f => f.id === id)
-    if (!folder) return
-    setRenameFolderId(id)
-  }
-
-  async function handleConfirmRenameFolder(name: string) {
-    if (!renameFolderId) return
-    await folderHook.renameFolder(renameFolderId, name)
-    setRenameFolderId(null)
-  }
-
-  async function handleDeleteFolder(id: string) {
-    const folder = folderHook.folders.find(f => f.id === id)
-    if (!folder) return
-    const confirmed = window.confirm(
-      `Delete folder "${folder.name}"? All diagrams inside will be moved to root.`
-    )
-    if (!confirmed) return
-    await folderHook.deleteFolder(id)
-    if (lib.state.activeSection === `folder:${id}`) {
-      lib.setSection('all')
-    }
-  }
-
-  // Import handler
   async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    // Reset the input so the same file can be imported again
-    e.target.value = ''
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
     try {
-      const newId = await importExcalidrawFile(file)
-      router.push(`/d/${newId}`)
+      const newId = await importExcalidrawFile(file);
+      router.push(`/d/${newId}`);
     } catch (err) {
-      console.error('Import failed:', err)
-      alert('Failed to import file. Make sure it is a valid .excalidraw file.')
+      console.error("Import failed:", err);
+      alert("Failed to import file. Make sure it is a valid .excalidraw file.");
     }
   }
 
-  // DnD handlers
   function handleDragOver(event: DragOverEvent) {
-    const { over } = event
-    if (over && typeof over.id === 'string' && over.id.startsWith('folder:')) {
-      setOverFolderId(over.id.slice(7))
-    } else {
-      setOverFolderId(null)
-    }
+    const { over } = event;
+    setOverFolderId(
+      over && typeof over.id === "string" && over.id.startsWith("folder:")
+        ? over.id.slice(7)
+        : null,
+    );
   }
 
   async function handleDragEnd(event: DragEndEvent) {
-    setOverFolderId(null)
-    const { active, over } = event
-    if (!over) return
-
-    const draggedId = active.id as string
-    const overId = over.id as string
-
-    if (overId.startsWith('folder:')) {
-      const folderId = overId.slice(7)
-      await lib.moveDiagram(draggedId, folderId)
+    setOverFolderId(null);
+    const { active, over } = event;
+    if (!over) return;
+    const overId = over.id as string;
+    if (overId.startsWith("folder:")) {
+      await lib.moveDiagram(active.id as string, overId.slice(7));
     }
   }
 
   function sectionLabel(): string {
     switch (lib.state.activeSection) {
-      case 'all': return 'All Diagrams'
-      case 'starred': return 'Starred'
-      case 'trash': return 'Trash'
+      case "all":
+        return "All Diagrams";
+      case "starred":
+        return "Starred";
+      case "trash":
+        return "Trash";
       default:
-        if (lib.state.activeSection.startsWith('folder:')) {
-          const fid = lib.state.activeSection.slice(7)
-          const folder = folderHook.folders.find(f => f.id === fid)
-          return folder?.name || 'Folder'
+        if (lib.state.activeSection.startsWith("folder:")) {
+          const folder = folderHook.folders.find(
+            (f) => f.id === lib.state.activeSection.slice(7),
+          );
+          return folder?.name || "Folder";
         }
-        return 'Library'
+        return "Library";
     }
   }
 
-  function getEmptyVariant(): 'empty-library' | 'empty-folder' | 'no-results' | 'empty-starred' {
-    if (lib.state.searchQuery.trim()) return 'no-results'
-    if (lib.state.activeSection === 'starred') return 'empty-starred'
-    if (lib.state.activeSection.startsWith('folder:')) return 'empty-folder'
-    return 'empty-library'
-  }
-
-  const selectedIds = lib.state.selectedIds
-  const hasBulkSelection = selectedIds.size > 0
+  const selectedIds = lib.state.selectedIds;
 
   return (
     <DndContext
@@ -241,30 +154,35 @@ export default function LibraryView() {
             onCancel={() => setShowNewModal(false)}
           />
         )}
-        {showFolderModal && (
+        {folderOps.showFolderModal && (
           <NewFolderModal
             parentName={
-              folderModalParentId
-                ? folderHook.folders.find(f => f.id === folderModalParentId)?.name
+              folderOps.folderModalParentId
+                ? folderHook.folders.find(
+                    (f) => f.id === folderOps.folderModalParentId,
+                  )?.name
                 : undefined
             }
-            onConfirm={handleConfirmFolder}
-            onCancel={() => setShowFolderModal(false)}
+            onConfirm={(name: string, color: FolderColor | null) =>
+              folderOps.handleConfirmFolder(name, color)
+            }
+            onCancel={folderOps.closeFolderModal}
           />
         )}
-
-        {renameFolderId && (
+        {folderOps.renameFolderId && (
           <RenameFolderModal
             folder={{
-              id: renameFolderId,
-              name: folderHook.folders.find(f => f.id === renameFolderId)?.name || 'Folder',
+              id: folderOps.renameFolderId,
+              name:
+                folderHook.folders.find(
+                  (f) => f.id === folderOps.renameFolderId,
+                )?.name || "Folder",
             }}
-            onConfirm={handleConfirmRenameFolder}
-            onCancel={() => setRenameFolderId(null)}
+            onConfirm={folderOps.handleConfirmRenameFolder}
+            onCancel={folderOps.closeRenameModal}
           />
         )}
 
-        {/* Hidden import file input */}
         <input
           ref={importInputRef}
           type="file"
@@ -279,181 +197,54 @@ export default function LibraryView() {
           onSection={lib.setSection}
           folders={folderHook.tree}
           overFolderId={overFolderId}
-          onCreateFolder={() => handleCreateFolder()}
-          onRenameFolder={handleRenameFolder}
-          onDeleteFolder={handleDeleteFolder}
-          onAddSubfolder={parentId => handleCreateFolder(parentId)}
+          onCreateFolder={() => folderOps.handleCreateFolder()}
+          onRenameFolder={folderOps.handleRenameFolder}
+          onDeleteFolder={folderOps.handleDeleteFolder}
+          onAddSubfolder={(parentId) => folderOps.handleCreateFolder(parentId)}
         />
 
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-          {/* Header */}
-          <header className="flex items-center gap-2 md:gap-3 h-14 px-4 md:px-6 border-b border-surface bg-white shrink-0">
-            <Link href="/" className="sm:hidden shrink-0">
-              <Image src="/yapdraw_logo.png" alt="YapDraw" width={24} height={24} className="rounded" />
-            </Link>
-            <h2 className="text-foreground font-semibold text-base shrink-0 hidden sm:block">{sectionLabel()}</h2>
-
-            {/* Search */}
-            {!isTrash && (
-              <div className="flex items-center gap-2 sm:ml-4 bg-white border border-border-subtle rounded-md px-3 py-1.5 flex-1 max-w-xs">
-                <IconSearch size={14} className="text-placeholder shrink-0" />
-                <input
-                  ref={searchRef}
-                  className="bg-transparent text-sm text-foreground placeholder-placeholder outline-none flex-1"
-                  placeholder="Search diagrams…"
-                  value={lib.state.searchQuery}
-                  onChange={e => lib.setSearch(e.target.value)}
-                />
-                {!lib.state.searchQuery && (
-                  <kbd className="hidden sm:flex items-center gap-0.5 text-placeholder text-xs font-sans pointer-events-none">
-                    <span className="text-[11px]">⌘</span>K
-                  </kbd>
-                )}
-              </div>
-            )}
-
-            <div className="flex-1" />
-
-            {/* Sort + View toggles */}
-            {!isTrash && (
-              <div className="hidden md:flex items-center gap-2">
-                <SortDropdown
-                  sortField={lib.state.sortField}
-                  sortDirection={lib.state.sortDirection}
-                  onSort={lib.setSort}
-                />
-                <ViewModeToggle
-                  viewMode={lib.state.viewMode}
-                  onToggle={lib.setViewMode}
-                />
-              </div>
-            )}
-
-            {/* Import button */}
-            {!isTrash && (
-              <button
-                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 text-muted hover:text-foreground hover:bg-surface border border-border hover:border-placeholder text-sm rounded-md transition-colors"
-                onClick={() => importInputRef.current?.click()}
-                title="Import .excalidraw file"
-              >
-                <IconUpload size={15} />
-                <span className="hidden sm:inline">Import</span>
-              </button>
-            )}
-
-            {/* Settings button */}
-            <button
-              onClick={() => setSettingsOpen(true)}
-              className={`flex items-center p-1.5 rounded-md transition-colors ${
-                !settings.apiKey
-                  ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-50'
-                  : 'text-placeholder hover:text-muted hover:bg-surface'
-              }`}
-              aria-label="Open settings"
-            >
-              {!settings.apiKey
-                ? <IconKey size={18} className="animate-pulse" />
-                : <IconSettings size={18} />
-              }
-            </button>
-
-            {/* New Diagram button */}
-            {!isTrash && (
-              <button
-                className="flex items-center gap-2 px-2.5 py-1.5 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-md transition-colors"
-                onClick={() => setShowNewModal(true)}
-              >
-                <IconPlus size={16} />
-                <span className="hidden sm:inline">New Diagram</span>
-              </button>
-            )}
-          </header>
-
-          {/* mobile section pills */}
-          <div className="md:hidden flex overflow-x-auto shrink-0 border-b border-border-subtle bg-white px-3 py-2 gap-1.5">
-            {(
-              [
-                { id: 'all' as const, label: 'All' },
-                { id: 'starred' as const, label: 'Starred' },
-                { id: 'trash' as const, label: `Trash${lib.trashedCount > 0 ? ` (${lib.trashedCount})` : ''}` },
-              ] as { id: 'all' | 'starred' | 'trash'; label: string }[]
-            ).map(({ id, label }) => (
-              <button
-                key={id}
-                onClick={() => lib.setSection(id)}
-                className={`shrink-0 px-3 py-1 rounded-full text-xs transition-colors ${
-                  lib.state.activeSection === id
-                    ? 'bg-primary text-white'
-                    : 'bg-surface text-muted hover:text-foreground'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-            {folderHook.tree.map((folder) => (
-              <button
-                key={folder.id}
-                onClick={() => lib.setSection(`folder:${folder.id}`)}
-                className={`shrink-0 px-3 py-1 rounded-full text-xs transition-colors ${
-                  lib.state.activeSection === `folder:${folder.id}`
-                    ? 'bg-primary text-white'
-                    : 'bg-surface text-muted hover:text-foreground'
-                }`}
-              >
-                {folder.name}
-              </button>
-            ))}
-          </div>
-
-          {/* Content */}
-          {isTrash ? (
-            <TrashView
-              diagrams={lib.diagrams}
-              onRestore={lib.restoreDiagram}
-              onDelete={lib.permanentlyDelete}
-              onEmptyTrash={lib.emptyTrash}
-            />
-          ) : lib.diagrams.length === 0 ? (
-            <EmptyState variant={getEmptyVariant()} onCreateDiagram={() => setShowNewModal(true)} />
-          ) : lib.state.viewMode === 'list' ? (
-            <div className="flex-1 overflow-hidden flex flex-col">
-              <DiagramList
-                diagrams={lib.diagrams}
-                folders={lib.folders}
-                selectedIds={selectedIds}
-                onToggleSelect={lib.toggleSelect}
-                onOpen={id => router.push(`/d/${id}`)}
-                onStar={lib.starDiagram}
-                onDuplicate={async id => {
-                  const newId = await lib.duplicateDiagram(id)
-                  router.push(`/d/${newId}`)
-                }}
-                onTrash={lib.trashDiagram}
-              />
-            </div>
-          ) : (
-            <div className="flex-1 overflow-y-auto">
-              <DiagramGrid
-                diagrams={lib.diagrams}
-                folders={lib.folders}
-                selectedIds={selectedIds}
-                onToggleSelect={lib.toggleSelect}
-                onStar={lib.starDiagram}
-                onTrash={lib.trashDiagram}
-                onDuplicate={async id => {
-                  const newId = await lib.duplicateDiagram(id)
-                  router.push(`/d/${newId}`)
-                }}
-                onRename={lib.renameDiagram}
-                onMove={lib.moveDiagram}
-                emptyVariant={getEmptyVariant()}
-              />
-            </div>
-          )}
+          <LibraryHeader
+            sectionLabel={sectionLabel()}
+            isTrash={isTrash}
+            searchQuery={lib.state.searchQuery}
+            onSearch={lib.setSearch}
+            searchRef={searchRef}
+            sortField={lib.state.sortField}
+            sortDirection={lib.state.sortDirection}
+            onSort={lib.setSort}
+            viewMode={lib.state.viewMode}
+            onViewMode={lib.setViewMode}
+            onImport={() => importInputRef.current?.click()}
+            settings={settings}
+            onOpenSettings={() => setSettingsOpen(true)}
+            onNewDiagram={() => setShowNewModal(true)}
+          />
+          <LibraryContent
+            isTrash={isTrash}
+            diagrams={lib.diagrams}
+            folders={lib.folders}
+            selectedIds={selectedIds}
+            viewMode={lib.state.viewMode}
+            searchQuery={lib.state.searchQuery}
+            activeSection={lib.state.activeSection}
+            trashedCount={lib.trashedCount}
+            folderTree={folderHook.tree}
+            onToggleSelect={lib.toggleSelect}
+            onStar={lib.starDiagram}
+            onTrash={lib.trashDiagram}
+            onDuplicate={lib.duplicateDiagram}
+            onRename={lib.renameDiagram}
+            onMove={lib.moveDiagram}
+            onRestore={lib.restoreDiagram}
+            onDelete={lib.permanentlyDelete}
+            onEmptyTrash={lib.emptyTrash}
+            onSetSection={lib.setSection}
+            onCreateDiagram={() => setShowNewModal(true)}
+          />
         </div>
 
-        {/* Bulk action bar */}
-        {hasBulkSelection && (
+        {selectedIds.size > 0 && (
           <BulkActionBar
             selectedCount={selectedIds.size}
             folders={lib.folders}
@@ -461,12 +252,14 @@ export default function LibraryView() {
             selectedIds={selectedIds}
             onStar={() => lib.bulkStar(Array.from(selectedIds), true)}
             onUnstar={() => lib.bulkStar(Array.from(selectedIds), false)}
-            onMove={folderId => lib.bulkMove(Array.from(selectedIds), folderId)}
+            onMove={(folderId) =>
+              lib.bulkMove(Array.from(selectedIds), folderId)
+            }
             onTrash={() => lib.bulkTrash(Array.from(selectedIds))}
             onClear={lib.clearSelection}
           />
         )}
       </div>
     </DndContext>
-  )
+  );
 }

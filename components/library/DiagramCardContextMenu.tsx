@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from "react";
 import {
   IconExternalLink,
   IconPencil,
@@ -14,21 +14,21 @@ import {
   IconFolderOpen,
   IconFileExport,
   IconFileCode,
-} from '@tabler/icons-react'
-import type { Diagram, Folder } from '@/types/library'
-import { exportAsExcalidraw, exportAsJSON } from '@/lib/export'
+} from "@tabler/icons-react";
+import type { Diagram, Folder } from "@/types/library";
+import { exportAsExcalidraw, exportAsJSON } from "@/lib/io/export";
 
 interface Props {
-  diagram: Diagram
-  folders: Folder[]
-  position: { x: number; y: number }
-  onClose: () => void
-  onOpen: () => void
-  onRename: () => void
-  onDuplicate: () => void
-  onStar: () => void
-  onMove: (folderId: string | null) => void
-  onTrash: () => void
+  diagram: Diagram;
+  folders: Folder[];
+  position: { x: number; y: number };
+  onClose: () => void;
+  onOpen: () => void;
+  onRename: () => void;
+  onDuplicate: () => void;
+  onStar: () => void;
+  onMove: (folderId: string | null) => void;
+  onTrash: () => void;
 }
 
 export default function DiagramCardContextMenu({
@@ -43,37 +43,36 @@ export default function DiagramCardContextMenu({
   onMove,
   onTrash,
 }: Props) {
-  const [showMoveSubmenu, setShowMoveSubmenu] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
+  const [showMoveSubmenu, setShowMoveSubmenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
+      if (e.key === "Escape") onClose();
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
-  // Adjust position so menu stays on screen
-  const safeX = Math.min(position.x, window.innerWidth - 220)
-  const safeY = Math.min(position.y, window.innerHeight - 360)
+  const safeX = Math.min(position.x, window.innerWidth - 220);
+  const safeY = Math.min(position.y, window.innerHeight - 360);
 
   function handleItem(fn: () => void) {
-    fn()
-    onClose()
+    fn();
+    onClose();
   }
 
   function handleExportExcalidraw() {
-    onClose()
-    exportAsExcalidraw(diagram)
+    onClose();
+    exportAsExcalidraw(diagram);
   }
 
   function handleExportJSON() {
-    onClose()
-    exportAsJSON(diagram)
+    onClose();
+    exportAsJSON(diagram);
   }
 
-  const sorted = [...folders].sort((a, b) => a.sortOrder - b.sortOrder)
+  const sorted = [...folders].sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
     <>
@@ -111,15 +110,12 @@ export default function DiagramCardContextMenu({
           Duplicate
         </button>
 
-        {/* Move to submenu */}
         <div
           className="relative"
           onMouseEnter={() => setShowMoveSubmenu(true)}
           onMouseLeave={() => setShowMoveSubmenu(false)}
         >
-          <button
-            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left"
-          >
+          <button className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-left">
             <IconFolderSymlink size={14} className="shrink-0" />
             <span className="flex-1">Move to</span>
             <IconChevronRight size={12} className="text-zinc-500" />
@@ -130,21 +126,21 @@ export default function DiagramCardContextMenu({
               <button
                 className={`flex items-center gap-2 w-full px-3 py-2 text-sm transition-colors text-left ${
                   diagram.folderId === null
-                    ? 'bg-zinc-700 text-white'
-                    : 'text-zinc-300 hover:bg-zinc-700 hover:text-white'
+                    ? "bg-zinc-700 text-white"
+                    : "text-zinc-300 hover:bg-zinc-700 hover:text-white"
                 }`}
                 onClick={() => handleItem(() => onMove(null))}
               >
                 <IconFolderOpen size={14} className="shrink-0 text-zinc-400" />
                 Root (no folder)
               </button>
-              {sorted.map(folder => (
+              {sorted.map((folder) => (
                 <button
                   key={folder.id}
                   className={`flex items-center gap-2 w-full px-3 py-2 text-sm transition-colors text-left ${
                     diagram.folderId === folder.id
-                      ? 'bg-zinc-700 text-white'
-                      : 'text-zinc-300 hover:bg-zinc-700 hover:text-white'
+                      ? "bg-zinc-700 text-white"
+                      : "text-zinc-300 hover:bg-zinc-700 hover:text-white"
                   }`}
                   onClick={() => handleItem(() => onMove(folder.id))}
                 >
@@ -159,7 +155,6 @@ export default function DiagramCardContextMenu({
           )}
         </div>
 
-        {/* Export actions */}
         <div className="my-1 border-t border-zinc-700" />
 
         <button
@@ -208,5 +203,5 @@ export default function DiagramCardContextMenu({
         </button>
       </div>
     </>
-  )
+  );
 }

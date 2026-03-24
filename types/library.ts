@@ -4,6 +4,7 @@ import { ExcalidrawElement, BinaryFileData } from './diagram'
 
 export type DiagramType = 'freeform' | 'system-architecture' | 'operations-flowchart'
 export type GenerationMethod = 'voice' | 'manual' | 'import'
+export type UserProvider = 'openrouter' | 'google'
 export type SortField = 'updatedAt' | 'lastOpenedAt' | 'createdAt' | 'name' | 'diagramType' | 'elementCount'
 export type SortDirection = 'asc' | 'desc'
 export type ViewMode = 'grid' | 'list'

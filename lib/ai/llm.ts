@@ -1,43 +1,54 @@
 import OpenAI from "openai";
 import type { ExcalidrawElement, GraphResponse } from "@/types/diagram";
-import type { DiagramType } from "@/types/library";
+import type { DiagramType, UserProvider } from "@/types/library";
 import { getSystemPrompt } from "./prompts";
-import { layoutGraph } from "./layout";
-import { fetchIcons } from "./icons";
+import { layoutGraph } from "../render/layout";
+import { fetchIcons } from "../render/icons";
 
-export type UserProvider = 'openrouter' | 'google'
+export type { UserProvider };
 
 export interface ProviderConfig {
-  provider: UserProvider
-  apiKey: string  // empty = fall back to groq
+  provider: UserProvider;
+  apiKey: string; // empty → Groq
 }
 
-const USER_PROVIDERS: Record<UserProvider, { baseURL: string; model: string }> = {
-  openrouter: { baseURL: 'https://openrouter.ai/api/v1',                            model: 'google/gemini-3.1-flash-lite-preview' },
-  google:     { baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/', model: 'gemini-3.1-flash-lite-preview'         },
-}
+const USER_PROVIDERS: Record<UserProvider, { baseURL: string; model: string }> =
+  {
+    openrouter: {
+      baseURL: "https://openrouter.ai/api/v1",
+      model: "google/gemini-3.1-flash-lite-preview",
+    },
+    google: {
+      baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+      model: "gemini-3.1-flash-lite-preview",
+    },
+  };
 
-// groq is the free-tier fallback — key comes from server env only
+// Groq fallback; key from server env only
 const groqClient = new OpenAI({
-  baseURL: 'https://api.groq.com/openai/v1',
-  apiKey: process.env.GROQ_API_KEY || 'EMPTY',
-})
-const GROQ_MODEL = 'llama-3.3-70b-versatile'
+  baseURL: "https://api.groq.com/openai/v1",
+  apiKey: process.env.GROQ_API_KEY || "EMPTY",
+});
+const GROQ_MODEL = "llama-3.3-70b-versatile";
 
-function resolveClient(config?: ProviderConfig | null): { client: OpenAI; model: string } {
+function resolveClient(config?: ProviderConfig | null): {
+  client: OpenAI;
+  model: string;
+} {
   if (config?.apiKey) {
-    const p = USER_PROVIDERS[config.provider]
-    return { client: new OpenAI({ baseURL: p.baseURL, apiKey: config.apiKey }), model: p.model }
+    const p = USER_PROVIDERS[config.provider];
+    return {
+      client: new OpenAI({ baseURL: p.baseURL, apiKey: config.apiKey }),
+      model: p.model,
+    };
   }
-  return { client: groqClient, model: GROQ_MODEL }
+  return { client: groqClient, model: GROQ_MODEL };
 }
 
 function extractJSON(content: string): string {
-  // Strip code fences first
   const fenceMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (fenceMatch) return fenceMatch[1].trim();
 
-  // Find the outermost balanced JSON object
   const start = content.indexOf("{");
   if (start === -1) return content;
   let depth = 0;
@@ -48,7 +59,7 @@ function extractJSON(content: string): string {
       if (depth === 0) return content.slice(start, i + 1);
     }
   }
-  // Truncated JSON — return what we have from the first brace
+  // truncated stream: best-effort from first `{`
   return content.slice(start);
 }
 
@@ -56,7 +67,11 @@ export async function generateDiagram(
   transcript: string,
   currentGraph?: GraphResponse | null,
   diagramType: DiagramType = "freeform",
-  manualEditDebrief?: { text: string; deletedNodeIds: string[]; deletedEdgeKeys: Array<{ from: string; to: string }> } | null,
+  manualEditDebrief?: {
+    text: string;
+    deletedNodeIds: string[];
+    deletedEdgeKeys: Array<{ from: string; to: string }>;
+  } | null,
   providerConfig?: ProviderConfig | null,
 ): Promise<{
   elements: ExcalidrawElement[];
@@ -64,10 +79,10 @@ export async function generateDiagram(
   files: import("@/types/diagram").BinaryFileData[];
 }> {
   const userMessage = currentGraph
-    ? `Current diagram:\n${JSON.stringify(currentGraph)}\n\n${manualEditDebrief ? manualEditDebrief.text + '\n\n' : ''}Latest instruction:\n${transcript}`
+    ? `Current diagram:\n${JSON.stringify(currentGraph)}\n\n${manualEditDebrief ? manualEditDebrief.text + "\n\n" : ""}Latest instruction:\n${transcript}`
     : transcript;
 
-  const { client, model } = resolveClient(providerConfig)
+  const { client, model } = resolveClient(providerConfig);
 
   const response = await client.chat.completions.create({
     model,
@@ -98,7 +113,7 @@ export async function generateDiagram(
     throw new Error("LLM returned empty graph");
   }
 
-  // Only wipe the canvas if the user explicitly said so — never trust the LLM alone
+  // empty graph only if user asked to wipe — don't trust LLM alone
   const explicitWipe =
     /\b(delete|clear|wipe|erase|remove)\s+(every|all)(\s*thing)?\b/i.test(
       transcript,
@@ -106,7 +121,6 @@ export async function generateDiagram(
 
   if (!Array.isArray(graph.nodes) || graph.nodes.length === 0) {
     if (currentGraph && currentGraph.nodes.length > 0 && !explicitWipe) {
-      // LLM returned empty but user didn't ask to wipe — keep existing graph
       console.warn(
         "LLM returned empty nodes; keeping current graph (no explicit wipe instruction)",
       );
@@ -116,13 +130,9 @@ export async function generateDiagram(
       console.error("Raw content:", content);
       throw new Error("LLM returned empty graph");
     }
-    // explicitWipe: user said "delete everything" — allow empty graph through
   }
 
-  // Safety merge: if this was an incremental update and the LLM kept at least one
-  // existing node ID, restore any nodes/edges it accidentally dropped.
-  // Nodes listed in graph.remove are intentional deletions — never restore those.
-  // If zero IDs match, the LLM intentionally redesigned — don't merge.
+  // if ≥1 old id survives LLM output, restore accidental drops (never graph.remove / debrief deletes); 0 overlap = redesign, skip
   if (currentGraph && !explicitWipe) {
     const explicitlyRemovedNodes = new Set([
       ...(graph.remove?.nodes ?? []),
@@ -130,7 +140,9 @@ export async function generateDiagram(
     ]);
     const explicitlyRemovedEdgeKeys = new Set([
       ...(graph.remove?.edges ?? []).map((e) => `${e.from}|${e.to}`),
-      ...(manualEditDebrief?.deletedEdgeKeys ?? []).map((e) => `${e.from}|${e.to}`),
+      ...(manualEditDebrief?.deletedEdgeKeys ?? []).map(
+        (e) => `${e.from}|${e.to}`,
+      ),
     ]);
     const llmNodeIds = new Set(graph.nodes.map((n) => n.id));
     const overlap = currentGraph.nodes.filter(

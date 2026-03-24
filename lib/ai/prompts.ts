@@ -1,6 +1,6 @@
 import type { DiagramType } from "@/types/library";
 
-// ─── Shared base prompt ─────────────────────────────────────────────────────
+// ── Shared base prompt ───────────────────────────────────────────────────────
 
 const BASE_PROMPT = `You are a diagram generator. Convert natural language descriptions into a graph structure. Output ONLY valid JSON — no markdown, no explanation, no code fences.
 
@@ -62,7 +62,7 @@ If a "Current diagram" is provided:
 - If a "Since last generation, the user manually:" section is provided, treat it as ground truth — honour all deletions, renames, and additions listed
 - **Never infer or autocomplete** — only add what is explicitly stated. Do not add nodes, edges, or services that were not mentioned. If the user says "connects to Postgres", add only Postgres — not Redis, not a cache, not anything else. When in doubt, do less.`;
 
-// ─── Type-specific prompt sections ──────────────────────────────────────────
+// ── Type-specific prompts ───────────────────────────────────────────────────
 
 const FREEFORM_PROMPT = `
 ## Mode: Freeform
@@ -175,7 +175,7 @@ For business processes, approval pipelines, and decision-heavy sequences.
   ]
 }`;
 
-// ─── Selector ───────────────────────────────────────────────────────────────
+// ── Selector ───────────────────────────────────────────────────────────────
 
 const TYPE_PROMPTS: Record<DiagramType, string> = {
   freeform: FREEFORM_PROMPT,
@@ -187,5 +187,5 @@ export function getSystemPrompt(diagramType: DiagramType): string {
   return BASE_PROMPT + (TYPE_PROMPTS[diagramType] ?? FREEFORM_PROMPT);
 }
 
-/** @deprecated Use getSystemPrompt(diagramType) instead */
+// deprecated: use getSystemPrompt(diagramType)
 export const SYSTEM_PROMPT = getSystemPrompt("freeform");

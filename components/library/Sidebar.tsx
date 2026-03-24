@@ -9,7 +9,7 @@ IconTrash,
   IconFolderPlus,
 } from "@tabler/icons-react";
 import type { SidebarSection } from "@/types/library";
-import type { FolderNode } from "@/hooks/useFolders";
+import type { FolderNode } from "@/hooks/library/useFolders";
 import FolderTree from "./FolderTree";
 
 interface Props {
@@ -47,7 +47,6 @@ export default function Sidebar({
 }: Props) {
   return (
     <aside className="w-60 shrink-0 bg-white border-r border-border-subtle flex-col overflow-y-auto hidden md:flex">
-      {/* Logo + Name */}
       <Link
         href="/"
         className="px-4 py-4 flex items-center gap-2.5 border-b border-surface hover:bg-background transition-colors"
@@ -64,7 +63,6 @@ export default function Sidebar({
         </h1>
       </Link>
 
-      {/* Fixed sections */}
       <nav className="flex flex-col py-2">
         {FIXED_SECTIONS.map(({ id, label, icon }) => {
           const isActive = activeSection === id;
@@ -92,10 +90,8 @@ export default function Sidebar({
         })}
       </nav>
 
-      {/* Divider */}
       <div className="h-px bg-surface mx-3" />
 
-      {/* Folders section */}
       <div className="py-2 flex-1">
         <div className="flex items-center justify-between px-4 py-1.5">
           <span className="text-[11px] font-medium text-placeholder uppercase tracking-wider">

@@ -3,8 +3,7 @@
 import { Suspense, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { db } from "@/lib/db";
-import { nanoid } from "nanoid";
-import type { Diagram } from "@/types/library";
+import { createDiagram } from "@/lib/diagram";
 
 function NewDiagramInner() {
   const router = useRouter();
@@ -18,37 +17,9 @@ function NewDiagramInner() {
     const folderId = params.get("folder");
 
     async function create() {
-      const id = nanoid();
-      const now = Date.now();
-
-      const diagram: Diagram = {
-        id,
-        name: "Untitled Diagram",
-        folderId: folderId || null,
-        elements: [],
-        transcript: "",
-        diagramType: "freeform",
-        thumbnail: null,
-        files: {},
-        graph: null,
-        tags: [],
-        starred: false,
-        locked: false,
-        createdAt: now,
-        updatedAt: now,
-        lastOpenedAt: now,
-        version: 1,
-        trashedAt: null,
-        metadata: {
-          elementCount: 0,
-          arrowCount: 0,
-          colorPalette: [],
-          generatedVia: "manual",
-        },
-      };
-
+      const diagram = createDiagram({ name: 'Untitled Diagram', folderId: folderId || null });
       await db.diagrams.add(diagram);
-      router.replace(`/d/${id}`);
+      router.replace(`/d/${diagram.id}`);
     }
 
     create();

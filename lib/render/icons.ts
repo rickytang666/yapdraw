@@ -1,7 +1,7 @@
 import * as si from "simple-icons";
 import type { BinaryFileData } from "@/types/diagram";
 
-// build slug → icon map once at module init (server-side only)
+// slug → icon map at module load (SSR)
 const slugMap = new Map<string, { svg: string; hex: string }>();
 for (const value of Object.values(si)) {
   if (value && typeof value === "object" && "slug" in value) {
@@ -10,7 +10,6 @@ for (const value of Object.values(si)) {
   }
 }
 
-// normalize some aliases
 const ALIASES: Record<string, string> = {
   k8s: "kubernetes",
   postgres: "postgresql",
@@ -36,12 +35,12 @@ function resolveSlug(slug: string): string {
 }
 
 export function isValidIcon(slug: string): boolean {
-  return slugMap.has(resolveSlug(slug))
+  return slugMap.has(resolveSlug(slug));
 }
 
 export interface IconRequest {
   slug: string;
-  colorHex: string; // hex with # prefix, used to tint the icon
+  colorHex: string; // `#rrggbb` tint
 }
 
 export function iconFileId(slug: string, colorHex: string): string {
@@ -60,7 +59,6 @@ export function fetchIcons(requests: IconRequest[]): BinaryFileData[] {
     const icon = slugMap.get(resolveSlug(slug));
     if (!icon) continue;
 
-    // inject fill color into the svg root element
     const tinted = icon.svg.replace("<svg ", `<svg fill="${colorHex}" `);
     const dataURL = `data:image/svg+xml;base64,${Buffer.from(tinted).toString("base64")}`;
     results.push({

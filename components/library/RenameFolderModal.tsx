@@ -1,43 +1,47 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useState } from 'react'
-import { IconFolder, IconX } from '@tabler/icons-react'
-import type { Folder } from '@/types/library'
+import { useEffect, useRef, useState } from "react";
+import { IconFolder, IconX } from "@tabler/icons-react";
+import type { Folder } from "@/types/library";
 
 interface Props {
-  folder: Pick<Folder, 'id' | 'name'>
-  onConfirm: (name: string) => void | Promise<void>
-  onCancel: () => void
+  folder: Pick<Folder, "id" | "name">;
+  onConfirm: (name: string) => void | Promise<void>;
+  onCancel: () => void;
 }
 
-export default function RenameFolderModal({ folder, onConfirm, onCancel }: Props) {
-  const [name, setName] = useState(folder.name)
-  const [isSaving, setIsSaving] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+export default function RenameFolderModal({
+  folder,
+  onConfirm,
+  onCancel,
+}: Props) {
+  const [name, setName] = useState(folder.name);
+  const [isSaving, setIsSaving] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus()
-    inputRef.current?.select()
-  }, [])
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    const next = name.trim()
+    e.preventDefault();
+    const next = name.trim();
     if (!next || next === folder.name) {
-      onCancel()
-      return
+      onCancel();
+      return;
     }
 
-    setIsSaving(true)
+    setIsSaving(true);
     try {
-      await onConfirm(next)
+      await onConfirm(next);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
   }
 
   function handleBackdropClick(e: React.MouseEvent) {
-    if (e.target === e.currentTarget) onCancel()
+    if (e.target === e.currentTarget) onCancel();
   }
 
   return (
@@ -49,7 +53,9 @@ export default function RenameFolderModal({ folder, onConfirm, onCancel }: Props
         <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
           <div className="flex items-center gap-2">
             <IconFolder size={18} className="text-placeholder" />
-            <h2 className="text-foreground font-semibold text-base">Rename folder</h2>
+            <h2 className="text-foreground font-semibold text-base">
+              Rename folder
+            </h2>
           </div>
           <button
             onClick={onCancel}
@@ -67,7 +73,7 @@ export default function RenameFolderModal({ folder, onConfirm, onCancel }: Props
               ref={inputRef}
               type="text"
               value={name}
-              onChange={e => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Folder name"
               className="bg-white border border-border focus:border-primary outline-none rounded-md px-3 py-2 text-foreground text-sm placeholder:text-placeholder transition-colors"
             />
@@ -87,11 +93,11 @@ export default function RenameFolderModal({ folder, onConfirm, onCancel }: Props
               disabled={isSaving || !name.trim()}
               className="px-4 py-2 text-sm font-medium bg-primary hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-md transition-colors"
             >
-              {isSaving ? 'Saving…' : 'Rename'}
+              {isSaving ? "Saving…" : "Rename"}
             </button>
           </div>
         </form>
       </div>
     </div>
-  )
+  );
 }

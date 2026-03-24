@@ -7,22 +7,15 @@ import { db } from "@/lib/db";
 import { nanoid } from "nanoid";
 import ExcalidrawCanvas, {
   ExcalidrawCanvasHandle,
-} from "@/components/ExcalidrawCanvas";
-import VoicePanel, { type VoicePanelHandle } from "@/components/VoicePanel";
-import { type LoadingPhase } from "@/components/LoadingIndicator";
+} from "@/components/editor/ExcalidrawCanvas";
+import VoicePanel, { type VoicePanelHandle } from "@/components/editor/VoicePanel";
 import EditorTopBar from "@/components/editor/EditorTopBar";
 import { type EditorMenuHandle } from "@/components/editor/EditorMenu";
-import { useAutoSave } from "@/hooks/useAutoSave";
-import { useVersionHistory } from "@/hooks/useVersionHistory";
-import { useAIChangeHistory } from "@/hooks/useAIChangeHistory";
+import { useAutoSave } from "@/hooks/editor/useAutoSave";
+import { useVersionHistory } from "@/hooks/editor/useVersionHistory";
+import { useAIGeneration } from "@/hooks/editor/useAIGeneration";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
-import type {
-  ExcalidrawElement,
-  GraphResponse,
-  BinaryFileData,
-} from "@/types/diagram";
 import type { Diagram } from "@/types/library";
-import { buildDebrief } from "@/lib/debrief";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import SettingsPanel from "@/components/editor/SettingsPanel";
 import ShortcutsModal from "@/components/editor/ShortcutsModal";
@@ -38,75 +31,34 @@ export default function EditorPage({ params }: Props) {
   const canvasRef = useRef<ExcalidrawCanvasHandle>(null);
   const voicePanelRef = useRef<VoicePanelHandle>(null);
   const menuRef = useRef<EditorMenuHandle>(null);
-  const abortRef = useRef<AbortController | null>(null);
-  const [loadingPhase, setLoadingPhase] = useState<LoadingPhase>("idle");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  function showError(msg: string) {
-    if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
-    setErrorMessage(msg);
-    errorTimerRef.current = setTimeout(() => setErrorMessage(null), 4000);
-  }
-  const [lastGraph, setLastGraph] = useState<GraphResponse | null>(null);
-  const lastGraphInitRef = useRef(false);
   const [restoreFlash, setRestoreFlash] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const { settings, setSettings } = useUserSettings();
+
+  const diagram = useLiveQuery(() => db.diagrams.get(id), [id]);
+
+  useEffect(() => {
+    if (diagram) db.diagrams.update(id, { lastOpenedAt: Date.now() });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, diagram?.id]);
+
+  const { triggerSave, forceSave, saveVersion, saveStatus, pauseSave, resumeSave } = useAutoSave(id, canvasRef);
+  const { restoreVersion } = useVersionHistory(id);
+  const { loadingPhase, isLoading, errorMessage, showError, handleMicStart, handleMicStop, handleSilence } =
+    useAIGeneration({ id, diagram, canvasRef, settings });
+
+  useEffect(() => {
+    if (diagram === null) router.replace("/");
+  }, [diagram, router]);
 
   function triggerRestoreAnimation() {
     setRestoreFlash(true);
     setTimeout(() => setRestoreFlash(false), 500);
   }
 
-  const lastAIVersionIdRef = useRef<string | null>(null);
-
-  // one snapshot per mic session
-  const micSessionRef = useRef<{
-    versionId: string;
-    startElements: ExcalidrawElement[];
-    hasChanges: boolean;
-  } | null>(null);
-
-  const diagram = useLiveQuery(() => db.diagrams.get(id), [id]);
-
-  // Mark as opened + hydrate lastGraph from persisted graph on first load
-  useEffect(() => {
-    if (diagram) {
-      db.diagrams.update(id, { lastOpenedAt: Date.now() });
-      if (!lastGraphInitRef.current && diagram.graph) {
-        setLastGraph(diagram.graph);
-        lastGraphInitRef.current = true;
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, diagram?.id]);
-
-  const isLoading = loadingPhase !== "idle";
-  const {
-    triggerSave,
-    forceSave,
-    saveVersion,
-    saveStatus,
-    pauseSave,
-    resumeSave,
-  } = useAutoSave(id, canvasRef);
-  const { restoreVersion } = useVersionHistory(id);
-  const aiHistory = useAIChangeHistory(id);
-
-  // Redirect if diagram not found
-  useEffect(() => {
-    if (diagram === null) router.replace("/");
-  }, [diagram, router]);
-
-  // ─── Keyboard shortcuts ────────────────────────────────────────────────────
-
   useKeyboardShortcuts({
-    "mod+s": () => {
-      const elements = canvasRef.current?.getElements() ?? [];
-      forceSave(elements);
-    },
+    "mod+s": () => forceSave(canvasRef.current?.getElements() ?? []),
     "mod+k": () => voicePanelRef.current?.focusInput(),
     "mod+e": () => menuRef.current?.toggle(),
     "mod+shift+l": () => handleToggleLock(),
@@ -114,145 +66,6 @@ export default function EditorPage({ params }: Props) {
     "]": () => voicePanelRef.current?.navigateNext(),
     "?": () => setShortcutsOpen(true),
   });
-
-  // ─── Voice / AI generation ────────────────────────────────────────────────
-
-  async function handleMicStart() {
-    if (!diagram) return;
-    const startElements = canvasRef.current?.getElements() ?? diagram.elements;
-    const versionId = await aiHistory.snapshotBeforeChange(
-      startElements as ExcalidrawElement[],
-      "",
-      diagram.transcript,
-      diagram.version,
-    );
-    micSessionRef.current = {
-      versionId,
-      startElements: startElements as ExcalidrawElement[],
-      hasChanges: false,
-    };
-    lastAIVersionIdRef.current = versionId;
-  }
-
-  async function handleMicStop() {
-    const session = micSessionRef.current;
-    micSessionRef.current = null;
-    // delete orphan snapshot if mic was opened but no generation succeeded
-    if (session && !session.hasChanges) {
-      await db.versions.delete(session.versionId);
-      lastAIVersionIdRef.current = null;
-    }
-  }
-
-  async function handleSilence(text: string) {
-    if (!text.trim() || !diagram || diagram.locked) return;
-    // Cancel any in-flight request before starting a new one
-    abortRef.current?.abort();
-    abortRef.current = new AbortController();
-
-    setLoadingPhase("generating");
-
-    // reuse the mic session snapshot if available (one version per session),
-    // otherwise fall back to a fresh snapshot (e.g. text input / mock submit)
-    const session = micSessionRef.current;
-    const currentElements = session
-      ? session.startElements
-      : ((canvasRef.current?.getElements() ??
-          diagram.elements) as ExcalidrawElement[]);
-    let versionId = session?.versionId ?? null;
-    if (!versionId) {
-      versionId = await aiHistory.snapshotBeforeChange(
-        currentElements as ExcalidrawElement[],
-        text,
-        diagram.transcript,
-        diagram.version,
-      );
-      lastAIVersionIdRef.current = versionId;
-    }
-
-    try {
-      const currentElements = canvasRef.current?.getElements() ?? [];
-      const hasCanvas = currentElements.length > 0;
-      const debrief =
-        hasCanvas && lastGraph
-          ? buildDebrief(currentElements, lastGraph)
-          : null;
-
-      const res = await fetch("/api/generate-diagram", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          transcript: text,
-          currentGraph: hasCanvas ? lastGraph : null,
-          manualEditDebrief: debrief,
-          providerConfig: {
-            provider: settings.provider,
-            apiKey: settings.apiKey,
-          },
-        }),
-        signal: AbortSignal.any([
-          abortRef.current.signal,
-          AbortSignal.timeout(30000),
-        ]),
-      });
-      const data = await res.json();
-      if (data.skipped) return;
-      if (data.usedFallback) showError("api key invalid — used free tier instead");
-      if (!res.ok || !data.elements) {
-        console.error("generate-diagram failed:", data.error ?? data);
-        // only delete orphan if it's not a shared session snapshot
-        if (!session) {
-          await db.versions.delete(versionId!);
-          lastAIVersionIdRef.current = null;
-        }
-        return;
-      }
-
-      const {
-        elements,
-        graph,
-        files = [],
-      }: {
-        elements: ExcalidrawElement[];
-        graph: GraphResponse;
-        files: BinaryFileData[];
-      } = data;
-      setLastGraph(graph);
-      setLoadingPhase("rendering");
-      canvasRef.current?.updateDiagram(elements, { replace: true, files });
-
-      // 2. Record the diff — updates DB label and adds card to VoicePanel
-      if (session) session.hasChanges = true;
-      await aiHistory.recordChange(
-        versionId!,
-        text,
-        currentElements as ExcalidrawElement[],
-        elements,
-      );
-
-      await db.diagrams.update(id, {
-        transcript: (diagram.transcript + "\n" + text).trim(),
-        metadata: { ...diagram.metadata, generatedVia: "voice" },
-        graph,
-      });
-    } catch (err) {
-      if (err instanceof Error && err.name === "AbortError") return;
-      if (!session) {
-        await db.versions.delete(versionId!);
-        lastAIVersionIdRef.current = null;
-      }
-      if (err instanceof Error && err.name === "TimeoutError") {
-        showError("took too long — try again");
-      } else {
-        console.error("Failed to generate diagram:", err);
-        showError("something went wrong — try again");
-      }
-    } finally {
-      setLoadingPhase("idle");
-    }
-  }
-
-  // ─── Duplicate ────────────────────────────────────────────────────────────
 
   async function handleDuplicate() {
     if (!diagram) return;
@@ -278,8 +91,6 @@ export default function EditorPage({ params }: Props) {
     await db.diagrams.update(id, { locked: !diagram.locked });
   }
 
-  // ─── Loading state ────────────────────────────────────────────────────────
-
   if (diagram === undefined) {
     return (
       <div className="flex items-center justify-center h-screen bg-background text-subtle">
@@ -294,9 +105,7 @@ export default function EditorPage({ params }: Props) {
         diagram={diagram!}
         saveStatus={saveStatus}
         onBack={() => router.push("/library")}
-        onRename={(name) =>
-          db.diagrams.update(id, { name, updatedAt: Date.now() })
-        }
+        onRename={(name) => db.diagrams.update(id, { name, updatedAt: Date.now() })}
         onStar={(starred) => db.diagrams.update(id, { starred })}
         onDuplicate={handleDuplicate}
         onToggleLock={handleToggleLock}
@@ -307,14 +116,12 @@ export default function EditorPage({ params }: Props) {
         canvasRef={canvasRef}
       />
 
-      {/* mobile warning */}
       <div className="lg:hidden flex items-center justify-center py-1.5 px-4 bg-amber-50 border-b border-amber-200 text-amber-700 text-xs shrink-0">
         For best experience, open on a desktop browser.
       </div>
 
       <StorageBanner />
 
-      {/* Error toast */}
       {errorMessage && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
           <div className="px-4 py-2 bg-red-500/90 text-white text-sm rounded-lg shadow-lg">
@@ -326,15 +133,10 @@ export default function EditorPage({ params }: Props) {
       {shortcutsOpen && <ShortcutsModal onClose={() => setShortcutsOpen(false)} />}
 
       {settingsOpen && (
-        <SettingsPanel
-          settings={settings}
-          onSave={setSettings}
-          onClose={() => setSettingsOpen(false)}
-        />
+        <SettingsPanel settings={settings} onSave={setSettings} onClose={() => setSettingsOpen(false)} />
       )}
 
       <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden">
-        {/* Voice panel */}
         <div className="h-[42vh] lg:h-full w-full lg:w-[30%] shrink-0 border-b lg:border-b-0 lg:border-r border-border-subtle overflow-hidden">
           <VoicePanel
             ref={voicePanelRef}
@@ -357,7 +159,6 @@ export default function EditorPage({ params }: Props) {
             className="relative w-full h-full rounded-2xl overflow-hidden bg-white border border-border-subtle"
             style={{ maxWidth: 4096, maxHeight: 4096 }}
           >
-            {/* Restore flash overlay */}
             <div
               className={`absolute inset-0 z-20 pointer-events-none bg-white transition-opacity duration-500 ${
                 restoreFlash ? "opacity-20" : "opacity-0"
@@ -372,9 +173,6 @@ export default function EditorPage({ params }: Props) {
             {loadingPhase !== "idle" && (
               <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-zinc-400 animate-pulse pointer-events-none" />
             )}
-
-
-            {/* Locked overlay */}
             {diagram?.locked && (
               <div className="absolute inset-0 pointer-events-none flex items-end justify-center pb-6 z-10">
                 <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/20 border border-yellow-500/40 rounded-lg backdrop-blur-sm">
@@ -387,7 +185,6 @@ export default function EditorPage({ params }: Props) {
           </div>
         </div>
       </div>
-
     </div>
   );
 }
