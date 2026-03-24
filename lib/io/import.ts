@@ -10,9 +10,10 @@ export async function importExcalidrawFile(file: File): Promise<string> {
   const elements: ExcalidrawElement[] = Array.isArray(parsed.elements)
     ? parsed.elements
     : [];
+  const files = parsed.files && typeof parsed.files === "object" ? parsed.files : {};
   const name = file.name.replace(/\.excalidraw$/i, "") || "Imported Diagram";
 
-  const diagram = createDiagram({ name, elements, generatedVia: "import" });
+  const diagram = createDiagram({ name, elements, files, generatedVia: "import" });
   await db.diagrams.add(diagram);
   return diagram.id;
 }

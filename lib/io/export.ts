@@ -17,7 +17,7 @@ export function exportAsExcalidraw(diagram: Diagram): void {
     source: "yapdraw",
     elements: diagram.elements,
     appState: { gridSize: null, viewBackgroundColor: "#ffffff" },
-    files: {},
+    files: diagram.files ?? {},
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], {
     type: "application/json",
@@ -58,7 +58,7 @@ export async function exportBulkAsZip(
         source: "yapdraw",
         elements: diagram.elements,
         appState: { gridSize: null, viewBackgroundColor: "#ffffff" },
-        files: {},
+        files: diagram.files ?? {},
       };
       zip.file(`${safeName}.excalidraw`, JSON.stringify(data, null, 2));
     } else {

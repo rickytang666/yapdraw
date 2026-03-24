@@ -1,11 +1,12 @@
 import { nanoid } from "nanoid";
 import type { Diagram, DiagramType, GenerationMethod } from "@/types/library";
-import type { ExcalidrawElement } from "@/types/diagram";
+import type { ExcalidrawElement, BinaryFileData } from "@/types/diagram";
 
 interface DiagramInit {
   name: string;
   folderId?: string | null;
   elements?: ExcalidrawElement[];
+  files?: Record<string, BinaryFileData>;
   transcript?: string;
   diagramType?: DiagramType;
   generatedVia?: GenerationMethod;
@@ -16,6 +17,7 @@ export function createDiagram({
   name,
   folderId = null,
   elements = [],
+  files = {},
   transcript = "",
   diagramType = "freeform",
   generatedVia = "manual",
@@ -30,7 +32,7 @@ export function createDiagram({
     transcript,
     diagramType,
     thumbnail: null,
-    files: {},
+    files,
     graph: null,
     tags: [],
     starred: false,
